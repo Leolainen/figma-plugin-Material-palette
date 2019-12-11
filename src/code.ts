@@ -56,6 +56,7 @@ function createBrighterColors(baseColor, length = 5) {
   const maxLightness = 100;
   let sModHolder = 0;
   let lModHolder = 0;
+  // let hModHolder = 0;
 
   return Array.from(new Array(length), () => {
     const { h, s, l } = baseColor.hsl;
@@ -66,15 +67,23 @@ function createBrighterColors(baseColor, length = 5) {
 
       sModHolder = s + (sDiff * 0.05);
       lModHolder = l + (lDiff * 0.2);
+      // hModHolder = h + (h * 0.01) > 360 ? 0 : h + (h * 0.01);
+      // hModHolder = h + 1 > 360 ? 0 : h + 1;
     } else {
       const sDiff = maxSaturation - sModHolder;
       const lDiff = maxLightness - lModHolder;
 
       sModHolder = sModHolder + (sDiff * 0.05);
       lModHolder = lModHolder + (lDiff * 0.2);
+      // hModHolder = hModHolder + (hModHolder * 0.01) > 360 ? 0 : hModHolder + (hModHolder * 0.01)
+      // hModHolder = hModHolder + 1 > 360 ? 0 : hModHolder + 1
     }
 
-    const hex = HSLToHex(h, sModHolder, lModHolder);
+    // const hMod = h + h * 0.01;
+
+    const hex = HSLToHex(h, s, lModHolder);
+    // const hex = HSLToHex(h, sModHolder, lModHolder);
+    // const hex = HSLToHex(hModHolder, sModHolder, lModHolder);
 
     return {
       rgb: hexToRGB(hex, true),
@@ -87,19 +96,29 @@ function createBrighterColors(baseColor, length = 5) {
 function createDarkerColors(baseColor, length = 4) {
   let sModHolder = 0;
   let lModHolder = 0;
+  let hModHolder = 0;
 
   return Array.from(new Array(length), () => {
     const { h, s, l } = baseColor.hsl;
 
     if (sModHolder === 0 && lModHolder === 0) {
-      sModHolder = s - (s * 0.15);
+      sModHolder = s - (s * 0.2);
       lModHolder = l - (l * 0.15);
+      hModHolder = h - (h * 0.02) < 0 ? 360 : h - (h * 0.02);
+      // hModHolder = h - 1 < 0 ? 360 : h - 1;
     } else {
-      sModHolder = sModHolder - (sModHolder * 0.15);
+      sModHolder = sModHolder - (sModHolder * 0.1);
+      // sModHolder = sModHolder - (sModHolder * 0.15);
+      // lModHolder = lModHolder - (lModHolder * 0.1);
       lModHolder = lModHolder - (lModHolder * 0.15);
+      hModHolder = hModHolder - (hModHolder * 0.02) < 0 ? 360 : hModHolder - (hModHolder * 0.02);
+      // hModHolder = hModHolder - 1 < 0 ? 360 : hModHolder - 1;
     }
 
-    const hex = HSLToHex(h, sModHolder, lModHolder);
+    // const hMod = h - 1;
+    // const hMod = h - h * 0.01;
+
+    const hex = HSLToHex(hModHolder, sModHolder, lModHolder);
 
     return {
       rgb: hexToRGB(hex, true),
