@@ -1,8 +1,37 @@
+<h2>Material Palette</h2>
 
-<h2>Material Design Palette</h2>
-<div>
-  Color:
-  <input value="#e66465" type="color" id="color">
-  <button id="create">Create</button>
-  <button id="cancel">Cancel</button>
+<div class="outer-wrapper">
+  <div class="info-text">
+    <p>
+      Pick a basecolor to generate a monochromatic-like palette similar to
+      Material UI.
+    </p>
+  </div>
+
+  <div class="input-wrapper">
+    <label>Palette name:</label>
+    <input
+      label="Palette name"
+      placeholder="Palette name"
+      type="text"
+      id="paletteName"
+    />
+  </div>
+
+  <div class="input-wrapper">
+    <label>Base color:</label>
+    <input
+      class="color-input"
+      label="Color"
+      value="#F0463C"
+      type="color"
+      id="color"
+    />
+  </div>
+
+  <div>
+    <button type="button" id="create">Create</button>
+
+    <button type="button" id="cancel">Cancel</button>
+  </div>
 </div>

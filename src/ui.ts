@@ -1,15 +1,14 @@
 import './ui.css'
 
 document.getElementById('create').onclick = () => {
-  const textbox = document.getElementById('color') as HTMLInputElement
-  console.log("textbox value", textbox.value);
-
-  // const count = parseInt(textbox.value, 10)
+  const color = document.getElementById('color') as HTMLInputElement
+  const name = document.getElementById('paletteName') as HTMLInputElement
 
   parent.postMessage({ 
     pluginMessage: { 
       type: 'create-palette', 
-      value: textbox.value,
+      value: color.value,
+      name: name.value,
     } 
   }, '*')
 }

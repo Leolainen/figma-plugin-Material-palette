@@ -2,7 +2,9 @@ body {
   font: 12px sans-serif;
   text-align: center;
   margin: 20px;
+  height: 100%;
 }
+
 button {
   border-radius: 5px;
   background: white;
@@ -12,17 +14,45 @@ button {
   margin: 0 5px;
   box-shadow: inset 0 0 0 1px black;
   outline: none;
+  cursor: pointer;
 }
+
 #create {
   box-shadow: none;
   background: #18A0FB;
   color: white;
 }
+
 input {
   border: none;
   outline: none;
   padding: 8px;
+  width: 100%;
 }
+
+.info-text {
+  text-align: left; 
+  margin-bottom: 20px;
+}
+
+.outer-wrapper {
+  height: 100%;
+}
+
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgb(167, 167, 167);
+}
+
+.color-input {
+  height: 35px;
+  padding: 4px;
+}
+
 input:hover { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1); }
 button:focus { box-shadow: inset 0 0 0 2px #18A0FB; }
 #create:focus { box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.3); }
