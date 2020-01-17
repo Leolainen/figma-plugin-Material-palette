@@ -1,18 +1,15 @@
 # Material palette
 
-Create a Material-like palette quickly and easily!
+![alt text](./images/materialpalette.jpg "Material palette")
 
-This plugin groups all colors together into a Material-UI style palette.
+#### A plugin for Figma
+##### Create a Material UI or Monochromatic palette in Figma quickly and easily!
 
---- 
 
-#### UI
-![alt text](./images/ui.png "UI")
+* Select a name for your palette
+* Pick your base color with the native color picker
+* Select a Schema between Material, Monochromatic, True Monochromatic
 
----
-
-#### Example palette
-![alt text](./images/red.png "Red palette")
 
 --- 
 
