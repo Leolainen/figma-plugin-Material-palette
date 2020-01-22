@@ -1,7 +1,17 @@
 import './ui.css'
 
+const colorToggle = document.getElementById('color-toggle') as HTMLInputElement;
+let colorInput = document.getElementById('color') as HTMLInputElement
+
+colorToggle.addEventListener('change', function (event: any) {
+  if (this.checked) {
+    colorInput.type = 'color';
+  } else {
+    colorInput.type = 'text';
+  }
+})
+
 document.getElementById('create').onclick = () => {
-  const color = document.getElementById('color') as HTMLInputElement
   const name = document.getElementById('paletteName') as HTMLInputElement
   const schema = document.getElementById('schema') as HTMLInputElement
 
@@ -9,7 +19,7 @@ document.getElementById('create').onclick = () => {
     pluginMessage: {
       type: 'create-palette',
       schema: schema.value,
-      value: color.value,
+      value: colorInput.value,
       name: name.value,
     }
   }, '*')

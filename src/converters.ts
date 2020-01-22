@@ -4,8 +4,6 @@ export function hex2rgb(hex: any) {
 
   let hexString: string = Array.from(hex).join('');
 
-  console.log("hexString", hexString)
-
   return /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i
     .exec(hexString)
     .slice(1)

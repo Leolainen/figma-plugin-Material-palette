@@ -10,7 +10,7 @@ import {
   HSLToHex,
   RGBToHex
 } from "./converters";
-import { RGB, HSL, RgbHslHexObject, BaseColorList } from "./types";
+import { RgbHslHexObject, BaseColorList } from "./types";
 
 figma.showUI(__html__, {
   height: 500
@@ -20,7 +20,7 @@ figma.ui.onmessage = async msg => {
   if (msg.type === "create-palette") {
     const nodes: SceneNode[] = [];
 
-    let selectedColor: string = msg.value;
+    let selectedColor: string = msg.value[0] === "#" ? msg.value : `#${msg.value}`;
     const paletteName: string = msg.name;
     const schema: string = msg.schema;
 
