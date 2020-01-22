@@ -72,14 +72,16 @@ figma.ui.onmessage = async msg => {
     headerNumber.fills = handleTextNodeContrast(headerNumber, baseColor.hex);
     headerHex.fills = handleTextNodeContrast(headerHex, baseColor.hex);
 
-    headerName.characters = paletteName;
+    headerName.characters = paletteName.toUpperCase();
     headerNumber.characters = "500";
     headerHex.characters = baseColor.hex.toUpperCase();
+    headerRect.name = `${headerName.characters} - ${headerHex.characters} - ${headerNumber.characters}`
 
     const headerGroup: FrameNode = figma.group(
       [headerRect, headerName, headerNumber, headerHex],
       figma.currentPage
     );
+    headerGroup.name = `${paletteName} Header`
     nodes.push(headerGroup);
 
     for (let i = 0; i < completePalette.length; i++) {
@@ -137,14 +139,32 @@ figma.ui.onmessage = async msg => {
         paletteNumber.characters = "50";
       }
 
+      rect.name = `${paletteNumber.characters} ${completePalette[i].hex}`;
+
       const group: FrameNode = figma.group(
         [rect, paletteHex, paletteNumber],
         figma.currentPage
       );
+      group.name = paletteNumber.characters;
+
+
       nodes.push(group);
     }
 
-    figma.group([...nodes], figma.currentPage);
+    const parentFrame = figma.createFrame();
+    parentFrame.name = paletteName;
+    parentFrame.clipsContent = false;
+
+    // Appends all nodes into wrapping frame
+    nodes.forEach(node => parentFrame.appendChild(node));
+
+    // Resize frame to children width & height
+    parentFrame.resize(
+      nodes[0].width,
+      nodes.reduce((acc, curr) => curr.height + acc, 0)
+    )
+
+    figma.currentPage.appendChild(parentFrame);
     figma.currentPage.selection = nodes;
     figma.viewport.scrollAndZoomIntoView(nodes);
   }
