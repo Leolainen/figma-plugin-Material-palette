@@ -24,8 +24,6 @@ figma.ui.onmessage = async msg => {
     const paletteName: string = msg.name;
     const schema: string = msg.schema;
 
-    console.log("selectedColor", selectedColor, palette, schema);
-
     const baseColor: RgbHslHexObject = {
       rgb: hexToRGB(selectedColor, true),
       hsl: hexToHSL(selectedColor),
@@ -43,8 +41,6 @@ figma.ui.onmessage = async msg => {
     };
 
     const completePalette: RgbHslHexObject[] = generatePalette[schema]();
-
-    console.log("completePalette", completePalette)
 
     await figma.loadFontAsync({ family: "Roboto", style: "Regular" });
 
@@ -319,17 +315,11 @@ function minmaxHue(hue: number) {
 }
 
 function colorData(hex: string, palette: any = undefined) {
-  console.log("colorData, hex, palette", hex, palette)
   const rgb = hex2rgb(!palette ? hex : palette[hex]);
-  console.log("rgb", rgb)
 
   const hcl = rgb2hcl(rgb);
-  console.log("hcl", hcl)
   const colorData = { rgb, hcl, sl: specificLight(rgb) };
-  console.log("colorData", colorData)
   const SL = hcl[2] * colorData.sl;
-
-  console.log("rgb, hcl, colorData, SL", rgb, hcl, colorData, SL)
 
   if (SL < 12) {
     console.warn(`${hex} is too light: ${SL} / min. 12`);
@@ -355,8 +345,6 @@ function palette(hexColor: string) {
 
   const { rgb, hcl, sl } = colorData(hex);
 
-  console.log("hcl, sl", hcl, sl)
-
   // If a used input is "red" or "orange" instead of a hex
   for (name in palette) {
     if (palette[name] === hexString) {
@@ -369,7 +357,6 @@ function palette(hexColor: string) {
 
   // Color name
   name = "grey";
-  console.log("sl", sl)
 
   if (sl > 0.9) {
     name = "black";
@@ -389,7 +376,6 @@ function palette(hexColor: string) {
         distance = [h - hue, c - chroma, l - luminance];
       }
     }
-    console.log("palette", palette)
 
     const checkBrown = { orange: 1, deepOrange: 1 };
     const checkBlue = {
@@ -424,8 +410,6 @@ function palette(hexColor: string) {
 
     return acc;
   }, {});
-
-  console.log("generatedPalette", generatedPalette)
 
   return { name, hex, sl, distance, palette: generatedPalette };
 }
@@ -465,6 +449,5 @@ function materialScale(
 
 function generateMaterialHexPalette(hex: string) {
   const paletteObject = palette(hex);
-  console.log("paletteObject", paletteObject)
   return materialScale(paletteObject.name, paletteObject.palette);
 }
