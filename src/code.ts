@@ -114,7 +114,28 @@ figma.ui.onmessage = async msg => {
       rect.fills = fills;
 
       paletteHex.characters = completePalette[i].hex.toUpperCase();
-      paletteNumber.characters = i > 0 ? (i * 100).toString() : "50";
+      if (i > 0 && i <= 9) {
+        paletteNumber.characters = (i * 100).toString();
+      } else if (i > 9) {
+        switch (i) {
+          case 10:
+            paletteNumber.characters = "A100";
+            break;
+          case 11:
+            paletteNumber.characters = "A200";
+            break;
+          case 12:
+            paletteNumber.characters = "A400";
+            break;
+          case 13:
+            paletteNumber.characters = "A700";
+            break;
+          default:
+            paletteNumber.characters = (i * 100).toString();
+        }
+      } else {
+        paletteNumber.characters = "50";
+      }
 
       const group: FrameNode = figma.group(
         [rect, paletteHex, paletteNumber],
