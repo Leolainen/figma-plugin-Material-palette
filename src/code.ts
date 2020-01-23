@@ -82,7 +82,11 @@ figma.ui.onmessage = async msg => {
       figma.currentPage
     );
     headerGroup.name = `${paletteName} Header`
+    headerGroup.locked = true;
     nodes.push(headerGroup);
+
+    const fullColorKeys = COLORKEYS;
+    fullColorKeys.splice(5, 0, "500")
 
     for (let i = 0; i < completePalette.length; i++) {
       const rect: RectangleNode = figma.createRectangle();
@@ -116,28 +120,7 @@ figma.ui.onmessage = async msg => {
       rect.fills = fills;
 
       paletteHex.characters = completePalette[i].hex.toUpperCase();
-      if (i > 0 && i <= 9) {
-        paletteNumber.characters = (i * 100).toString();
-      } else if (i > 9) {
-        switch (i) {
-          case 10:
-            paletteNumber.characters = "A100";
-            break;
-          case 11:
-            paletteNumber.characters = "A200";
-            break;
-          case 12:
-            paletteNumber.characters = "A400";
-            break;
-          case 13:
-            paletteNumber.characters = "A700";
-            break;
-          default:
-            paletteNumber.characters = (i * 100).toString();
-        }
-      } else {
-        paletteNumber.characters = "50";
-      }
+      paletteNumber.characters = fullColorKeys[i];
 
       rect.name = `${paletteNumber.characters} ${completePalette[i].hex}`;
 
@@ -146,7 +129,7 @@ figma.ui.onmessage = async msg => {
         figma.currentPage
       );
       group.name = paletteNumber.characters;
-
+      group.locked = true;
 
       nodes.push(group);
     }
