@@ -351,7 +351,7 @@ function minmax(value: number, max: number = 100, min: number = 0) {
   return Math.min(max, Math.max(min, value));
 }
 
-function minmaxHue(hue: number) {
+function minmaxHue(hue: number): number {
   return hue < 0 ? hue + 360 : hue > 360 ? hue - 360 : hue;
 }
 
@@ -363,9 +363,11 @@ function colorData(hex: string, palette: any = undefined) {
   const SL = hcl[2] * colorData.sl;
 
   if (SL < 12) {
-    console.warn(`${hex} is too light: ${SL} / min. 12`);
+    alert(`${hex} is either too dark or too bright.`)
+    console.warn(`${hex} is either too dark or too bright: ${SL} / min. 12`);
   } else if (SL > 36) {
-    console.warn(`${hex} is too dark: ${SL} / max. 36`);
+    alert(`${hex} is either too dark or too bright.`)
+    console.warn(`${hex} is either too dark or too bright: ${SL} / max. 36`);
   }
 
   return colorData;
