@@ -30,12 +30,12 @@
     />
   </div>
 
-  <div class="input-wrapper">
+  <div class="input-wrapper toggle-wrapper">
+    <input class="color-toggle" id="color-toggle" type="checkbox" />
+
     <label class="switch">
       Toggle color picker
     </label>
-
-    <input class="color-toggle" id="color-toggle" type="checkbox" />
   </div>
 
   <div class="input-wrapper">
@@ -59,6 +59,7 @@
     </select>
   </div>
 
+  <p id="error-msg" style="color: darkred"></p>
   <div>
     <button type="button" id="create">Create</button>
 

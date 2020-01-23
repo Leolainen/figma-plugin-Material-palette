@@ -48,6 +48,15 @@ input {
   border-bottom: 1px solid rgb(167, 167, 167);
 }
 
+.toggle-wrapper {
+  flex-direction: row;
+  align-items: center;
+}
+
+.toggle-wrapper > input {
+  margin-right: 8px;
+}
+
 .color-input {
   height: 35px;
   padding: 4px;
