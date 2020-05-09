@@ -2,14 +2,19 @@ import { BASECOLOR, COLORKEYS } from "./constants";
 import { materialColorSchema } from "./schemas";
 import {
   hcl2hex,
-  hex2rgb,
-  hex2hcl,
-  rgb2hcl,
-  hexToRGB,
-  hexToHSL,
   HSLToHex,
   RGBToHex
-} from "./converters";
+} from './converters/toHex';
+import {
+  hex2rgb,
+  hexToRGB
+} from './converters/toRgb';
+import {
+  hex2hcl,
+  rgb2hcl
+} from './converters/toHcl';
+import { hexToHSL } from './converters/toHsl';
+import clone from './utils/clone';
 import { RgbHslHexObject, BaseColorList } from "./types";
 
 figma.showUI(__html__, {
@@ -208,9 +213,6 @@ function handleTextNodeContrast(text: TextNode, backgroundColor: string) {
   return textFills;
 }
 
-function clone(val: any) {
-  return JSON.parse(JSON.stringify(val));
-}
 
 function createBrighterColors(baseColor: RgbHslHexObject, length: number = 5) {
   const maxSaturation = 100;
@@ -341,17 +343,22 @@ function minmaxHue(hue: number): number {
 function colorData(hex: string, palette: any = undefined) {
   const rgb = hex2rgb(!palette ? hex : palette[hex]);
 
+  // console.log("hex, rgb", hex, rgb)
+
   const hcl = rgb2hcl(rgb);
   const colorData = { rgb, hcl, sl: specificLight(rgb) };
+  // console.log("hcl", hcl)
+  // console.log("colorData", colorData)
+  // console.log("SL: hcl[2] * colorData.sl", hcl[2] * colorData.sl)
   const SL = hcl[2] * colorData.sl;
 
-  if (SL < 12) {
-    alert(`${hex} is either too dark or too bright.`)
-    console.warn(`${hex} is either too dark or too bright: ${SL} / min. 12`);
-  } else if (SL > 36) {
-    alert(`${hex} is either too dark or too bright.`)
-    console.warn(`${hex} is either too dark or too bright: ${SL} / max. 36`);
-  }
+  // if (SL < 12) {
+  //   alert(`${hex} is either too dark or too bright.`)
+  //   console.warn(`${hex} is either too dark or too bright: ${SL} / min. 12`);
+  // } else if (SL > 36) {
+  //   alert(`${hex} is either too dark or too bright.`)
+  //   console.warn(`${hex} is either too dark or too bright: ${SL} / max. 36`);
+  // }
 
   return colorData;
 }
@@ -359,8 +366,8 @@ function colorData(hex: string, palette: any = undefined) {
 function palette(hexColor: string) {
   let name: string = "";
   let distance: any = 0;
-  let palette: any = BASECOLOR.material;
-  // let palette: BaseColorList = BASECOLOR.material;
+  let baseColors: any = BASECOLOR.material;
+  // let baseColors: BaseColorList = BASECOLOR.material;
 
   const hex = `${hexColor}`;
   const hexString = hex.charAt(0) === "#" ? hex : `#${hex}`;
@@ -371,10 +378,10 @@ function palette(hexColor: string) {
 
   const { rgb, hcl, sl } = colorData(hex);
 
-  // If a used input is "red" or "orange" instead of a hex
-  for (name in palette) {
-    if (palette[name] === hexString) {
-      return { name, hex, sl, distance, palette };
+  // Checks the baseColors if hex input matches any names.
+  for (name in baseColors) {
+    if (baseColors[name] === hexString) {
+      return { name, hex, sl, distance, baseColors };
     }
   }
 
@@ -384,16 +391,30 @@ function palette(hexColor: string) {
   // Color name
   name = "grey";
 
+  // console.log("==========")
+  // console.log("==========")
+  // console.log("baseColors: name, h, c, l, sl:", name, h, c, l, sl)
+
+  // if (h < 5 && c < 0.8) {
+  //   console.log("@@@@@@@@@@@@@")
+  //   console.log("@@@@@@@@@@@@@")
+  //   console.log(" ")
+  //   console.log("must be greyscale, no?")
+  //   console.log(" ")
+  //   console.log("@@@@@@@@@@@@@")
+  // }
+
   if (sl > 0.9) {
     name = "black";
   } else if (sl < 0.1) {
     name = "white";
-  } else if (c > 8) {
+    // } else if (c > 8) {
+  } else {
     let dist = 360;
     let basecolorName;
 
-    for (basecolorName in palette) {
-      let [hue, chroma, luminance] = hex2hcl(palette[basecolorName]);
+    for (basecolorName in baseColors) {
+      let [hue, chroma, luminance] = hex2hcl(baseColors[basecolorName]);
       let _dist = Math.min(Math.abs(hue - h), 360 + hue - h);
 
       if (_dist < dist) {
@@ -421,23 +442,45 @@ function palette(hexColor: string) {
     }
   }
 
+  console.log("==========")
+  console.log("baseColors: name, h, c, l, sl:", name, h, c, l, sl)
 
   // Alternating colors
-  const generatedPalette = Object.keys(palette).reduce((acc, curr) => {
-    let [hue, chroma, luminance] = hex2hcl(palette[curr]);
+  const generatedPalette = Object.keys(baseColors).reduce((acc, curr, index) => {
+    let [hue, chroma, luminance] = hex2hcl(baseColors[curr]);
     acc[curr] =
       curr === "500"
-        ? palette[curr]
+        ? baseColors[curr]
         : hcl2hex([
           minmaxHue(hue + distance[0]),
           minmax(chroma + distance[1]),
           minmax(luminance + distance[2])
         ]);
 
+    // acc[curr] =
+    //   index === 5
+    //     ? hexColor
+    //     : hcl2hex([
+    //       minmaxHue(hue + distance[0]),
+    //       minmax(chroma + distance[1]),
+    //       minmax(luminance + distance[2])
+    //     ]);
+
+    console.log(" ")
+    console.log(" ")
+    console.log("generatedPalette: ")
+    console.log("curr: ", curr)
+    console.log("acc[curr]: ", acc[curr])
+    console.log("index: ", index)
+    console.log(" ")
+    console.log(" ")
+
     return acc;
   }, {});
+  console.log("generatedPalette result: ", generatedPalette)
 
-  return { name, hex, sl, distance, palette: generatedPalette };
+
+  return { name, hex, sl, distance, baseColors: generatedPalette };
 }
 
 /**
@@ -450,9 +493,9 @@ function palette(hexColor: string) {
  */
 function materialScale(
   name: string,
-  palette: BaseColorList = BASECOLOR.material
+  baseColors: BaseColorList = BASECOLOR.material
 ) {
-  const { hcl, sl } = colorData(name, palette);
+  const { hcl, sl } = colorData(name, baseColors);
   const colorKeys =
     materialColorSchema[name].length < COLORKEYS.length
       ? COLORKEYS.slice(0, 9)
@@ -465,8 +508,9 @@ function materialScale(
 
     acc[curr] = hcl2hex(modifiedHCL);
 
+    // CONTINUE HERE
     if (curr === "400") {
-      acc["500"] = palette[name];
+      acc["500"] = baseColors[name];
     }
 
     return acc;
@@ -475,5 +519,6 @@ function materialScale(
 
 function generateMaterialHexPalette(hex: string) {
   const paletteObject = palette(hex);
-  return materialScale(paletteObject.name, paletteObject.palette);
+  console.log("paletteObject", paletteObject);
+  return materialScale(paletteObject.name, paletteObject.baseColors);
 }
