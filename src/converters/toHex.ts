@@ -1,7 +1,8 @@
 /**
  * MUI functions
  */
-import { ColorCalc, RGB } from "./types";
+import { ColorCalc, RGB } from "../types";
+import { hcl2rgb } from "./toRgb";
 
 export function hcl2hex(hcl: ColorCalc) {
   return rgb2hex(hcl2rgb(hcl));

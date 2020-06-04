@@ -1,4 +1,4 @@
-import { ColorCalc } from "./types";
+import { ColorCalc } from "../types";
 import { lab2xyz } from "./toXyz";
 import { hcl2lab } from "./toLab";
 /**

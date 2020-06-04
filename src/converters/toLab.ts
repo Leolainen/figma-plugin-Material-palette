@@ -1,4 +1,4 @@
-import { ColorCalc } from "./types";
+import { ColorCalc } from "../types";
 import { rgb2xyz } from "./toXyz";
 
 export function rgb2lab(rgb: ColorCalc) {

@@ -1,4 +1,4 @@
-import { ColorCalc } from "./types";
+import { ColorCalc } from "../types";
 
 /**
  * MUI functions
