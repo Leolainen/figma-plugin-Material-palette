@@ -1,21 +1,15 @@
-import { BASECOLOR, COLORKEYS } from "./constants";
-import { materialColorSchema } from "./schemas";
+import { COLORKEYS } from "./constants";
 import {
-  hcl2hex,
   HSLToHex,
   RGBToHex
 } from './converters/toHex';
 import {
-  hex2rgb,
   hexToRGB
 } from './converters/toRgb';
-import {
-  hex2hcl,
-  rgb2hcl
-} from './converters/toHcl';
 import { hexToHSL } from './converters/toHsl';
 import clone from './utils/clone';
 import { RgbHslHexObject, BaseColorList } from "./types";
+import { generateMaterialPalette } from './generators/material/index';
 
 figma.showUI(__html__, {
   height: 500
@@ -179,15 +173,6 @@ function generateMonochromePalette(
   return palette;
 }
 
-function generateMaterialPalette(baseColor: RgbHslHexObject) {
-  const hexPalette = generateMaterialHexPalette(baseColor.hex);
-
-  return Object.keys(hexPalette).map(key => ({
-    rgb: hexToRGB(hexPalette[key], true),
-    hsl: hexToHSL(hexPalette[key]),
-    hex: hexPalette[key]
-  }));
-}
 
 /**
  *
@@ -282,6 +267,20 @@ function createDarkerColors(
   });
 }
 
+/**
+ * Calculates the contrast ratio between two colors.
+ * Formula: https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
+ *
+ * @param {string} foreground - ex: #F0463C
+ * @param {string} background - ex: #212126
+ * @returns {number} A contrast ratio value in the range 0 - 21.
+ */
+function getContrastRatio(foreground: string, background: string) {
+  const lumA = getLuminance(foreground);
+  const lumB = getLuminance(background);
+  return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05);
+}
+
 // Functions picked and adjusted from
 // https://github.com/mui-org/material-ui/blob/master/packages/material-ui/src/styles/colorManipulator.js
 /**
@@ -301,224 +300,4 @@ function getLuminance(hex: string) {
   return Number(
     (0.2126 * rgbVal[0] + 0.7152 * rgbVal[1] + 0.0722 * rgbVal[2]).toFixed(3)
   );
-}
-
-/**
- * Calculates the contrast ratio between two colors.
- * Formula: https://www.w3.org/TR/WCAG20-TECHS/G17.html#G17-tests
- *
- * @param {string} foreground - ex: #F0463C
- * @param {string} background - ex: #212126
- * @returns {number} A contrast ratio value in the range 0 - 21.
- */
-function getContrastRatio(foreground: string, background: string) {
-  const lumA = getLuminance(foreground);
-  const lumB = getLuminance(background);
-  return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05);
-}
-
-/**
- * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- * @
- * @  ACTUAL MATERIAL PALETTE PART
- * @  https://codepen.io/sebilasse/pen/GQYKJd
- * @
- * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- */
-const hexColorReg = /^#?([A-F0-9]{6}|[A-F0-9]{3})$/i;
-
-function specificLight(rgb: number[]) {
-  const [r, g, b] = rgb;
-  return 1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-}
-
-function minmax(value: number, max: number = 100, min: number = 0) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function minmaxHue(hue: number): number {
-  return hue < 0 ? hue + 360 : hue > 360 ? hue - 360 : hue;
-}
-
-function colorData(hex: string, palette: any = undefined) {
-  const rgb = hex2rgb(!palette ? hex : palette[hex]);
-
-  // console.log("hex, rgb", hex, rgb)
-
-  const hcl = rgb2hcl(rgb);
-  const colorData = { rgb, hcl, sl: specificLight(rgb) };
-  // console.log("hcl", hcl)
-  // console.log("colorData", colorData)
-  // console.log("SL: hcl[2] * colorData.sl", hcl[2] * colorData.sl)
-  const SL = hcl[2] * colorData.sl;
-
-  // if (SL < 12) {
-  //   alert(`${hex} is either too dark or too bright.`)
-  //   console.warn(`${hex} is either too dark or too bright: ${SL} / min. 12`);
-  // } else if (SL > 36) {
-  //   alert(`${hex} is either too dark or too bright.`)
-  //   console.warn(`${hex} is either too dark or too bright: ${SL} / max. 36`);
-  // }
-
-  return colorData;
-}
-
-function palette(hexColor: string) {
-  let name: string = "";
-  let distance: any = 0;
-  let baseColors: any = BASECOLOR.material;
-  // let baseColors: BaseColorList = BASECOLOR.material;
-
-  const hex = `${hexColor}`;
-  const hexString = hex.charAt(0) === "#" ? hex : `#${hex}`;
-
-  if (!hex || !hexColorReg.test(hex)) {
-    throw new TypeError("Invalid input");
-  }
-
-  const { rgb, hcl, sl } = colorData(hex);
-
-  // Checks the baseColors if hex input matches any names.
-  for (name in baseColors) {
-    if (baseColors[name] === hexString) {
-      return { name, hex, sl, distance, baseColors };
-    }
-  }
-
-  const [h, c, l] = hcl;
-  distance = { h: 360, s: 0, l: 0 };
-
-  // Color name
-  name = "grey";
-
-  // console.log("==========")
-  // console.log("==========")
-  // console.log("baseColors: name, h, c, l, sl:", name, h, c, l, sl)
-
-  // if (h < 5 && c < 0.8) {
-  //   console.log("@@@@@@@@@@@@@")
-  //   console.log("@@@@@@@@@@@@@")
-  //   console.log(" ")
-  //   console.log("must be greyscale, no?")
-  //   console.log(" ")
-  //   console.log("@@@@@@@@@@@@@")
-  // }
-
-  if (sl > 0.9) {
-    name = "black";
-  } else if (sl < 0.1) {
-    name = "white";
-    // } else if (c > 8) {
-  } else {
-    let dist = 360;
-    let basecolorName;
-
-    for (basecolorName in baseColors) {
-      let [hue, chroma, luminance] = hex2hcl(baseColors[basecolorName]);
-      let _dist = Math.min(Math.abs(hue - h), 360 + hue - h);
-
-      if (_dist < dist) {
-        dist = _dist;
-        name = basecolorName;
-        distance = [h - hue, c - chroma, l - luminance];
-      }
-    }
-
-    const checkBrown = { orange: 1, deepOrange: 1 };
-    const checkBlue = {
-      indigo: 1,
-      blue: 1,
-      lightBlue: 1,
-      cyan: 1,
-      blueGrey: 1
-    };
-
-    if (checkBrown.hasOwnProperty(name) && c < 48) {
-      name = c < 12 ? "grey" : "brown";
-    } else if (checkBlue.hasOwnProperty(name) && c < 32 && sl > 0.32) {
-      name = "blueGrey";
-    } else if (c < 16) {
-      name = "grey";
-    }
-  }
-
-  console.log("==========")
-  console.log("baseColors: name, h, c, l, sl:", name, h, c, l, sl)
-
-  // Alternating colors
-  const generatedPalette = Object.keys(baseColors).reduce((acc, curr, index) => {
-    let [hue, chroma, luminance] = hex2hcl(baseColors[curr]);
-    acc[curr] =
-      curr === "500"
-        ? baseColors[curr]
-        : hcl2hex([
-          minmaxHue(hue + distance[0]),
-          minmax(chroma + distance[1]),
-          minmax(luminance + distance[2])
-        ]);
-
-    // acc[curr] =
-    //   index === 5
-    //     ? hexColor
-    //     : hcl2hex([
-    //       minmaxHue(hue + distance[0]),
-    //       minmax(chroma + distance[1]),
-    //       minmax(luminance + distance[2])
-    //     ]);
-
-    console.log(" ")
-    console.log(" ")
-    console.log("generatedPalette: ")
-    console.log("curr: ", curr)
-    console.log("acc[curr]: ", acc[curr])
-    console.log("index: ", index)
-    console.log(" ")
-    console.log(" ")
-
-    return acc;
-  }, {});
-  console.log("generatedPalette result: ", generatedPalette)
-
-
-  return { name, hex, sl, distance, baseColors: generatedPalette };
-}
-
-/**
- * Uses the matericalColorScheme to calculate each hue with HCL
- *
- * ex:
- * basecolor = "red" (#f44336 which in hcl is {h: 14, c: 143, l: 56})
- * materialColorSchema.red.0 = [-28, -74, 39]
- * return = {h: -14, c: 69, l: 95}
- */
-function materialScale(
-  name: string,
-  baseColors: BaseColorList = BASECOLOR.material
-) {
-  const { hcl, sl } = colorData(name, baseColors);
-  const colorKeys =
-    materialColorSchema[name].length < COLORKEYS.length
-      ? COLORKEYS.slice(0, 9)
-      : COLORKEYS;
-
-  return colorKeys.reduce((acc: object, curr: string, idx: number) => {
-    const modifiedHCL: Array<number> = materialColorSchema[name][idx].map(
-      (rangeValue, index) => hcl[index] + rangeValue
-    );
-
-    acc[curr] = hcl2hex(modifiedHCL);
-
-    // CONTINUE HERE
-    if (curr === "400") {
-      acc["500"] = baseColors[name];
-    }
-
-    return acc;
-  }, {});
-}
-
-function generateMaterialHexPalette(hex: string) {
-  const paletteObject = palette(hex);
-  console.log("paletteObject", paletteObject);
-  return materialScale(paletteObject.name, paletteObject.baseColors);
 }
