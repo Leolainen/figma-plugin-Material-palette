@@ -45,3 +45,5 @@ export const BASECOLOR: BaseColor = {
         blueGrey: "#607d8b"
     }
 };
+
+export const DEFAULT_BASE_COLOR: string = "#F1392B";
