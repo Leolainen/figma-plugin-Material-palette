@@ -186,7 +186,7 @@ export function generateMaterialPalette(baseColor: RgbHslHexObject) {
       hex: hexPalette[key]
     }));
   } catch (e) {
-    console.error(e);
+    console.error("[generateMaterialPalette]: material generator is looking for a baseColor property that doesn't exist in the BASECOLOR constant (probably 'black' or 'white'). There is no HCL scale for this color in materialColorSchema.");
     return undefined
   }
 }
