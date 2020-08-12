@@ -4,13 +4,14 @@
   "description": "",
   "main": "code.js",
   "scripts": {
-    "build": "npx webpack",
+    "build": "npx webpack --mode=production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aytek/material-color-picker": "^1.0.4",
+    "@material-ui/core": "^4.11.0",
+    "classnames": "^2.2.6",
     "css-loader": "^3.1.0",
     "html-webpack-inline-source-plugin": "0.0.10",
     "html-webpack-plugin": "^3.2.0",
