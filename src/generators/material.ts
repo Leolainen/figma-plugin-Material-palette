@@ -176,7 +176,7 @@ function generateMaterialHexPalette(hex: string) {
   return materialScale(hex, paletteObject.name, paletteObject.baseColors);
 }
 
-export function generateMaterialPalette(baseColor: RgbHslHexObject) {
+export function generateMaterialPalette(baseColor: RgbHslHexObject): RgbHslHexObject[] {
   try {
     const hexPalette = generateMaterialHexPalette(baseColor.hex);
 
