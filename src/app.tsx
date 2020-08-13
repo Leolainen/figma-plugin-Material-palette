@@ -4,16 +4,15 @@ import { makeStyles } from "@material-ui/core/styles";
 import {
   Button,
   TextField,
-  MenuItem,
   Select,
   Typography,
   InputAdornment,
   IconButton,
+  InputLabel,
+  FormControl,
+  MenuItem,
 } from "@material-ui/core";
-import {
-  getSpecificLight,
-  generateMaterialPalette,
-} from "./generators/material";
+import { generateMaterialPalette } from "./generators/material";
 import { generateMonochromePalette } from "./generators/monochrome";
 import { RgbHslHexObject } from "./types";
 import { hexToRGB } from "./converters/toRgb";
@@ -40,6 +39,16 @@ const schemaOptions = [
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
+    justifyContent: "center",
+  },
+
+  buttons: {
+    display: "flex",
+    justifyContent: "flex-end",
+
+    "& > button + button": {
+      marginLeft: theme.spacing(2),
+    },
   },
 
   paletteSetup: {
@@ -66,6 +75,7 @@ const useStyles = makeStyles((theme) => ({
   },
 
   preview: {
+    position: "relative",
     marginLeft: theme.spacing(2),
     maxWidth: 360,
   },
@@ -75,8 +85,16 @@ const useStyles = makeStyles((theme) => ({
     transformOrigin: "top",
   },
 
+  previewCloned: {
+    position: "absolute",
+    filter: "blur(10px) brightness(125%) saturate(110%)",
+    width: "100%",
+    zIndex: -1,
+    transform: "translate3d(2px, 6px, 0)",
+  },
+
   previewSwatchHeader: {
-    height: 122,
+    height: 102,
     width: 360,
     display: "flex",
     flexDirection: "column",
@@ -91,11 +109,16 @@ const useStyles = makeStyles((theme) => ({
 
   previewSwatch: {
     width: 360,
-    height: 34,
+    height: 14,
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 20,
+    textTransform: "uppercase",
+
+    p: {
+      fontSize: 18,
+    },
   },
 }));
 
@@ -108,7 +131,7 @@ const App: React.FC = () => {
 
   const debouncedValue = useDebounce(inputValue, 200);
 
-  let preview;
+  let preview: RgbHslHexObject[];
   let baseColor: RgbHslHexObject = {
     rgb: hexToRGB(colorValue, true),
     hsl: hexToHSL(colorValue),
@@ -185,6 +208,79 @@ const App: React.FC = () => {
       console.error("no schema selected. This is impossible!");
   }
 
+  // remove 5th idx of preview as it's the selected base color.
+  // this is to keep preview array consistent regardless of palette
+  if (preview.length) {
+    preview.splice(5, 1);
+  }
+
+  const Preview = (props) => {
+    const colorKeys =
+      preview.length < COLORKEYS.length ? COLORKEYS.slice(0, 9) : COLORKEYS;
+
+    const previewPalette = colorKeys.reduce(
+      (acc: object, curr: string, idx: number) => {
+        acc[curr] = preview[idx].hex;
+
+        if (curr === "400") {
+          acc["500"] = colorValue;
+        }
+
+        return acc;
+      },
+      {}
+    );
+
+    return (
+      <div className={classes.previewScaled} {...props}>
+        <div
+          className={classes.previewSwatchHeader}
+          style={{
+            color: handleTextContrast(colorValue),
+            backgroundColor: colorValue,
+          }}
+        >
+          <Typography variant="body1">{paletteName}</Typography>
+
+          <div>
+            <Typography variant="body1">500</Typography>
+
+            <Typography variant="body1">{colorValue}</Typography>
+          </div>
+        </div>
+
+        {Object.entries(previewPalette).map(
+          ([key, value]: [string, string], idx) => (
+            <div
+              className={classes.previewSwatch}
+              style={{
+                backgroundColor: value,
+              }}
+              key={`${colorValue}${idx}`}
+            >
+              <Typography
+                variant="body2"
+                style={{
+                  color: handleTextContrast(value),
+                }}
+              >
+                {key}
+              </Typography>
+              <Typography
+                variant="body2"
+                style={{
+                  color: handleTextContrast(value),
+                }}
+              >
+                {value}
+              </Typography>
+            </div>
+          )
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className={classes.root}>
       <div className={classes.paletteSetup}>
@@ -242,19 +338,21 @@ const App: React.FC = () => {
           }}
         />
 
-        <Select
-          label="Schema"
-          onChange={handleSchemaChange}
-          value={schema}
-          variant="outlined"
-          fullWidth
-        >
-          {schemaOptions.map((option) => (
-            <MenuItem value={option.value}>{option.label}</MenuItem>
-          ))}
-        </Select>
+        <FormControl variant="outlined" fullWidth>
+          <InputLabel id="select-label">Schema</InputLabel>
+          <Select
+            labelId="select-label"
+            onChange={handleSchemaChange}
+            value={schema}
+            label="Schema"
+          >
+            {schemaOptions.map((option) => (
+              <MenuItem value={option.value}>{option.label}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-        <div>
+        <div className={classes.buttons}>
           <Button
             onClick={handleCreateClick}
             variant="contained"
@@ -274,76 +372,42 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {!preview ? (
-        <div className={classes.preview}>
-          <Typography color="error" variant="h5">
-            Whoops!!
-          </Typography>
+      <div className={classes.preview}>
+        {!preview ? (
+          <>
+            <Typography color="error" variant="h5">
+              Whoops!!
+            </Typography>
 
-          <Typography color="error" variant="overline" paragraph>
-            An error has occured when generating the preview.
-          </Typography>
+            <Typography color="error" variant="overline" paragraph>
+              The material schema can't handle this color!
+            </Typography>
 
-          <Typography variant="body1">
-            The selected color is probably too dark or bright for the material
-            schema!
-          </Typography>
+            <Typography variant="body1" paragraph>
+              The selected color is probably too dark or too bright.
+            </Typography>
 
-          <Typography variant="subtitle2">
-            TIP: Either tweak your color or change to a monochrome schema.
-          </Typography>
-
-          <Typography variant="caption">
-            [debug]: The "specific light" value of your color is:{" "}
-            {getSpecificLight(colorValue)}
-          </Typography>
-        </div>
-      ) : (
-        <div className={classes.preview}>
-          <div className={classes.previewScaled}>
-            <div
-              className={classes.previewSwatchHeader}
+            <Typography variant="subtitle2">
+              TIP: Slightly tweak your color or change to a monochrome schema.
+            </Typography>
+          </>
+        ) : (
+          <>
+            <Preview />
+            <Preview
               style={{
-                color: handleTextContrast(colorValue),
-                backgroundColor: colorValue,
+                position: "absolute",
+                top: 0,
+                filter: "blur(10px) brightness(125%) saturate(110%)",
+                width: "100%",
+                zIndex: -1,
+                transform: "scale(0.7) translate3d(2px, 6px, 0)",
+                opacity: 0.4,
               }}
-            >
-              <Typography variant="body1">{paletteName}</Typography>
-
-              <div>
-                <Typography variant="body1">500</Typography>
-
-                <Typography variant="body1">{colorValue}</Typography>
-              </div>
-            </div>
-
-            {preview.map((swatch, idx) => (
-              <div
-                className={classes.previewSwatch}
-                style={{ backgroundColor: swatch.hex }}
-                key={`${colorValue}${idx}`}
-              >
-                <Typography
-                  variant="body2"
-                  style={{
-                    color: handleTextContrast(swatch.hex),
-                  }}
-                >
-                  {idx === 5 ? "500" : COLORKEYS[idx]}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  style={{
-                    color: handleTextContrast(swatch.hex),
-                  }}
-                >
-                  {swatch.hex}
-                </Typography>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 };
