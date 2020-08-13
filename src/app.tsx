@@ -212,7 +212,7 @@ const App: React.FC = () => {
 
   // remove 5th idx of preview as it's the selected base color.
   // this is to keep preview array consistent regardless of palette
-  if (preview.length) {
+  if (preview && preview.length) {
     preview.splice(5, 1);
   }
 
