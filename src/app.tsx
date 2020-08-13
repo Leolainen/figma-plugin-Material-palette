@@ -105,6 +105,7 @@ const useStyles = makeStyles((theme) => ({
       marginTop: "auto",
       display: "flex",
       justifyContent: "space-between",
+      textTransform: "uppercase",
     },
   },
 
