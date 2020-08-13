@@ -38,6 +38,7 @@ const schemaOptions = [
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    height: "100%",
     display: "flex",
     justifyContent: "center",
   },
@@ -284,26 +285,18 @@ const App: React.FC = () => {
   return (
     <div className={classes.root}>
       <div className={classes.paletteSetup}>
-        <Typography variant="h4" component="h1">
+        <Typography variant="h3" component="h1">
           Material Palette
         </Typography>
 
         <div className={classes.introduction}>
-          <ol>
-            <li>
-              <Typography variant="body2">Name your palette!</Typography>
-            </li>
+          <Typography variant="body2">1. Name your palette!</Typography>
 
-            <li>
-              <Typography variant="body2">
-                Type your base color or use the colorpicker!
-              </Typography>
-            </li>
+          <Typography variant="body2">
+            2. Type your base color or use the colorpicker!
+          </Typography>
 
-            <li>
-              <Typography variant="body2">Select a schema!</Typography>
-            </li>
-          </ol>
+          <Typography variant="body2">3. Select a schema!</Typography>
         </div>
 
         <TextField
