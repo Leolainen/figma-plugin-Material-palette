@@ -10,8 +10,8 @@ import { generateMaterialPalette } from './generators/material';
 import { generateMonochromePalette } from './generators/monochrome';
 
 figma.showUI(__html__, {
-  height: 800,
-  width: 900
+  height: 650,
+  width: 890
 });
 
 figma.ui.postMessage({
