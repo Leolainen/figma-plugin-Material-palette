@@ -1,11 +1,37 @@
 # **Versions**
 
+# 2.0
+
+##### _2020-08-13_
+
+- Rebuilt interface using Material UI (how fitting!)
+- Palette kan now be previewed
+- Improved error handling.
+- Plugin now saves last selected color.
+- [internal] improved codebase somewhat
+- [internal] now uses react
+
+# 1.2
+
+##### _2020-06-01_
+
+- Allow rendering for greyscales. This is sort of buggy, however...
+- Prefilled color will now be the last color selected
+
+# 1.1
+
+##### _2020-01-23_
+
+- Added a checkbox to let users toggle between a text input or color picker.
+- Groups and nodes are correctly named in the layers tab
+- Users are alerted if the chosen base color is too dark or bright.
+
 # 1.0
 
 ##### _2020-01-17_
 
 - Added Material algorithm.
-- Added seletion of schemas: Material, monochrome, True monochrome
+- Added selection of schemas: Material, monochrome, True monochrome
 
 # 0.8.0
 
