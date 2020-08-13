@@ -348,20 +348,20 @@ const App: React.FC = () => {
 
         <div className={classes.buttons}>
           <Button
+            onClick={handleCancelClick}
+            variant="contained"
+            color="secondary"
+          >
+            Cancel
+          </Button>
+
+          <Button
             onClick={handleCreateClick}
             variant="contained"
             color="primary"
             disabled={!Boolean(preview)}
           >
             Create
-          </Button>
-
-          <Button
-            onClick={handleCancelClick}
-            variant="contained"
-            color="secondary"
-          >
-            Cancel
           </Button>
         </div>
       </div>
