@@ -20,6 +20,7 @@ import { hexToHSL } from "./converters/toHsl";
 import { getContrastRatio } from "./utils/contrast";
 import { isValidHex } from "./utils/validation";
 import useDebounce from "./hooks/useDebounce";
+import Preview from "./blocks/Preview";
 
 const schemaOptions = [
   {
@@ -151,6 +152,12 @@ const App: React.FC = () => {
   });
 
   React.useEffect(() => {
+    if (inputValue.charAt(0) !== "#") {
+      setInputValue("#" + inputValue);
+    }
+  }, [inputValue]);
+
+  React.useEffect(() => {
     if (isValidHex(debouncedValue)) {
       setColorValue(debouncedValue);
       baseColor = {
@@ -191,11 +198,6 @@ const App: React.FC = () => {
     setInputValue(e.target.value);
   };
 
-  // returns just #fff or #000 depending on contrast value
-  const handleTextContrast = (hex: string): string => {
-    return getContrastRatio("#ffffff", hex) < 6 ? "#000" : "#fff";
-  };
-
   switch (schema) {
     case "material":
       preview = generateMaterialPalette(baseColor);
@@ -215,73 +217,6 @@ const App: React.FC = () => {
   if (preview && preview.length) {
     preview.splice(5, 1);
   }
-
-  const Preview = (props) => {
-    const colorKeys =
-      preview.length < COLORKEYS.length ? COLORKEYS.slice(0, 9) : COLORKEYS;
-
-    const previewPalette = colorKeys.reduce(
-      (acc: object, curr: string, idx: number) => {
-        acc[curr] = preview[idx].hex;
-
-        if (curr === "400") {
-          acc["500"] = colorValue;
-        }
-
-        return acc;
-      },
-      {}
-    );
-
-    return (
-      <div className={classes.previewScaled} {...props}>
-        <div
-          className={classes.previewSwatchHeader}
-          style={{
-            color: handleTextContrast(colorValue),
-            backgroundColor: colorValue,
-          }}
-        >
-          <Typography variant="body1">{paletteName}</Typography>
-
-          <div>
-            <Typography variant="body1">500</Typography>
-
-            <Typography variant="body1">{colorValue}</Typography>
-          </div>
-        </div>
-
-        {Object.entries(previewPalette).map(
-          ([key, value]: [string, string], idx) => (
-            <div
-              className={classes.previewSwatch}
-              style={{
-                backgroundColor: value,
-              }}
-              key={`${colorValue}${idx}`}
-            >
-              <Typography
-                variant="body2"
-                style={{
-                  color: handleTextContrast(value),
-                }}
-              >
-                {key}
-              </Typography>
-              <Typography
-                variant="body2"
-                style={{
-                  color: handleTextContrast(value),
-                }}
-              >
-                {value}
-              </Typography>
-            </div>
-          )
-        )}
-      </div>
-    );
-  };
 
   return (
     <div className={classes.root}>
@@ -387,8 +322,10 @@ const App: React.FC = () => {
           </>
         ) : (
           <>
-            <Preview />
+            <Preview paletteName={paletteName} colorValue={colorValue} />
             <Preview
+              paletteName={paletteName}
+              colorValue={colorValue}
               style={{
                 position: "absolute",
                 top: 0,
