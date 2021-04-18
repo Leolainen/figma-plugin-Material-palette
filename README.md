@@ -10,6 +10,12 @@
 
 ![alt text](./images/materialpalette.jpg "Material palette")
 
+
+
+Based on algorithm by [sebastian lasse](https://github.com/sebilasse)
+
+
+https://codepen.io/sebilasse/pen/GQYKJd
 ---
 
 To install
