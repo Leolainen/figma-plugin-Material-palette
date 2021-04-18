@@ -1,5 +1,23 @@
 # **Versions**
 
+# 2.2
+
+##### _2021-04-18_
+- Simplify material algorithm
+- tweak algorithm so it can handle more colors and handle darker shades better
+
+# 2.1.1
+
+##### _2020-08-13_
+
+- fix crash caused when MUI palette doesn't support base color
+
+# 2.1
+
+##### _2020-08-13_
+
+- Minor tweaks to interface
+
 # 2.0
 
 ##### _2020-08-13_
