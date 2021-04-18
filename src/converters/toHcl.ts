@@ -5,7 +5,7 @@ import { hex2rgb } from "./toRgb";
 /**
  * MUI functions
  */
-export function hex2hcl(hex: ColorCalc) {
+export function hex2hcl(hex: ColorCalc | string) {
   return rgb2hcl(hex2rgb(hex));
 }
 
