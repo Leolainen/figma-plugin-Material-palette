@@ -17,7 +17,6 @@ import { generateMonochromePalette } from "./generators/monochrome";
 import { RgbHslHexObject } from "./types";
 import { hexToRGB } from "./converters/toRgb";
 import { hexToHSL } from "./converters/toHsl";
-import { getContrastRatio } from "./utils/contrast";
 import { isValidHex } from "./utils/validation";
 import useDebounce from "./hooks/useDebounce";
 import Preview from "./blocks/Preview";
@@ -276,7 +275,9 @@ const App: React.FC = () => {
             label="Schema"
           >
             {schemaOptions.map((option) => (
-              <MenuItem value={option.value}>{option.label}</MenuItem>
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
@@ -322,8 +323,13 @@ const App: React.FC = () => {
           </>
         ) : (
           <>
-            <Preview paletteName={paletteName} colorValue={colorValue} />
             <Preview
+              preview={preview}
+              paletteName={paletteName}
+              colorValue={colorValue}
+            />
+            <Preview
+              preview={preview}
               paletteName={paletteName}
               colorValue={colorValue}
               style={{

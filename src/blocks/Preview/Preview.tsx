@@ -8,6 +8,7 @@ import { getContrastRatio } from "../../utils/contrast";
 interface Props {
   colorValue: string;
   paletteName: string;
+  preview: RgbHslHexObject[];
   style?: React.CSSProperties; // too lazy to properly fix this
 }
 
@@ -61,9 +62,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Preview = ({ colorValue, paletteName, style, ...props }: Props) => {
+const Preview = ({
+  preview,
+  colorValue,
+  paletteName,
+  style,
+  ...props
+}: Props) => {
   const classes = useStyles();
-  let preview: RgbHslHexObject[];
 
   const colorKeys =
     preview.length < COLORKEYS.length ? COLORKEYS.slice(0, 9) : COLORKEYS;
