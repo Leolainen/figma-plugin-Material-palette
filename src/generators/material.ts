@@ -1,16 +1,15 @@
 import { BASECOLOR, COLORKEYS } from "../constants";
 import { materialColorSchema } from "../schemas";
-import { hcl2hex } from '../converters/toHex';
-import { hex2rgb, hexToRGB } from '../converters/toRgb';
-import { hex2hcl, rgb2hcl } from '../converters/toHcl';
-import { hexToHSL } from '../converters/toHsl';
-import { RgbHslHexObject, BaseColorList } from "../types";
-import { isValidHex } from '../utils/validation';
+import { hcl2hex } from "../converters/toHex";
+import { hex2rgb, hexToRGB } from "../converters/toRgb";
+import { hex2hcl, rgb2hcl } from "../converters/toHcl";
+import { hexToHSL } from "../converters/toHsl";
+import { RgbHslHexObject, BaseColorKey } from "../types";
 
 /**
  * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  * @
- * @  ACTUAL MATERIAL PALETTE PART
+ * @  ORIGINAL ALGORITHM BUILT BY SEBASTIAN LASSE
  * @  https://codepen.io/sebilasse/pen/GQYKJd
  * @
  * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -20,14 +19,6 @@ export const hexColorReg = /^#?([A-F0-9]{6}|[A-F0-9]{3})$/i;
 function specificLight(rgb: number[]) {
   const [r, g, b] = rgb;
   return 1 - (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-}
-
-function minmax(value: number, max: number = 100, min: number = 0) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function minmaxHue(hue: number): number {
-  return hue < 0 ? hue + 360 : hue > 360 ? hue - 360 : hue;
 }
 
 function colorData(hex: string, palette: any = undefined) {
@@ -44,94 +35,71 @@ export function getSpecificLight(hex: string): number {
   return hcl[2] * specificLight(rgb);
 }
 
-// Checks if passed hex matches any named colors in the baseColors.
-function checkBaseColorName(hex) {
-  let baseColors: any = BASECOLOR.material;
+/**
+ * Acts like a sort of limiter.
+ *
+ * These checks overrides the basecolor so the usual schema for the color wouldn't apply.
+ * This is due to some darker variants of colors (eg red) not looking very good.
+ * Brown is for instance much "calmer" and doesn't include blue tones which red
+ * otherwise does.
+ *
+ * This is pretty much 100% personal preference and can be tweaked quite a bit!
+ */
+function compressBasecolor(baseColor: BaseColorKey, hex): BaseColorKey {
+  const { hcl, sl } = colorData(hex);
+  const [hue, chroma, luminance] = hcl;
 
-  for (let name in baseColors) {
-    if (baseColors[name] === hex) {
-      return true;
-    }
+  const checkBrown = { orange: 1, deepOrange: 1, red: 1 };
+  const checkBlue = {
+    indigo: 1,
+    blue: 1,
+    lightBlue: 1,
+    cyan: 1,
+    blueGrey: 1,
+    deepPurple: 1,
+  };
+
+  if (baseColor === "deepPurple" && chroma < 60 && luminance < 26) {
+    baseColor = "blueGrey";
   }
 
-  return false;
+  if (checkBrown.hasOwnProperty(baseColor) && chroma < 48) {
+    baseColor = chroma < 12 ? "grey" : "brown";
+  } else if (checkBlue.hasOwnProperty(baseColor) && chroma < 56 && sl > 0.32) {
+    baseColor = "blueGrey";
+  } else if (chroma < 16) {
+    baseColor = "grey";
+  }
+
+  return baseColor;
 }
 
-function palette(hexColor: string) {
-  let name: string = "";
-  let distance: any = 0;
-  let baseColors: any = BASECOLOR.material;
-
-  const hex = `${hexColor}`;
-  const hexString = hex.charAt(0) === "#" ? hex : `#${hex}`;
-
-  if (!hex || !isValidHex(hex)) {
-    throw new TypeError("Invalid input");
-  }
-
-  const { rgb, hcl, sl } = colorData(hex);
-
-  if (checkBaseColorName(hexString)) return { name, hex, sl, distance, baseColors }
-
+/**
+ * find which basecolor schema to use based on the provided hex
+ */
+function findClosestBaseColor(hex: string): BaseColorKey {
+  const { hcl, sl } = colorData(hex);
   const [h, c, l] = hcl;
 
-  distance = { h: 360, s: 0, l: 0 };
-  name = "grey";
+  let baseColor: BaseColorKey = "grey";
+  let dist = 360;
 
-  if (sl > 0.9) {
-    name = "black";
-  } else if (sl < 0.1) {
-    name = "white";
-    // } else if (c > 8) {
-  } else {
-    let dist = 360;
-    let basecolorName;
+  // loop through each basecolor and set the baseColor
+  Object.keys(BASECOLOR.material).forEach((baseColorName: BaseColorKey) => {
+    const baseColorHex = BASECOLOR.material[baseColorName];
 
-    for (basecolorName in baseColors) {
-      let [hue, chroma, luminance] = hex2hcl(baseColors[basecolorName]);
-      let _dist = Math.min(Math.abs(hue - h), 360 + hue - h);
+    // picks out the HCL values from each set material basecolor
+    let [hue] = hex2hcl(baseColorHex);
+    let _dist = Math.min(Math.abs(hue - h), 360 + hue - h);
 
-      if (_dist < dist) {
-        dist = _dist;
-        name = basecolorName;
-        distance = [h - hue, c - chroma, l - luminance];
-      }
+    // we've found our basecolor if _dist is lower than dist
+    if (_dist < dist) {
+      dist = _dist;
+      baseColor = baseColorName;
     }
+  });
 
-    const checkBrown = { orange: 1, deepOrange: 1 };
-    const checkBlue = {
-      indigo: 1,
-      blue: 1,
-      lightBlue: 1,
-      cyan: 1,
-      blueGrey: 1
-    };
-
-    if (checkBrown.hasOwnProperty(name) && c < 48) {
-      name = c < 12 ? "grey" : "brown";
-    } else if (checkBlue.hasOwnProperty(name) && c < 32 && sl > 0.32) {
-      name = "blueGrey";
-    } else if (c < 16) {
-      name = "grey";
-    }
-  }
-
-  // Alternating colors
-  const generatedPalette = Object.keys(baseColors).reduce((acc, curr, index) => {
-    let [hue, chroma, luminance] = hex2hcl(baseColors[curr]);
-    acc[curr] =
-      curr === "500"
-        ? baseColors[curr]
-        : hcl2hex([
-          minmaxHue(hue + distance[0]),
-          minmax(chroma + distance[1]),
-          minmax(luminance + distance[2])
-        ]);
-
-    return acc;
-  }, {});
-
-  return { name, hex, sl, distance, baseColors: generatedPalette };
+  return compressBasecolor(baseColor, hex);
 }
 
 /**
@@ -140,53 +108,54 @@ function palette(hexColor: string) {
  * ex:
  * basecolor = "red" (#f44336 which in hcl is {h: 14, c: 143, l: 56})
  * materialColorSchema.red.0 = [-28, -74, 39]
- * return = {h: -14, c: 69, l: 95}
+ * @return = {h: -14, c: 69, l: 95}
  */
-function materialScale(
-  hex: string,
-  name: string,
-  baseColors: BaseColorList = BASECOLOR.material
-) {
-  const { hcl } = colorData(name, baseColors);
+function materialScale(hex: string, baseColor: BaseColorKey) {
+  const { hcl } = colorData(hex);
+
+  // Some colors have accent colors. some don't. We check for that here.
   const colorKeys =
-    materialColorSchema[name].length < COLORKEYS.length
+    materialColorSchema[baseColor].length < COLORKEYS.length
       ? COLORKEYS.slice(0, 9)
       : COLORKEYS;
 
   return colorKeys.reduce((acc: object, curr: string, idx: number) => {
-    const modifiedHCL: Array<number> = materialColorSchema[name][idx].map(
+    const modifiedHCL: Array<number> = materialColorSchema[baseColor][idx].map(
       (rangeValue, index) => hcl[index] + rangeValue
     );
 
     acc[curr] = hcl2hex(modifiedHCL);
 
+    // 500 does not exist in the COLORKEYS constant so we have to fill it here
+    // 500 is also the base hex inputted by the user
     if (curr === "400") {
-      // Check if hex is custom or part of basecolor
-      const checkedHex = baseColors[name] === hex ? baseColors[name] : hex;
-      acc["500"] = checkedHex;
+      acc["500"] = hex;
     }
 
     return acc;
   }, {});
 }
 
-
 function generateMaterialHexPalette(hex: string) {
-  const paletteObject = palette(hex);
-  return materialScale(hex, paletteObject.name, paletteObject.baseColors);
+  const baseColor = findClosestBaseColor(hex);
+
+  return materialScale(hex, baseColor);
 }
 
-export function generateMaterialPalette(baseColor: RgbHslHexObject): RgbHslHexObject[] {
+export function generateMaterialPalette(
+  baseColor: RgbHslHexObject
+): RgbHslHexObject[] {
   try {
     const hexPalette = generateMaterialHexPalette(baseColor.hex);
 
-    return Object.keys(hexPalette).map(key => ({
+    return Object.keys(hexPalette).map((key) => ({
       rgb: hexToRGB(hexPalette[key], true),
       hsl: hexToHSL(hexPalette[key]),
-      hex: hexPalette[key]
+      hex: hexPalette[key],
     }));
   } catch (e) {
-    console.error("[generateMaterialPalette]: material generator is looking for a baseColor property that doesn't exist in the BASECOLOR constant (probably 'black' or 'white'). There is no HCL scale for this color in materialColorSchema.");
-    return undefined
+    console.error("error: ", e);
+
+    return undefined;
   }
 }
