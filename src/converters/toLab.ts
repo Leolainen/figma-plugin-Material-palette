@@ -9,9 +9,10 @@ export function rgb2lab(rgb: ColorCalc) {
 }
 
 export function hcl2lab(hcl: ColorCalc) {
+  // eslint-disable-next-line prefer-const
   let [h, c, l] = hcl;
 
-  h = h * (Math.PI / 180);
+  h *= Math.PI / 180;
 
   const lab: ColorCalc = [l, Math.cos(h) * c, Math.sin(h) * c];
 
