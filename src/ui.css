@@ -4,32 +4,12 @@ body {
   margin: 20px;
   height: 100%;
 }
-/* 
-button {
-  border-radius: 5px;
-  background: white;
-  color: black;
-  border: none;
-  padding: 8px 15px;
-  margin: 0 5px;
-  box-shadow: inset 0 0 0 1px black;
-  outline: none;
-  cursor: pointer;
-} */
 
 .create-button {
   box-shadow: none;
   background: #18a0fb;
   color: white;
 }
-
-/* 
-input {
-  border: none;
-  outline: none;
-  padding: 8px;
-  width: 100%;
-} */
 
 .info-text {
   text-align: left;
@@ -39,24 +19,6 @@ input {
 .outer-wrapper {
   height: 100%;
 }
-/* 
-.input-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 20px;
-  padding-bottom: 5px;
-  border-bottom: 1px solid rgb(167, 167, 167);
-}
-
-.toggle-wrapper {
-  flex-direction: row;
-  align-items: center;
-} */
-/* 
-.toggle-wrapper > input {
-  margin-right: 8px;
-} */
 
 .color-input {
   height: 35px;
