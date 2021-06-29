@@ -1,0 +1,110 @@
+{
+  "parser": "babel-eslint",
+
+  "env": {
+    "jest": true,
+    "es6": true
+  },
+
+  "plugins": [
+    "react",
+    "react-hooks",
+    "import",
+    "lodash"
+    // "jest", maybe add tests?
+  ],
+
+  "extends": [
+    "airbnb",
+    "airbnb/hooks",
+    "plugin:import/recommended",
+    "prettier"
+    // "plugin:jest/recommended"
+  ],
+
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".ts", ".tsx"]
+      }
+    }
+  },
+
+  "rules": {
+    "no-plusplus": "off",
+    "no-underscore-dangle": "off",
+    "lines-around-directive": "warn",
+    "max-classes-per-file": "warn",
+    "no-bitwise": "warn",
+    "no-case-declarations": "warn",
+    "no-continue": "warn",
+    "no-param-reassign": "warn",
+    "no-prototype-builtins": "warn",
+    "no-restricted-globals": "warn",
+    "no-restricted-properties": "warn",
+    "no-restricted-syntax": "warn",
+    "no-return-assign": "warn",
+    "no-return-await": "warn",
+    "no-unused-expressions": ["warn", {"allowTaggedTemplates": true}],
+    "no-use-before-define": "warn",
+    "no-useless-computed-key": "warn",
+    "no-useless-concat": "warn",
+    "no-useless-constructor": "warn",
+    "no-useless-escape": "warn",
+    "prefer-destructuring": "warn",
+    "prefer-object-spread": "warn",
+    "prefer-promise-reject-errors": "warn",
+    "prefer-rest-params": "warn",
+    "prefer-template": "warn",
+    "react/button-has-type": "warn",
+    "react/destructuring-assignment": "warn",
+    "react/jsx-curly-brace-presence": "warn",
+    "react/jsx-no-target-blank": "warn",
+    "react/jsx-props-no-spreading": "warn",
+    "react/no-access-state-in-setstate": "warn",
+    "react/no-array-index-key": "warn",
+    "react/no-children-prop": "warn",
+    "react/no-find-dom-node": "warn",
+    "react/no-string-refs": "warn",
+    "react/no-unescaped-entities": "warn",
+    "react/no-unused-state": "warn",
+    "react/prefer-stateless-function": "warn",
+    "react/sort-comp": "warn",
+    "react/static-property-placement": "warn",
+    "require-yield": "warn",
+    "strict": "warn"
+  },
+
+  "overrides": [
+    // TypeScript specific rules
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parser": "@typescript-eslint/parser",
+      "plugins": [
+        "@typescript-eslint"
+      ],
+      "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:import/typescript"
+      ],
+      "rules": {
+        "import/prefer-default-export": "off",
+        "react/require-default-props": "off",
+        "react/jsx-props-no-spreading": "off",
+        "import/extensions": "off",
+        "no-restricted-globals": "off",
+        "react/prop-types": "off",
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "react/jsx-filename-extension": [1, { "extensions": [".tsx"] }],
+        "no-shadow": "off",
+        "@typescript-eslint/no-shadow": ["error"],
+        "no-useless-constructor": "off",
+        "@typescript-eslint/no-useless-constructor": "error",
+        "no-use-before-define": "off",
+        "@typescript-eslint/no-use-before-define": ["warn"]
+      }
+    }
+  ]
+}
