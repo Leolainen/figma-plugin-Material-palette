@@ -1,50 +1,48 @@
 import { COLORKEYS, DEFAULT_BASE_COLOR } from "./constants";
-import {
-  hexToRGB
-} from './converters/toRgb';
-import { hexToHSL } from './converters/toHsl';
-import clone from './utils/clone';
-import { handleTextNodeContrast } from './utils/contrast';
+import clone from "./utils/clone";
+import { handleTextNodeContrast } from "./utils/contrast";
 import { RgbHslHexObject } from "./types";
-import { generateMaterialPalette } from './generators/material';
-import { generateMonochromePalette } from './generators/monochrome';
+
+const fullColorKeys = COLORKEYS;
+fullColorKeys.splice(5, 0, "500"); // include 500 swatch that's missing in the COLORKEYS
+
+type PaintNodeProps = {
+  node: RectangleNode;
+  rgb: [number, number, number];
+};
+
+const paintNode = (paintNodeProps: PaintNodeProps) => {
+  const {
+    node,
+    rgb: [r, g, b],
+  } = paintNodeProps;
+
+  const fills: symbol = clone(node.fills);
+  fills[0].color.r = r / 100;
+  fills[0].color.g = g / 100;
+  fills[0].color.b = b / 100;
+
+  return fills;
+};
 
 figma.showUI(__html__, {
   height: 650,
-  width: 890
+  width: 890,
 });
 
 figma.ui.postMessage({
-  lastSelectedColor: figma.root.getPluginData('lastSelectedColor') || DEFAULT_BASE_COLOR
+  lastSelectedColor:
+    figma.root.getPluginData("lastSelectedColor") || DEFAULT_BASE_COLOR,
 });
 
-figma.ui.onmessage = async msg => {
+figma.ui.onmessage = async (msg) => {
   if (msg.type === "create-palette") {
-    figma.root.setPluginData('lastSelectedColor', msg.value);
+    figma.root.setPluginData("lastSelectedColor", msg.value);
 
     const nodes: SceneNode[] = [];
-
-    let selectedColor: string = msg.value[0] === "#" ? msg.value : `#${msg.value}`;
+    const { palette } = msg;
     const paletteName: string = msg.name;
-    const schema: string = msg.schema;
-
-    const baseColor: RgbHslHexObject = {
-      rgb: hexToRGB(selectedColor, true),
-      hsl: hexToHSL(selectedColor),
-      hex: selectedColor
-    };
-
-    const generatePalette: {
-      monochrome: Function;
-      trueMonochrome: Function;
-      material: Function;
-    } = {
-      monochrome: () => generateMonochromePalette(baseColor),
-      trueMonochrome: () => generateMonochromePalette(baseColor, true),
-      material: () => generateMaterialPalette(baseColor)
-    };
-
-    const completePalette: RgbHslHexObject[] = generatePalette[schema]();
+    const baseColor: RgbHslHexObject = palette[4];
 
     await figma.loadFontAsync({ family: "Roboto", style: "Regular" });
 
@@ -79,63 +77,31 @@ figma.ui.onmessage = async msg => {
     headerName.characters = paletteName.toUpperCase();
     headerNumber.characters = "500";
     headerHex.characters = baseColor.hex.toUpperCase();
-    headerRect.name = `${headerName.characters} - ${headerHex.characters} - ${headerNumber.characters}`
+    headerRect.name = `${headerName.characters} - ${headerHex.characters} - ${headerNumber.characters}`;
 
     const headerGroup: FrameNode = figma.group(
       [headerRect, headerName, headerNumber, headerHex],
       figma.currentPage
     );
-    headerGroup.name = `${paletteName} Header`
+    headerGroup.name = `${paletteName} Header`;
     headerGroup.locked = true;
     nodes.push(headerGroup);
 
-    const fullColorKeys = COLORKEYS;
-    fullColorKeys.splice(5, 0, "500")
+    for (let i = 0; i < palette.length; i++) {
+      const paletteBar = createPaletteBar({
+        size: {
+          height: 34,
+          width: 360,
+        },
+        position: {
+          y: headerRect.height + i * 34,
+        },
+        fontSize: 14,
+        color: palette[i],
+        swatchIndex: i,
+      });
 
-    for (let i = 0; i < completePalette.length; i++) {
-      const rect: RectangleNode = figma.createRectangle();
-      const paletteHex: TextNode = figma.createText();
-      const paletteNumber: TextNode = figma.createText();
-
-      paletteHex.fontSize = 14;
-      paletteNumber.fontSize = 14;
-
-      rect.resize(360, 34);
-      rect.y = headerRect.height + i * rect.height;
-      paletteHex.x = rect.width - 80;
-      paletteHex.y = rect.y + rect.height / 2 - paletteHex.height / 2;
-      paletteNumber.x = 20;
-      paletteNumber.y = rect.y + rect.height / 2 - paletteNumber.height / 2;
-
-      const fills: symbol = clone(rect.fills);
-      fills[0].color.r = completePalette[i].rgb.r / 100;
-      fills[0].color.g = completePalette[i].rgb.g / 100;
-      fills[0].color.b = completePalette[i].rgb.b / 100;
-
-      // Get contrast ratio to set paletteHex color
-      paletteHex.fills = handleTextNodeContrast(
-        paletteHex,
-        completePalette[i].hex
-      );
-      paletteNumber.fills = handleTextNodeContrast(
-        paletteHex,
-        completePalette[i].hex
-      );
-      rect.fills = fills;
-
-      paletteHex.characters = completePalette[i].hex.toUpperCase();
-      paletteNumber.characters = fullColorKeys[i];
-
-      rect.name = `${paletteNumber.characters} ${completePalette[i].hex}`;
-
-      const group: FrameNode = figma.group(
-        [rect, paletteHex, paletteNumber],
-        figma.currentPage
-      );
-      group.name = paletteNumber.characters;
-      group.locked = true;
-
-      nodes.push(group);
+      nodes.push(paletteBar);
     }
 
     const parentFrame = figma.createFrame();
@@ -143,13 +109,13 @@ figma.ui.onmessage = async msg => {
     parentFrame.clipsContent = false;
 
     // Appends all nodes into wrapping frame
-    nodes.forEach(node => parentFrame.appendChild(node));
+    nodes.forEach((node) => parentFrame.appendChild(node));
 
     // Resize frame to children width & height
     parentFrame.resize(
       nodes[0].width,
       nodes.reduce((acc, curr) => curr.height + acc, 0)
-    )
+    );
 
     figma.currentPage.appendChild(parentFrame);
     figma.currentPage.selection = nodes;
@@ -157,4 +123,70 @@ figma.ui.onmessage = async msg => {
   }
 
   figma.closePlugin();
+};
+
+type PaletteBarProps = {
+  size: {
+    width: number;
+    height: number;
+  };
+  position?: {
+    x?: number;
+    y?: number;
+  };
+  fontSize: number;
+  color: {
+    rgb: {
+      r: number;
+      g: number;
+      b: number;
+    };
+    hex: string;
+  };
+  swatchIndex: number;
+};
+
+const createPaletteBar = (paletteBarProps: PaletteBarProps): FrameNode => {
+  const {
+    size: { width, height },
+    position: { y },
+    fontSize,
+    color: { rgb, hex },
+    swatchIndex,
+  } = paletteBarProps;
+  const rect: RectangleNode = figma.createRectangle();
+  const paletteHex: TextNode = figma.createText();
+  const paletteNumber: TextNode = figma.createText();
+
+  paletteHex.fontSize = fontSize;
+  paletteNumber.fontSize = fontSize;
+
+  rect.resize(360, height);
+  rect.y = y;
+  paletteHex.x = width - 80;
+  paletteHex.y = y + height / 2 - paletteHex.height / 2;
+  paletteNumber.x = 20;
+  paletteNumber.y = y + height / 2 - paletteNumber.height / 2;
+
+  // Get contrast ratio to set paletteHex color
+  paletteHex.fills = handleTextNodeContrast(paletteHex, hex);
+  paletteNumber.fills = handleTextNodeContrast(paletteHex, hex);
+  rect.fills = paintNode({
+    node: rect,
+    rgb: [rgb.r, rgb.g, rgb.b],
+  });
+
+  paletteHex.characters = hex.toUpperCase();
+  paletteNumber.characters = fullColorKeys[swatchIndex];
+
+  rect.name = `${paletteNumber.characters} ${hex}`;
+
+  const group = figma.group(
+    [rect, paletteHex, paletteNumber],
+    figma.currentPage
+  );
+  group.name = paletteNumber.characters;
+  group.locked = true;
+
+  return group;
 };
