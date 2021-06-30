@@ -1,17 +1,17 @@
 import * as React from "react";
-import { COLORKEYS, DEFAULT_BASE_COLOR } from "./constants";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Button,
-  TextField,
-  Select,
-  Typography,
-  InputAdornment,
-  IconButton,
-  InputLabel,
   FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
   MenuItem,
+  Select,
+  TextField,
+  Typography,
 } from "@material-ui/core";
+import { DEFAULT_BASE_COLOR } from "./constants";
 import { generateMaterialPalette } from "./generators/material";
 import { generateMonochromePalette } from "./generators/monochrome";
 import { RgbHslHexObject } from "./types";
@@ -20,6 +20,8 @@ import { hexToHSL } from "./converters/toHsl";
 import { isValidHex } from "./utils/validation";
 import useDebounce from "./hooks/useDebounce";
 import Preview from "./blocks/Preview";
+import Options from "./blocks/Options";
+import PreviewError from "./blocks/PreviewError";
 
 const schemaOptions = [
   {
@@ -122,23 +124,37 @@ const useStyles = makeStyles((theme) => ({
       fontSize: 18,
     },
   },
+
+  options: {
+    marginRight: "auto",
+  },
 }));
+
+const getBaseColor = (hex: string): RgbHslHexObject => ({
+  rgb: hexToRGB(hex, true),
+  hsl: hexToHSL(hex),
+  hex,
+});
+
+const defaultOptions = {
+  lockSwatch: false,
+  accent: true,
+};
+
+export type OptionsType = typeof defaultOptions;
 
 const App: React.FC = () => {
   const classes = useStyles();
-  const [inputValue, setInputValue] = React.useState(DEFAULT_BASE_COLOR);
-  const [colorValue, setColorValue] = React.useState(inputValue);
-  const [schema, setSchema] = React.useState(schemaOptions[0].value);
   const [paletteName, setPaletteName] = React.useState("");
+  const [inputValue, setInputValue] = React.useState(DEFAULT_BASE_COLOR);
+  const [hex, setHex] = React.useState(inputValue);
+  const [schema, setSchema] = React.useState(schemaOptions[0].value);
+  const [options, setOptions] = React.useState(defaultOptions);
 
   const debouncedValue = useDebounce(inputValue, 200);
 
-  let preview: RgbHslHexObject[];
-  let baseColor: RgbHslHexObject = {
-    rgb: hexToRGB(colorValue, true),
-    hsl: hexToHSL(colorValue),
-    hex: colorValue,
-  };
+  const baseColor = getBaseColor(hex);
+  let palette: RgbHslHexObject[];
 
   React.useEffect(() => {
     window.addEventListener("message", (event: MessageEvent) => {
@@ -148,22 +164,11 @@ const App: React.FC = () => {
         );
       }
     });
-  });
-
-  React.useEffect(() => {
-    if (inputValue.charAt(0) !== "#") {
-      setInputValue("#" + inputValue);
-    }
-  }, [inputValue]);
+  }, []);
 
   React.useEffect(() => {
     if (isValidHex(debouncedValue)) {
-      setColorValue(debouncedValue);
-      baseColor = {
-        rgb: hexToRGB(colorValue, true),
-        hsl: hexToHSL(colorValue),
-        hex: colorValue,
-      };
+      setHex(debouncedValue);
     }
   }, [debouncedValue]);
 
@@ -176,8 +181,9 @@ const App: React.FC = () => {
       {
         pluginMessage: {
           type: "create-palette",
-          schema: schema,
-          value: colorValue,
+          schema,
+          palette,
+          value: hex,
           name: paletteName,
         },
       },
@@ -193,29 +199,43 @@ const App: React.FC = () => {
     setSchema(e.target.value);
   };
 
-  const handleinputValueChange = (e) => {
-    setInputValue(e.target.value);
+  const handleInputValueChange = (e) => {
+    const cleanedValue = e.target.value.replace("#", "");
+
+    setInputValue(`#${cleanedValue}`);
+  };
+
+  const handleOptionsChange = (newOptions) => {
+    setOptions(newOptions);
   };
 
   switch (schema) {
     case "material":
-      preview = generateMaterialPalette(baseColor);
+      palette = generateMaterialPalette(baseColor, {
+        ...options,
+      });
       break;
     case "monochrome":
-      preview = generateMonochromePalette(baseColor);
+      palette = generateMonochromePalette(baseColor);
       break;
     case "trueMonochrome":
-      preview = generateMonochromePalette(baseColor, true);
+      palette = generateMonochromePalette(baseColor, true);
       break;
     default:
       console.error("no schema selected. This is impossible!");
   }
 
-  // remove 5th idx of preview as it's the selected base color.
-  // this is to keep preview array consistent regardless of palette
-  if (preview && preview.length) {
-    preview.splice(5, 1);
+  const hasAccents = palette.length > 10;
+
+  // remove accents if material schema and accents is turned off
+  if (hasAccents && !options.accent) {
+    palette.splice(-4, 4);
   }
+
+  const optionsDisabled = {
+    lockSwatch: schema !== "material",
+    accent: !hasAccents,
+  };
 
   return (
     <div className={classes.root}>
@@ -247,18 +267,18 @@ const App: React.FC = () => {
           variant="outlined"
           label="Base color"
           value={inputValue}
-          onChange={handleinputValueChange}
+          onChange={handleInputValueChange}
           fullWidth
-          error={!Boolean(preview) || !isValidHex(debouncedValue)}
+          error={!palette || !isValidHex(debouncedValue)}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
                 <IconButton>
                   <input
                     className={classes.colorPicker}
-                    value={inputValue}
+                    value={hex}
                     type="color"
-                    onChange={handleinputValueChange}
+                    onChange={handleInputValueChange}
                   />
                 </IconButton>
               </InputAdornment>
@@ -268,6 +288,7 @@ const App: React.FC = () => {
 
         <FormControl variant="outlined" fullWidth>
           <InputLabel id="select-label">Schema</InputLabel>
+
           <Select
             labelId="select-label"
             onChange={handleSchemaChange}
@@ -283,6 +304,13 @@ const App: React.FC = () => {
         </FormControl>
 
         <div className={classes.buttons}>
+          <Options
+            options={options}
+            optionsDisabled={optionsDisabled}
+            onOptionsChange={handleOptionsChange}
+            className={classes.options}
+          />
+
           <Button
             onClick={handleCancelClick}
             variant="contained"
@@ -295,7 +323,7 @@ const App: React.FC = () => {
             onClick={handleCreateClick}
             variant="contained"
             color="primary"
-            disabled={!Boolean(preview)}
+            disabled={!palette}
           >
             Create
           </Button>
@@ -303,46 +331,14 @@ const App: React.FC = () => {
       </div>
 
       <div className={classes.preview}>
-        {!preview ? (
-          <>
-            <Typography color="error" variant="h5">
-              Whoops!!
-            </Typography>
-
-            <Typography color="error" variant="overline" paragraph>
-              The material schema can't handle this color!
-            </Typography>
-
-            <Typography variant="body1" paragraph>
-              The selected color is probably too dark or too bright.
-            </Typography>
-
-            <Typography variant="subtitle2">
-              TIP: Slightly tweak your color or change to a monochrome schema.
-            </Typography>
-          </>
+        {!palette || !hex || (hex && !isValidHex(hex)) ? (
+          <PreviewError />
         ) : (
-          <>
-            <Preview
-              preview={preview}
-              paletteName={paletteName}
-              colorValue={colorValue}
-            />
-            <Preview
-              preview={preview}
-              paletteName={paletteName}
-              colorValue={colorValue}
-              style={{
-                position: "absolute",
-                top: 0,
-                filter: "blur(10px) brightness(125%) saturate(110%)",
-                width: "100%",
-                zIndex: -1,
-                transform: "scale(0.7) translate3d(2px, 6px, 0)",
-                opacity: 0.4,
-              }}
-            />
-          </>
+          <Preview
+            preview={palette}
+            paletteName={paletteName}
+            colorValue={hex}
+          />
         )}
       </div>
     </div>
