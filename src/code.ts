@@ -35,6 +35,51 @@ figma.ui.postMessage({
     figma.root.getPluginData("lastSelectedColor") || DEFAULT_BASE_COLOR,
 });
 
+const createPaletteBar = (paletteBarProps: PaletteBarProps): FrameNode => {
+  const {
+    size: { width, height },
+    position: { y },
+    fontSize,
+    color: { rgb, hex },
+    swatchIndex,
+  } = paletteBarProps;
+  const rect: RectangleNode = figma.createRectangle();
+  const paletteHex: TextNode = figma.createText();
+  const paletteNumber: TextNode = figma.createText();
+
+  paletteHex.fontSize = fontSize;
+  paletteNumber.fontSize = fontSize;
+
+  rect.resize(360, height);
+  rect.y = y;
+  paletteHex.x = width - 80;
+  paletteHex.y = y + height / 2 - paletteHex.height / 2;
+  paletteNumber.x = 20;
+  paletteNumber.y = y + height / 2 - paletteNumber.height / 2;
+
+  // Get contrast ratio to set paletteHex color
+  paletteHex.fills = handleTextNodeContrast(paletteHex, hex);
+  paletteNumber.fills = handleTextNodeContrast(paletteHex, hex);
+  rect.fills = paintNode({
+    node: rect,
+    rgb: [rgb.r, rgb.g, rgb.b],
+  });
+
+  paletteHex.characters = hex.toUpperCase();
+  paletteNumber.characters = fullColorKeys[swatchIndex];
+
+  rect.name = `${paletteNumber.characters} ${hex}`;
+
+  const group = figma.group(
+    [rect, paletteHex, paletteNumber],
+    figma.currentPage
+  );
+  group.name = paletteNumber.characters;
+  group.locked = true;
+
+  return group;
+};
+
 figma.ui.onmessage = async (msg) => {
   if (msg.type === "create-palette") {
     figma.root.setPluginData("lastSelectedColor", msg.value);
@@ -42,7 +87,7 @@ figma.ui.onmessage = async (msg) => {
     const nodes: SceneNode[] = [];
     const { palette } = msg;
     const paletteName: string = msg.name;
-    const baseColor: RgbHslHexObject = palette[4];
+    const baseColor: RgbHslHexObject = palette[5];
 
     await figma.loadFontAsync({ family: "Roboto", style: "Regular" });
 
@@ -144,49 +189,4 @@ type PaletteBarProps = {
     hex: string;
   };
   swatchIndex: number;
-};
-
-const createPaletteBar = (paletteBarProps: PaletteBarProps): FrameNode => {
-  const {
-    size: { width, height },
-    position: { y },
-    fontSize,
-    color: { rgb, hex },
-    swatchIndex,
-  } = paletteBarProps;
-  const rect: RectangleNode = figma.createRectangle();
-  const paletteHex: TextNode = figma.createText();
-  const paletteNumber: TextNode = figma.createText();
-
-  paletteHex.fontSize = fontSize;
-  paletteNumber.fontSize = fontSize;
-
-  rect.resize(360, height);
-  rect.y = y;
-  paletteHex.x = width - 80;
-  paletteHex.y = y + height / 2 - paletteHex.height / 2;
-  paletteNumber.x = 20;
-  paletteNumber.y = y + height / 2 - paletteNumber.height / 2;
-
-  // Get contrast ratio to set paletteHex color
-  paletteHex.fills = handleTextNodeContrast(paletteHex, hex);
-  paletteNumber.fills = handleTextNodeContrast(paletteHex, hex);
-  rect.fills = paintNode({
-    node: rect,
-    rgb: [rgb.r, rgb.g, rgb.b],
-  });
-
-  paletteHex.characters = hex.toUpperCase();
-  paletteNumber.characters = fullColorKeys[swatchIndex];
-
-  rect.name = `${paletteNumber.characters} ${hex}`;
-
-  const group = figma.group(
-    [rect, paletteHex, paletteNumber],
-    figma.currentPage
-  );
-  group.name = paletteNumber.characters;
-  group.locked = true;
-
-  return group;
 };
