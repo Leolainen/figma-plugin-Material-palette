@@ -10,7 +10,11 @@ import {
   Select,
   TextField,
   Typography,
+  Popover,
+  Tooltip,
 } from "@material-ui/core";
+import { Colorize as ColorizeIcon } from "@material-ui/icons";
+import { ChromePicker } from "react-color";
 import { DEFAULT_BASE_COLOR } from "./constants";
 import { generateMaterialPalette } from "./generators/material";
 import { generateMonochromePalette } from "./generators/monochrome";
@@ -148,6 +152,7 @@ const App: React.FC = () => {
   const [hex, setHex] = React.useState(inputValue);
   const [schema, setSchema] = React.useState(schemaOptions[0].value);
   const [options, setOptions] = React.useState(defaultOptions);
+  const [colorPickerAnchor, setColorPickerAnchor] = React.useState(null);
 
   const debouncedValue = useDebounce(inputValue, 200);
 
@@ -193,12 +198,24 @@ const App: React.FC = () => {
     parent.postMessage({ pluginMessage: { type: "cancel" } }, "*");
   };
 
+  const handleColorPickerClick = (event) => {
+    setColorPickerAnchor(event.currentTarget);
+  };
+
+  const handleColorPickerClose = () => {
+    setColorPickerAnchor(null);
+  };
+
   const handleSchemaChange = (e) => {
     setSchema(e.target.value);
   };
 
-  const handleInputValueChange = (e) => {
-    const cleanedValue = e.target.value.replace("#", "");
+  const handleColorPickerChange = (color) => {
+    setInputValue(color.hex);
+  };
+
+  const handleInputValueChange = (event) => {
+    const cleanedValue = event.target.value.replace("#", "");
 
     setInputValue(`#${cleanedValue}`);
   };
@@ -271,14 +288,30 @@ const App: React.FC = () => {
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton>
-                  <input
-                    className={classes.colorPicker}
-                    value={hex}
-                    type="color"
-                    onChange={handleInputValueChange}
+                <Tooltip title="Color picker" placement="bottom">
+                  <IconButton onClick={handleColorPickerClick}>
+                    <ColorizeIcon />
+                  </IconButton>
+                </Tooltip>
+
+                <Popover
+                  anchorEl={colorPickerAnchor}
+                  open={Boolean(colorPickerAnchor)}
+                  onClose={handleColorPickerClose}
+                  anchorOrigin={{
+                    vertical: "center",
+                    horizontal: "right",
+                  }}
+                  transformOrigin={{
+                    vertical: "center",
+                    horizontal: "right",
+                  }}
+                >
+                  <ChromePicker
+                    onChange={handleColorPickerChange}
+                    color={inputValue}
                   />
-                </IconButton>
+                </Popover>
               </InputAdornment>
             ),
           }}
