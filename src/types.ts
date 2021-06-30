@@ -70,3 +70,18 @@ export type BaseColorKey =
 export type BaseColor = {
   [key: string]: BaseColorList;
 };
+
+export type ColorKeys =
+  | "50"
+  | "100"
+  | "200"
+  | "300"
+  | "400"
+  | "600"
+  | "700"
+  | "800"
+  | "900"
+  | "a100"
+  | "a200"
+  | "a400"
+  | "a700";

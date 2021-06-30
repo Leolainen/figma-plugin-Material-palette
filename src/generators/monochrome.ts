@@ -1,34 +1,9 @@
-import {
-  HSLToHex,
-} from '../converters/toHex';
-import {
- hexToHSL,
-} from '../converters/toHsl';
+import { HSLToHex } from "../converters/toHex";
+import { hexToHSL } from "../converters/toHsl";
 import { RgbHslHexObject } from "../types";
-import {
-  hexToRGB
-} from '../converters/toRgb';
+import { hexToRGB } from "../converters/toRgb";
 
-export function generateMonochromePalette(
-  baseColor: RgbHslHexObject,
-  trueMonochrome: Boolean = false
-) {
-  const brighterColors: RgbHslHexObject[] = createBrighterColors(
-    baseColor
-  ).reverse();
-  const darkerColors: RgbHslHexObject[] = trueMonochrome
-    ? createDarkerColors(baseColor, 4, 0)
-    : createDarkerColors(baseColor);
-  const palette: RgbHslHexObject[] = [
-    ...brighterColors,
-    baseColor,
-    ...darkerColors
-  ];
-
-  return palette;
-}
-
-function createBrighterColors(baseColor: RgbHslHexObject, length: number = 5) {
+function createBrighterColors(baseColor: RgbHslHexObject, length = 5) {
   const maxSaturation = 100;
   const maxLightness = 100;
   let sModHolder = 0;
@@ -47,8 +22,8 @@ function createBrighterColors(baseColor: RgbHslHexObject, length: number = 5) {
       const sDiff = maxSaturation - sModHolder;
       const lDiff = maxLightness - lModHolder;
 
-      sModHolder = sModHolder + sDiff * 0.05;
-      lModHolder = lModHolder + lDiff * 0.25;
+      sModHolder += sDiff * 0.05;
+      lModHolder += lDiff * 0.25;
     }
 
     const hex = HSLToHex(h, s, lModHolder);
@@ -56,15 +31,15 @@ function createBrighterColors(baseColor: RgbHslHexObject, length: number = 5) {
     return {
       rgb: hexToRGB(hex, true),
       hsl: hexToHSL(hex),
-      hex
+      hex,
     };
   });
 }
 
 function createDarkerColors(
   baseColor: RgbHslHexObject,
-  length: number = 4,
-  hModMultiplier: number = 0.02
+  length = 4,
+  hModMultiplier = 0.02
 ) {
   let sModHolder = 0;
   let lModHolder = 0;
@@ -78,8 +53,8 @@ function createDarkerColors(
       lModHolder = l - l * 0.15;
       hModHolder = h - h * hModMultiplier < 0 ? 360 : h - h * hModMultiplier;
     } else {
-      sModHolder = sModHolder - sModHolder * 0.1;
-      lModHolder = lModHolder - lModHolder * 0.15;
+      sModHolder -= sModHolder * 0.1;
+      lModHolder -= lModHolder * 0.15;
       hModHolder =
         hModHolder - hModHolder * hModMultiplier < 0
           ? 360
@@ -91,7 +66,26 @@ function createDarkerColors(
     return {
       rgb: hexToRGB(hex, true),
       hsl: hexToHSL(hex),
-      hex
+      hex,
     };
   });
+}
+
+export function generateMonochromePalette(
+  baseColor: RgbHslHexObject,
+  trueMonochrome = false
+) {
+  const brighterColors: RgbHslHexObject[] = createBrighterColors(
+    baseColor
+  ).reverse();
+  const darkerColors: RgbHslHexObject[] = trueMonochrome
+    ? createDarkerColors(baseColor, 4, 0)
+    : createDarkerColors(baseColor);
+  const palette: RgbHslHexObject[] = [
+    ...brighterColors,
+    baseColor,
+    ...darkerColors,
+  ];
+
+  return palette;
 }

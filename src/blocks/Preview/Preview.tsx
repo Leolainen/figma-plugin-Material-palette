@@ -1,35 +1,22 @@
 import * as React from "react";
-import { COLORKEYS } from "../../constants";
 import { makeStyles } from "@material-ui/core/styles";
 import { Typography } from "@material-ui/core";
-import { RgbHslHexObject } from "../../types";
-import { getContrastRatio } from "../../utils/contrast";
+import classnames from "classnames";
+import { COLORKEYS } from "../../constants";
+import { RgbHslHexObject, ColorKeys } from "../../types";
+import { handleTextContrast } from "../../utils";
 
 interface Props {
   colorValue: string;
   paletteName: string;
   preview: RgbHslHexObject[];
-  style?: React.CSSProperties; // too lazy to properly fix this
+  style?: React.CSSProperties;
 }
 
-const useStyles = makeStyles((theme) => ({
-  preview: {
-    position: "relative",
-    marginLeft: theme.spacing(2),
-    maxWidth: 360,
-  },
-
+const useStyles = makeStyles(() => ({
   previewScaled: {
     transform: "scale(0.7)",
     transformOrigin: "top",
-  },
-
-  previewCloned: {
-    position: "absolute",
-    filter: "blur(10px) brightness(125%) saturate(110%)",
-    width: "100%",
-    zIndex: -1,
-    transform: "translate3d(2px, 6px, 0)",
   },
 
   previewSwatchHeader: {
@@ -60,45 +47,49 @@ const useStyles = makeStyles((theme) => ({
       fontSize: 18,
     },
   },
+
+  mainSwatch: {
+    border: "2px dashed white",
+    padding: 18,
+  },
 }));
 
 const Preview = ({
-  preview,
   colorValue,
   paletteName,
+  preview,
   style,
   ...props
 }: Props) => {
   const classes = useStyles();
+  let colorKeys = [...COLORKEYS];
 
-  const colorKeys =
-    preview.length < COLORKEYS.length ? COLORKEYS.slice(0, 9) : COLORKEYS;
+  // insert the 500 swatch which is missing from COLORKEYS
+  colorKeys.splice(5, 0, "500");
 
-  const previewPalette = colorKeys.reduce(
-    (acc: object, curr: string, idx: number) => {
+  // remove keys for accents if there are none
+  if (preview.length < COLORKEYS.length) {
+    colorKeys = colorKeys.slice(0, 10);
+  }
+
+  const previewPalette = colorKeys.reduce((acc, curr: string, idx: number) => {
+    try {
       acc[curr] = preview[idx].hex;
+    } catch (e) {
+      console.error("error", e);
+      console.warn("idx,", idx);
+    }
 
-      if (curr === "400") {
-        acc["500"] = colorValue;
-      }
-
-      return acc;
-    },
-    {}
-  );
-
-  // returns just #fff or #000 depending on contrast value
-  const handleTextContrast = (hex: string): string => {
-    return getContrastRatio("#ffffff", hex) < 6 ? "#000" : "#fff";
-  };
+    return acc;
+  }, {});
 
   return (
     <div className={classes.previewScaled} style={style} {...props}>
       <div
         className={classes.previewSwatchHeader}
         style={{
-          color: handleTextContrast(colorValue),
-          backgroundColor: colorValue,
+          color: handleTextContrast(previewPalette["500"]),
+          backgroundColor: previewPalette["500"],
         }}
       >
         <Typography variant="body1">{paletteName}</Typography>
@@ -106,14 +97,16 @@ const Preview = ({
         <div>
           <Typography variant="body1">500</Typography>
 
-          <Typography variant="body1">{colorValue}</Typography>
+          <Typography variant="body1">{previewPalette["500"]}</Typography>
         </div>
       </div>
 
       {Object.entries(previewPalette).map(
-        ([key, value]: [string, string], idx) => (
+        ([key, value]: [ColorKeys, string], idx) => (
           <div
-            className={classes.previewSwatch}
+            className={classnames(classes.previewSwatch, {
+              [classes.mainSwatch]: colorValue === value,
+            })}
             style={{
               backgroundColor: value,
             }}

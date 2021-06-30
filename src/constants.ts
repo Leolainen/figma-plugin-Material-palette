@@ -46,4 +46,4 @@ export const BASECOLOR: BaseColor = {
   },
 };
 
-export const DEFAULT_BASE_COLOR: string = "#F1392B";
+export const DEFAULT_BASE_COLOR = "#F1392B";
