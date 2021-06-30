@@ -1,4 +1,3 @@
-import Color from "colorjs.io";
 import { ColorCalc, RGB } from "../types";
 import { hcl2rgb } from "./toRgb";
 
@@ -10,21 +9,6 @@ export function rgb2hex(rgb: ColorCalc) {
 }
 
 export function hcl2hex(hcl: ColorCalc) {
-  // const [h, c, l] = hcl;
-  // console.log("🚀 ~ file: toHex.ts ~ line 14 ~ hcl2hex ~ [h, c, l]", [h, c, l]);
-  // const color2 = new Color("lch", [58, 100, 45]);
-  // console.log("🚀 ~ file: toHex.ts ~ line 17 ~ hcl2hex ~ color2", color2);
-
-  // console.log("Color object", Color);
-  // const color = new Color("#ff4000");
-  // console.log("color", color);
-
-  // const color = new Color("lch", [l, c, h]);
-
-  // console.log("color", color);
-  // console.log("color.hex, typeof color.hex", color.hex, typeof color.hex);
-
-  // return color.hex;
   return rgb2hex(hcl2rgb(hcl));
 }
 
