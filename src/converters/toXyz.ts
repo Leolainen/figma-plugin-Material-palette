@@ -23,10 +23,14 @@ export function lab2xyz(lab: ColorCalc) {
 }
 
 export function rgb2xyz(rgb: ColorCalc) {
-  const rgbXYZ = (val: number) =>
-    (val /= 255) <= 0.04045
-      ? val / 12.92
-      : Math.pow((val + 0.055) / 1.055, 2.4);
+  const rgbXYZ = (val: number) => {
+    if (val / 255 <= 0.04045) {
+      return val / 12.92;
+    }
+
+    return Math.pow((val + 0.055) / 1.055, 2.4);
+  };
+
   const xyzLAB = (val: number) =>
     val > 0.008856452 ? Math.pow(val, 1 / 3) : val / 0.12841855 + 0.137931034;
   const [r, g, b] = rgb.map(rgbXYZ);

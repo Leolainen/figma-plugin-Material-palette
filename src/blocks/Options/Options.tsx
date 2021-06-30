@@ -2,8 +2,12 @@ import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { IconButton, Popover, Tooltip } from "@material-ui/core";
 import { Settings as SettingsIcon } from "@material-ui/icons";
-import { OptionsType } from "../../app";
 import Toggle from "../../components/Toggle";
+
+type OptionsType = {
+  lockSwatch: boolean;
+  accent: boolean;
+};
 
 interface Props {
   className?: string;

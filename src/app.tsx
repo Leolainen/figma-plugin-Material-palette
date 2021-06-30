@@ -141,8 +141,6 @@ const defaultOptions = {
   accent: true,
 };
 
-export type OptionsType = typeof defaultOptions;
-
 const App: React.FC = () => {
   const classes = useStyles();
   const [paletteName, setPaletteName] = React.useState("");
