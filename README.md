@@ -1,22 +1,23 @@
 # Material palette
 
 ## A plugin for Figma
+##### created by [Leolainen](https://github.com/Leolainen) 
+Inspired by a [Codepen](https://codepen.io/sebilasse/pen/GQYKJd) by [sebastian lasse](https://github.com/sebilasse)
 
-##### Create a Material UI or Monochromatic palette in Figma quickly and easily!
+---
+
+![alt text](./images/materialpalette.png "Material palette")
+### Create a Material UI or Monochromatic palette in Figma quickly and easily!
 
 - Select a name for your palette
-- Pick your base color with the native color picker
-- Select a Schema between Material, Monochromatic, True Monochromatic
-
-![alt text](./images/materialpalette.jpg "Material palette")
-
+- Enter your color of choice as hex or use the color picker
+- Select which algorithm to use: Material, Monochromatic or True Monochromatic
+- Use the options to modify the palette to your needs
 
 
-Based on algorithm by [sebastian lasse](https://github.com/sebilasse)
-
-
-https://codepen.io/sebilasse/pen/GQYKJd
 ---
+
+**scripts**
 
 To install
 
@@ -26,6 +27,9 @@ Build dev
 
 - `$ npx webpack`
 
-Build prod:
+Build prod
 
 - `$ npm run build`
+
+Run eslint
+- `$ npm run lint`
