@@ -240,7 +240,7 @@ const App: React.FC = () => {
       console.error("no schema selected. This is impossible!");
   }
 
-  const hasAccents = palette.length > 10;
+  const hasAccents = palette?.length > 10 || false;
 
   // remove accents if material schema and accents is turned off
   if (hasAccents && !options.accent) {
