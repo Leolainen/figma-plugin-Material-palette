@@ -90,6 +90,7 @@ figma.ui.onmessage = async (msg) => {
     const baseColor: RgbHslHexObject = palette[5];
 
     await figma.loadFontAsync({ family: "Roboto", style: "Regular" });
+    await figma.loadFontAsync({ family: "Inter", style: "Regular" }); // missing in browser version
 
     // Create header rectangle
     const headerRect: RectangleNode = figma.createRectangle();
