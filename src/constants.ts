@@ -21,6 +21,23 @@ export const COLORKEYS = [
   "a700",
 ];
 
+export const FULL_COLOR_KEYS = [
+  "50",
+  "100",
+  "200",
+  "300",
+  "400",
+  "500",
+  "600",
+  "700",
+  "800",
+  "900",
+  "a100",
+  "a200",
+  "a400",
+  "a700",
+] as const;
+
 export const BASECOLOR: BaseColor = {
   /* should have l*sl 15 - 35 */
   material: {
