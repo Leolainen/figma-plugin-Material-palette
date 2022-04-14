@@ -85,3 +85,55 @@ export type ColorKeys =
   | "a200"
   | "a400"
   | "a700";
+
+export type FullColorKeys =
+  | "50"
+  | "100"
+  | "200"
+  | "300"
+  | "400"
+  | "500"
+  | "600"
+  | "700"
+  | "800"
+  | "900"
+  | "a100"
+  | "a200"
+  | "a400"
+  | "a700";
+
+export interface ChromePickerColor {
+  hsl: {
+    h: number;
+    s: number;
+    l: number;
+    a: number;
+  };
+  hex: string;
+  rgb: {
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+  };
+  hsv: { h: number; s: number; v: number; a: number };
+  oldHue: number;
+  source: string;
+}
+
+export interface Palette {
+  "50": string;
+  "100": string;
+  "200": string;
+  "300": string;
+  "400": string;
+  "500": string;
+  "600": string;
+  "700": string;
+  "800": string;
+  "900": string;
+  a100?: string;
+  a200?: string;
+  a400?: string;
+  a700?: string;
+}
