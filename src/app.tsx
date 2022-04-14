@@ -18,7 +18,7 @@ import { ChromePicker } from "react-color";
 import { DEFAULT_BASE_COLOR } from "./constants";
 import { generateMaterialPalette } from "./generators/material";
 import { generateMonochromePalette } from "./generators/monochrome";
-import { RgbHslHexObject } from "./types";
+import { Palette, RgbHslHexObject } from "./types";
 import { hexToRGB } from "./converters/toRgb";
 import { hexToHSL } from "./converters/toHsl";
 import { isValidHex } from "./utils/validation";
@@ -134,7 +134,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const getBaseColor = (hex: string): RgbHslHexObject => ({
+const extendColorModel = (hex: string): RgbHslHexObject => ({
   rgb: hexToRGB(hex, true),
   hsl: hexToHSL(hex),
   hex,
@@ -145,6 +145,8 @@ const defaultOptions = {
   accent: true,
 };
 
+const accents = ["a100", "a200", "a400", "a700"] as const;
+
 const App: React.FC = () => {
   const classes = useStyles();
   const [paletteName, setPaletteName] = React.useState("");
@@ -153,11 +155,12 @@ const App: React.FC = () => {
   const [schema, setSchema] = React.useState(schemaOptions[0].value);
   const [options, setOptions] = React.useState(defaultOptions);
   const [colorPickerAnchor, setColorPickerAnchor] = React.useState(null);
+  const [palette, setPalette] = React.useState<Palette>();
+  const [modifiedPalette, setModifiedPalette] =
+    React.useState<Palette>(palette);
+  const [hasAccents, setHasAccents] = React.useState(false);
 
-  const debouncedValue = useDebounce(inputValue, 200);
-
-  const baseColor = getBaseColor(hex);
-  let palette: RgbHslHexObject[];
+  const debouncedValue: string = useDebounce(inputValue, 200);
 
   React.useEffect(() => {
     window.addEventListener("message", (event: MessageEvent) => {
@@ -170,22 +173,32 @@ const App: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
+    setModifiedPalette(palette);
+  }, [palette]);
+
+  React.useEffect(() => {
     if (isValidHex(debouncedValue)) {
       setHex(debouncedValue);
     }
   }, [debouncedValue]);
 
-  const handlePaletteNameChange = (e) => {
-    setPaletteName(e.target.value);
+  const handlePaletteNameChange: React.ChangeEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    setPaletteName(event.target.value);
   };
 
   const handleCreateClick = () => {
+    const postPalette = Object.values(modifiedPalette).map((swatchHex) =>
+      extendColorModel(swatchHex)
+    );
+
     parent.postMessage(
       {
         pluginMessage: {
           type: "create-palette",
           schema,
-          palette,
+          palette: postPalette,
           value: hex,
           name: paletteName,
         },
@@ -206,8 +219,10 @@ const App: React.FC = () => {
     setColorPickerAnchor(null);
   };
 
-  const handleSchemaChange = (e) => {
-    setSchema(e.target.value);
+  const handleSchemaChange: React.ChangeEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    setSchema(event.target.value);
   };
 
   const handleColorPickerChange = (color) => {
@@ -224,32 +239,51 @@ const App: React.FC = () => {
     setOptions(newOptions);
   };
 
-  switch (schema) {
-    case "material":
-      palette = generateMaterialPalette(baseColor, {
-        ...options,
-      });
-      break;
-    case "monochrome":
-      palette = generateMonochromePalette(baseColor);
-      break;
-    case "trueMonochrome":
-      palette = generateMonochromePalette(baseColor, true);
-      break;
-    default:
-      console.error("no schema selected. This is impossible!");
-  }
+  React.useEffect(() => {
+    switch (schema) {
+      case "material":
+        setPalette(
+          generateMaterialPalette(hex, {
+            ...options,
+          })
+        );
+        break;
+      case "monochrome":
+        setPalette(generateMonochromePalette(hex));
+        break;
+      case "trueMonochrome":
+        setPalette(generateMonochromePalette(hex, true));
+        break;
+      default:
+        console.error("no schema selected. This is impossible!");
+    }
+  }, [hex, options, schema]);
 
-  const hasAccents = palette?.length > 10 || false;
+  React.useEffect(() => {
+    if (palette) {
+      const paletteClone = { ...palette };
+      const foundAccents = accents.every((accent) => accent in paletteClone);
 
-  // remove accents if material schema and accents is turned off
-  if (hasAccents && !options.accent) {
-    palette.splice(-4, 4);
-  }
+      if (foundAccents !== hasAccents) {
+        setHasAccents(foundAccents);
+      }
+
+      // remove accents if material schema and accents is turned off
+      if (foundAccents && !options.accent) {
+        accents.forEach((accent) => delete paletteClone[accent]);
+
+        setModifiedPalette(paletteClone);
+      }
+    }
+  }, [hasAccents, options.accent, palette, setModifiedPalette]);
 
   const optionsDisabled = {
     lockSwatch: schema !== "material",
     accent: !hasAccents,
+  };
+
+  const handlePreviewChange = (previewPalette) => {
+    setPalette(previewPalette);
   };
 
   return (
@@ -362,13 +396,14 @@ const App: React.FC = () => {
       </div>
 
       <div className={classes.preview}>
-        {!palette || !hex || (hex && !isValidHex(hex)) ? (
+        {!palette || !modifiedPalette || !hex || !isValidHex(hex) ? (
           <PreviewError />
         ) : (
           <Preview
-            preview={palette}
+            preview={modifiedPalette}
             paletteName={paletteName}
             colorValue={hex}
+            onPaletteChange={handlePreviewChange}
           />
         )}
       </div>
