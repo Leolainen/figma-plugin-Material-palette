@@ -1,16 +1,16 @@
 import { HSLToHex } from "../converters/toHex";
 import { hexToHSL } from "../converters/toHsl";
-import { RgbHslHexObject } from "../types";
-import { hexToRGB } from "../converters/toRgb";
+import { Palette } from "../types";
+import { FULL_COLOR_KEYS } from "../constants";
 
-function createBrighterColors(baseColor: RgbHslHexObject, length = 5) {
+function createBrighterColors(baseColor: string, length = 5) {
   const maxSaturation = 100;
   const maxLightness = 100;
   let sModHolder = 0;
   let lModHolder = 0;
 
   return Array.from(new Array(length), () => {
-    const { h, s, l } = baseColor.hsl;
+    const { h, s, l } = hexToHSL(baseColor);
 
     if (sModHolder === 0 && lModHolder === 0) {
       const sDiff = maxSaturation - s;
@@ -28,16 +28,12 @@ function createBrighterColors(baseColor: RgbHslHexObject, length = 5) {
 
     const hex = HSLToHex(h, s, lModHolder);
 
-    return {
-      rgb: hexToRGB(hex, true),
-      hsl: hexToHSL(hex),
-      hex,
-    };
+    return hex;
   });
 }
 
 function createDarkerColors(
-  baseColor: RgbHslHexObject,
+  baseColor: string,
   length = 4,
   hModMultiplier = 0.02
 ) {
@@ -46,7 +42,7 @@ function createDarkerColors(
   let hModHolder = 0;
 
   return Array.from(new Array(length), () => {
-    const { h, s, l } = baseColor.hsl;
+    const { h, s, l } = hexToHSL(baseColor);
 
     if (sModHolder === 0 && lModHolder === 0) {
       sModHolder = s - s * 0.2;
@@ -63,29 +59,29 @@ function createDarkerColors(
 
     const hex = HSLToHex(hModHolder, sModHolder, lModHolder);
 
-    return {
-      rgb: hexToRGB(hex, true),
-      hsl: hexToHSL(hex),
-      hex,
-    };
+    return hex;
   });
 }
 
 export function generateMonochromePalette(
-  baseColor: RgbHslHexObject,
+  baseColor: string,
   trueMonochrome = false
 ) {
-  const brighterColors: RgbHslHexObject[] = createBrighterColors(
-    baseColor
-  ).reverse();
-  const darkerColors: RgbHslHexObject[] = trueMonochrome
+  const brighterColors = createBrighterColors(baseColor).reverse();
+  const darkerColors = trueMonochrome
     ? createDarkerColors(baseColor, 4, 0)
     : createDarkerColors(baseColor);
-  const palette: RgbHslHexObject[] = [
-    ...brighterColors,
-    baseColor,
-    ...darkerColors,
-  ];
+
+  /*
+   * maps hex to a "mui" swatch. eg: `500; "#F1392B"`
+   */
+  const palette = [...brighterColors, baseColor, ...darkerColors].reduce(
+    (acc, curr, idx) => {
+      acc[FULL_COLOR_KEYS[idx]] = curr;
+      return acc;
+    },
+    {} as Palette
+  );
 
   return palette;
 }
