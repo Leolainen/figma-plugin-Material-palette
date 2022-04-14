@@ -1,15 +1,16 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Typography } from "@material-ui/core";
+import { ButtonBase, Typography } from "@material-ui/core";
 import classnames from "classnames";
-import { COLORKEYS } from "../../constants";
-import { RgbHslHexObject, ColorKeys } from "../../types";
+import { Palette, ColorKeys, ChromePickerColor } from "../../types";
 import { handleTextContrast } from "../../utils";
+import ColorPicker from "../../components/ColorPicker";
 
 interface Props {
   colorValue: string;
   paletteName: string;
-  preview: RgbHslHexObject[];
+  preview: Palette;
+  onPaletteChange: (palette: Palette) => void;
   style?: React.CSSProperties;
 }
 
@@ -42,9 +43,14 @@ const useStyles = makeStyles(() => ({
     alignItems: "center",
     padding: 20,
     textTransform: "uppercase",
+    cursor: "pointer",
 
     p: {
       fontSize: 18,
+    },
+
+    "&:hover": {
+      outline: "3px solid hsla(150, 60%, 50%, 0.7)",
     },
   },
 
@@ -59,37 +65,44 @@ const Preview = ({
   paletteName,
   preview,
   style,
+  onPaletteChange,
   ...props
 }: Props) => {
   const classes = useStyles();
-  let colorKeys = [...COLORKEYS];
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const selectedSwatch = React.useRef("");
 
-  // insert the 500 swatch which is missing from COLORKEYS
-  colorKeys.splice(5, 0, "500");
+  const handleSwatchClick = (swatch) => (event) => {
+    selectedSwatch.current = swatch;
+    setAnchorEl(event.currentTarget);
+  };
 
-  // remove keys for accents if there are none
-  if (preview.length < COLORKEYS.length) {
-    colorKeys = colorKeys.slice(0, 10);
-  }
+  const handleColorChange = (color: ChromePickerColor) => {
+    const swatch = Object.keys(selectedSwatch.current)[0];
 
-  const previewPalette = colorKeys.reduce((acc, curr: string, idx: number) => {
-    try {
-      acc[curr] = preview[idx].hex;
-    } catch (e) {
-      console.error("error", e);
-      console.warn("idx,", idx);
+    if (!swatch) {
+      console.error("no swatch was found");
+      return;
     }
 
-    return acc;
-  }, {});
+    const newPalette: Palette = { ...preview };
+    newPalette[swatch] = color.hex;
+
+    onPaletteChange(newPalette);
+    setAnchorEl(null);
+  };
+
+  if (!preview) {
+    return <p>loading palette</p>;
+  }
 
   return (
     <div className={classes.previewScaled} style={style} {...props}>
       <div
         className={classes.previewSwatchHeader}
         style={{
-          color: handleTextContrast(previewPalette["500"]),
-          backgroundColor: previewPalette["500"],
+          color: handleTextContrast(preview["500"]),
+          backgroundColor: preview["500"],
         }}
       >
         <Typography variant="body1">{paletteName}</Typography>
@@ -97,39 +110,50 @@ const Preview = ({
         <div>
           <Typography variant="body1">500</Typography>
 
-          <Typography variant="body1">{previewPalette["500"]}</Typography>
+          <Typography variant="body1">{preview["500"]}</Typography>
         </div>
       </div>
 
-      {Object.entries(previewPalette).map(
-        ([key, value]: [ColorKeys, string], idx) => (
-          <div
-            className={classnames(classes.previewSwatch, {
-              [classes.mainSwatch]: colorValue === value,
-            })}
-            style={{
-              backgroundColor: value,
-            }}
-            key={`${colorValue}${idx}`}
-          >
-            <Typography
-              variant="body2"
-              style={{
-                color: handleTextContrast(value),
-              }}
-            >
-              {key}
-            </Typography>
+      {Object.entries(preview).map(
+        ([swatchKey, value]: [ColorKeys, string], idx) => (
+          <React.Fragment key={swatchKey + value}>
+            <ColorPicker
+              open={Boolean(anchorEl)}
+              anchorEl={anchorEl}
+              onClose={() => setAnchorEl(null)}
+              onChange={handleColorChange}
+              value={Object.values(selectedSwatch.current)[0]}
+            />
 
-            <Typography
-              variant="body2"
+            <ButtonBase
+              className={classnames(classes.previewSwatch, {
+                [classes.mainSwatch]: colorValue === value,
+              })}
               style={{
-                color: handleTextContrast(value),
+                backgroundColor: value,
               }}
+              key={`${colorValue}${idx}`}
+              onClick={handleSwatchClick({ [swatchKey]: value })}
             >
-              {value}
-            </Typography>
-          </div>
+              <Typography
+                variant="body2"
+                style={{
+                  color: handleTextContrast(value),
+                }}
+              >
+                {swatchKey}
+              </Typography>
+
+              <Typography
+                variant="body2"
+                style={{
+                  color: handleTextContrast(value),
+                }}
+              >
+                {value}
+              </Typography>
+            </ButtonBase>
+          </React.Fragment>
         )
       )}
     </div>
