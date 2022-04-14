@@ -1,9 +1,7 @@
 import Color from "colorjs.io";
 import { BASECOLOR, COLORKEYS } from "../constants";
 import { materialColorSchema } from "../schemas";
-import { hexToRGB } from "../converters/toRgb";
-import { hexToHSL } from "../converters/toHsl";
-import { RgbHslHexObject, BaseColorKey } from "../types";
+import { Palette, BaseColorKey } from "../types";
 
 type Options = {
   lockSwatch: boolean;
@@ -135,7 +133,7 @@ function findClosestBaseColor(hex: string): BaseColorHexPair {
  *
  * Uses the predefined values in `matericalColorScheme` to generate each swatch.
  */
-function materialScale(hex: string, baseColor: BaseColorKey): Scale {
+function materialScale(hex: string, baseColor: BaseColorKey) {
   /**
    *  extra notes for whoever wants to know more:
    * uses the values in src/schemas.ts to modify the hue, chroma & lightness
@@ -165,16 +163,16 @@ function materialScale(hex: string, baseColor: BaseColorKey): Scale {
     }
 
     return acc;
-  }, {});
+  }, {} as Palette);
 
-  return scale as Scale;
+  return scale;
 }
 
 /**
  * returns the key, hex and LCH distance of the closest swatch to the inputted
  * hex in the inputted scale
  */
-function getLchDifference(hex: string, scale: Scale) {
+function getLchDifference(hex: string, scale: Palette) {
   const [l, c, h] = new Color(hex).lch;
   const hue = {
     dist: 360,
@@ -389,25 +387,18 @@ function lockedScale(hex: string) {
   return materialScale(hex, compressedColor);
 }
 
-export function generateMaterialPalette(
-  baseColor: RgbHslHexObject,
-  options: Options
-): RgbHslHexObject[] {
+export function generateMaterialPalette(baseColor: string, options: Options) {
   try {
-    let palette;
-    const color = findClosestBaseColor(baseColor.hex);
+    let palette: Palette;
+    const color = findClosestBaseColor(baseColor);
 
     if (options.lockSwatch) {
-      palette = lockedScale(baseColor.hex);
+      palette = lockedScale(baseColor);
     } else {
       palette = fluidScale(color);
     }
 
-    return Object.keys(palette).map((key) => ({
-      rgb: hexToRGB(palette[key], true),
-      hsl: hexToHSL(palette[key]),
-      hex: palette[key],
-    }));
+    return palette;
   } catch (e) {
     console.error("error: ", e);
 
