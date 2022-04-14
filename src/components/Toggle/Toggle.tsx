@@ -25,7 +25,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Preview = ({ onChange, name, checked, disabled, label, hint }: Props) => {
+const Toggle = ({ onChange, name, checked, disabled, label, hint }: Props) => {
   const classes = useStyles();
 
   return (
@@ -45,4 +45,4 @@ const Preview = ({ onChange, name, checked, disabled, label, hint }: Props) => {
   );
 };
 
-export default Preview;
+export default Toggle;
