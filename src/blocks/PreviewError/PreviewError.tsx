@@ -3,6 +3,8 @@ import { Typography } from "@mui/material";
 
 /**
  * Just a bunch of text
+ *
+ * @return {JSX.Element}
  */
 const PreviewError = () => (
   <>
