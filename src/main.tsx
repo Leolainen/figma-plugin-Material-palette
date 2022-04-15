@@ -1,5 +1,5 @@
 import * as React from "react";
-import makeStyles from '@mui/styles/makeStyles';
+import makeStyles from "@mui/styles/makeStyles";
 import {
   Button,
   FormControl,
@@ -8,7 +8,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  SelectProps,
+  SelectChangeEvent,
   TextField,
   Typography,
   Popover,
@@ -155,7 +155,8 @@ const Main: React.FC = () => {
   const [hex, setHex] = React.useState(inputValue);
   const [schema, setSchema] = React.useState(schemaOptions[0].value);
   const [options, setOptions] = React.useState(defaultOptions);
-  const [colorPickerAnchor, setColorPickerAnchor] = React.useState(null);
+  const [colorPickerAnchor, setColorPickerAnchor] =
+    React.useState<HTMLElement | null>(null);
   const [palette, setPalette] = React.useState<Palette>();
   const [modifiedPalette, setModifiedPalette] = React.useState<Palette>();
   const [hasAccents, setHasAccents] = React.useState(false);
@@ -226,8 +227,8 @@ const Main: React.FC = () => {
     setColorPickerAnchor(null);
   };
 
-  const handleSchemaChange = (event: SelectProps["onChange"]) => {
-    setSchema(event.currentTarget.value);
+  const handleSchemaChange = (event: SelectChangeEvent) => {
+    setSchema(event.target.value);
   };
 
   const handleColorPickerChange = (color: ChromePickerColor) => {
