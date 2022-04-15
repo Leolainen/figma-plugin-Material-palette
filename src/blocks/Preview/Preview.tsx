@@ -1,6 +1,6 @@
 import * as React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import { ButtonBase, Typography } from "@material-ui/core";
+import makeStyles from '@mui/styles/makeStyles';
+import { ButtonBase, Typography } from "@mui/material";
 import classnames from "classnames";
 import { Palette, ColorKeys, ChromePickerColor } from "../../types";
 import { handleTextContrast } from "../../utils";

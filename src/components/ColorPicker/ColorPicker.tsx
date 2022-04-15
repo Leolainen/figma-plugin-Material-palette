@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ChromePicker } from "react-color";
-import { Popover, PopoverProps } from "@material-ui/core";
+import { Popover, PopoverProps } from "@mui/material";
 import { ChromePickerColor } from "../../types";
 
 export interface Props {
