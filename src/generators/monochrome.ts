@@ -1,4 +1,4 @@
-import { HSLToHex } from "../converters/toHex";
+import { hslToHex } from "../converters/toHex";
 import { hexToHSL } from "../converters/toHsl";
 import { Palette } from "../types";
 import { FULL_COLOR_KEYS } from "../constants";
@@ -26,7 +26,7 @@ function createBrighterColors(baseColor: string, length = 5) {
       lModHolder += lDiff * 0.25;
     }
 
-    const hex = HSLToHex(h, s, lModHolder);
+    const hex = hslToHex(h, s, lModHolder);
 
     return hex;
   });
@@ -57,7 +57,7 @@ function createDarkerColors(
           : hModHolder - hModHolder * hModMultiplier;
     }
 
-    const hex = HSLToHex(hModHolder, sModHolder, lModHolder);
+    const hex = hslToHex(hModHolder, sModHolder, lModHolder);
 
     return hex;
   });

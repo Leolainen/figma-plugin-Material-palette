@@ -12,7 +12,7 @@ export function hcl2hex(hcl: ColorCalc) {
   return rgb2hex(hcl2rgb(hcl));
 }
 
-export function HSLToHex(h: number, s: number, l: number) {
+export function hslToHex(h: number, s: number, l: number) {
   s /= 100;
   l /= 100;
 
