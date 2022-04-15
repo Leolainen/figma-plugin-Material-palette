@@ -1,4 +1,4 @@
-import { RGBToHex } from "../converters/toHex";
+import { rgbToHex } from "../converters/toHex";
 import { hexToRGB } from "../converters/toRgb";
 import clone from "./clone";
 
@@ -58,9 +58,9 @@ export function handleTextNodeContrast(
   text: TextNode,
   backgroundColor: string
 ): symbol {
-  // Get contrast ratio to set text color
-  const textRGB = text.fills[0].color;
-  const textHex = RGBToHex(textRGB);
+  // @ts-ignore - incorrect typing in figma? `fills` should be ReadonlyArray<Paint> | symbol
+  const textRGB = text.fills[0].color; // Get contrast ratio to set text color
+  const textHex = rgbToHex(textRGB);
   const contrastRatio = getContrastRatio(textHex, backgroundColor);
   const textFills = clone(text.fills);
 

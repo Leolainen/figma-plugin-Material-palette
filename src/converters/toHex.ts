@@ -65,7 +65,7 @@ export function hslToHex(h: number, s: number, l: number) {
  * @param {RGB} rgb Expects an object of r, g, b. ex: { r: 20, g: 177, b: 161 }
  * @return {string} Hex color
  */
-export function RGBToHex(rgb: RGB) {
+export function rgbToHex(rgb: RGB) {
   const { r, g, b } = rgb;
   let rString = r.toString(16);
   let gString = g.toString(16);
