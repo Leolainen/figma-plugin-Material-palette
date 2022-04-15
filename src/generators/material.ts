@@ -12,31 +12,6 @@ type BaseColorHexPair = {
   hex: string;
 };
 
-type Scale = {
-  "50": string;
-  "100": string;
-  "200": string;
-  "300": string;
-  "400": string;
-  "500": string;
-  "600": string;
-  "700": string;
-  "800": string;
-  "900": string;
-  A100?: string;
-  A200?: string;
-  A400?: string;
-  A700?: string;
-};
-
-/**
- * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- * @
- * @  ORIGINAL ALGORITHM BUILT BY SEBASTIAN LASSE
- * @  https://codepen.io/sebilasse/pen/GQYKJd
- * @
- * @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- */
 export const hexColorReg = /^#?([A-F0-9]{6}|[A-F0-9]{3})$/i;
 
 function specificLight(rgb: number[]) {
@@ -46,7 +21,7 @@ function specificLight(rgb: number[]) {
 
 function colorData(hex: string, palette: any = undefined) {
   const color = new Color(!palette ? hex : palette[hex]);
-  const rgb = color.srgb.map((v) => v * 255);
+  const rgb = color.srgb.map((v: number) => v * 255);
   const hcl = color.lch.reverse();
   const data = { rgb, hcl, sl: specificLight(rgb) };
 
@@ -55,7 +30,7 @@ function colorData(hex: string, palette: any = undefined) {
 
 export function getSpecificLight(hex: string): number {
   const color = new Color(hex);
-  const rgb = color.srgb.map((v) => v * 255);
+  const rgb = color.srgb.map((v: number) => v * 255);
   const [lightness] = color.lch;
 
   return lightness * specificLight(rgb);
@@ -70,6 +45,9 @@ export function getSpecificLight(hex: string): number {
  * otherwise does.
  *
  * This is pretty much 100% personal preference and can be tweaked quite a bit!
+ *
+ * @param {BaseColorHexPair} param0 Basecolor name ("red", "blue" etc) and hex code
+ * @return {BaseColorKey} One of the predefined base colors by Google
  */
 function compressBasecolor({ baseColor, hex }: BaseColorHexPair): BaseColorKey {
   const { hcl, sl } = colorData(hex);
@@ -110,8 +88,8 @@ function findClosestBaseColor(hex: string): BaseColorHexPair {
   let dist = 360;
 
   // loop through each basecolor and set the baseColor
-  Object.keys(BASECOLOR.material).forEach((baseColorName: BaseColorKey) => {
-    const baseColorHex = BASECOLOR.material[baseColorName];
+  Object.keys(BASECOLOR.material).forEach((baseColorName) => {
+    const baseColorHex = BASECOLOR.material[baseColorName as BaseColorKey];
 
     // picks out the HCL values from each set material basecolor
     const hue = new Color(baseColorHex).lch[2];
@@ -120,7 +98,7 @@ function findClosestBaseColor(hex: string): BaseColorHexPair {
     // we've found our basecolor if _dist is lower than dist
     if (_dist < dist) {
       dist = _dist;
-      baseColor = baseColorName;
+      baseColor = baseColorName as BaseColorKey;
     }
   });
 
@@ -151,11 +129,12 @@ function materialScale(hex: string, baseColor: BaseColorKey) {
       ? COLORKEYS.slice(0, 9)
       : COLORKEYS;
 
-  const scale = colorKeys.reduce((acc, curr: string, idx: number) => {
+  const scale = colorKeys.reduce((acc, curr, idx) => {
     const modifiedHCL: number[] = materialColorSchema[baseColor][idx].map(
       (rangeValue, index) => hcl[index] + rangeValue
     );
-    acc[curr] = new Color("lch", modifiedHCL.reverse()).hex;
+
+    acc[curr as keyof Palette] = new Color("lch", modifiedHCL.reverse()).hex;
 
     // 500 does not exist in the COLORKEYS constant so we have to fill it here
     if (curr === "400") {
@@ -168,23 +147,28 @@ function materialScale(hex: string, baseColor: BaseColorKey) {
   return scale;
 }
 
+type LchDiffSpace = {
+  dist: number;
+  key: keyof Palette;
+  hex: string;
+};
 /**
  * returns the key, hex and LCH distance of the closest swatch to the inputted
  * hex in the inputted scale
  */
 function getLchDifference(hex: string, scale: Palette) {
   const [l, c, h] = new Color(hex).lch;
-  const hue = {
+  const hue: LchDiffSpace = {
     dist: 360,
     key: "50",
     hex,
   };
-  const chroma = {
+  const chroma: LchDiffSpace = {
     dist: 150,
     key: "50",
     hex,
   };
-  const lightness = {
+  const lightness: LchDiffSpace = {
     dist: 100,
     key: "50",
     hex,
@@ -200,19 +184,19 @@ function getLchDifference(hex: string, scale: Palette) {
 
       if (hueDist < hue.dist) {
         hue.dist = hueDist;
-        hue.key = scaleKey;
+        hue.key = scaleKey as keyof Palette;
         hue.hex = scaleHex;
       }
 
       if (chromaDist < chroma.dist) {
         chroma.dist = chromaDist;
-        chroma.key = scaleKey;
+        chroma.key = scaleKey as keyof Palette;
         chroma.hex = scaleHex;
       }
 
       if (lightnessDist < lightness.dist) {
         lightness.dist = lightnessDist;
-        lightness.key = scaleKey;
+        lightness.key = scaleKey as keyof Palette;
         lightness.hex = scaleHex;
       }
     });
@@ -227,12 +211,12 @@ function getLchDifference(hex: string, scale: Palette) {
  */
 function generateFluidScale(hex: string) {
   const color = new Color(hex);
-  const [l, c, h] = color.lch;
+  const h = color.lch[2];
 
-  let key: string;
-  let hueKey: string;
+  let key: keyof Palette;
+  // let hueKey: string;
   let dist = 360;
-  let newBaseColor: BaseColorKey;
+  let { baseColor: newBaseColor } = findClosestBaseColor(hex);
 
   // look for which hue and base color is closest to our input
   Object.entries(BASECOLOR.material).forEach(
@@ -247,7 +231,7 @@ function generateFluidScale(hex: string) {
 
           if (_dist < dist) {
             dist = _dist;
-            hueKey = scaleKey;
+            // hueKey = scaleKey;
             newBaseColor = baseColorName as BaseColorKey;
           }
         });
@@ -292,7 +276,9 @@ function generateFluidScale(hex: string) {
    * new scale.
    */
   const closestSwatch = new Color(newScale[key]);
-  const swatchDiffs = color.lch.map((v, i) => v - closestSwatch.lch[i]);
+  const swatchDiffs = color.lch.map(
+    (v: number, i: number) => v - closestSwatch.lch[i]
+  );
 
   new500Swatch.lightness += swatchDiffs[0];
   new500Swatch.chroma += swatchDiffs[1];
