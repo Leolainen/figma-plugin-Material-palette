@@ -1,7 +1,8 @@
 import { COLORKEYS, DEFAULT_BASE_COLOR } from "./constants";
 import clone from "./utils/clone";
-import { handleTextNodeContrast } from "./utils/contrast";
+import { getContrastRatio } from "./utils/contrast";
 import { RgbHslHexObject } from "./types";
+import { rgbToHex } from "./converters/toHex";
 
 const fullColorKeys = COLORKEYS;
 fullColorKeys.splice(5, 0, "500"); // include 500 swatch that's missing in the COLORKEYS
@@ -10,6 +11,35 @@ type PaintNodeProps = {
   node: RectangleNode;
   rgb: [number, number, number];
 };
+
+/**
+ * default TextNode.fills text color is black
+ * this function turns it white if the contrast between text and background
+ * is too low.
+ *
+ * @param {TextNode} text – Figma textNode object
+ * @param {string} backgroundColor – CSS Hex color. Ex: #440044
+ * @returns {symbol} used by figma TextNodes
+ */
+export function handleTextNodeContrast(
+  text: TextNode,
+  backgroundColor: string
+): symbol {
+  // @ts-ignore - incorrect typing in figma? `fills` should be ReadonlyArray<Paint> | symbol
+  const textRGB = text.fills[0].color; // Get contrast ratio to set text color
+  const textHex = rgbToHex(textRGB);
+  const contrastRatio = getContrastRatio(textHex, backgroundColor);
+  const textFills = clone(text.fills);
+
+  // Sets text color if contrast is too low
+  if (contrastRatio < 6) {
+    textFills[0].color.r = 1;
+    textFills[0].color.g = 1;
+    textFills[0].color.b = 1;
+  }
+
+  return textFills;
+}
 
 const paintNode = (paintNodeProps: PaintNodeProps) => {
   const {
@@ -94,7 +124,7 @@ figma.ui.onmessage = async (msg) => {
 
     // Create header rectangle
     const headerRect: RectangleNode = figma.createRectangle();
-    const headerName: TextNode = figma.createText();
+    const headerName = figma.createText();
     const headerNumber: TextNode = figma.createText();
     const headerHex: TextNode = figma.createText();
 
