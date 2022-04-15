@@ -1,8 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es5",
     "jsx": "react",
-    "moduleResolution": "node",
-    "lib": ["es2017", "dom"]
+    "target": "es2016" /* Modules */,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true /* Enable all strict type-checking options. */,
+    "skipLibCheck": true /* Skip type checking all .d.ts files. */
   }
 }
