@@ -12,9 +12,6 @@ export function hcl2hex(hcl: ColorCalc) {
   return rgb2hex(hcl2rgb(hcl));
 }
 
-/**
- * NON-Mui functions
- */
 export function HSLToHex(h: number, s: number, l: number) {
   s /= 100;
   l /= 100;
@@ -65,13 +62,8 @@ export function HSLToHex(h: number, s: number, l: number) {
 }
 
 /**
- *
- * @param {object} RGB Expects an object of r, g, b
- * ex: {
- *  r: 20,
- *  g: 177,
- *  b: 161
- * }
+ * @param {RGB} rgb Expects an object of r, g, b. ex: { r: 20, g: 177, b: 161 }
+ * @return {string} Hex color
  */
 export function RGBToHex(rgb: RGB) {
   const { r, g, b } = rgb;

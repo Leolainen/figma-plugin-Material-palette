@@ -3,7 +3,9 @@ import { ColorCalc } from "../types";
 import { rgb2lab } from "./toLab";
 
 /**
- * MUI functions
+ *
+ * @param {ColorCalc} lab  The color in the LAB color space
+ * @return {number[]}  [h, c, l]
  */
 export function lab2hcl(lab: ColorCalc) {
   const [l, a, b] = lab;

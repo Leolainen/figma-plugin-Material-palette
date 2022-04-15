@@ -2,18 +2,6 @@ import { ColorCalc, RGB } from "../types";
 import { lab2xyz } from "./toXyz";
 import { hcl2lab } from "./toLab";
 
-/**
- * MUI functions
- */
-export function hex2rgb(hex) {
-  const hexString: string = Array.from(hex).join("");
-
-  return /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i
-    .exec(hexString)
-    .slice(1)
-    .map((s) => parseInt(s, 16));
-}
-
 export function lab2rgb(lab: ColorCalc) {
   const [x, y, z] = lab2xyz(lab);
   const r: number = x * 3.2406 + y * -1.5372 + z * -0.4986;

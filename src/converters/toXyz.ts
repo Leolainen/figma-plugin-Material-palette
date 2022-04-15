@@ -1,18 +1,15 @@
 import { ColorCalc } from "../types";
 
-/**
- * MUI functions
- */
 export function lab2xyz(lab: ColorCalc) {
-  const y: number = (lab[0] + 16) / 116;
-  const x: number = lab[1] / 500 + y;
-  const z: number = y - lab[2] / 200;
+  const y = (lab[0] + 16) / 116;
+  const x = lab[1] / 500 + y;
+  const z = y - lab[2] / 200;
 
   return [
     [x, 0.95047],
     [y, 1.0],
     [z, 1.08883],
-  ].map((a: [number, number]) => {
+  ].map((a) => {
     const val = a[0];
 
     return (
