@@ -17,7 +17,7 @@ const paintNode = (paintNodeProps: PaintNodeProps) => {
     rgb: [r, g, b],
   } = paintNodeProps;
 
-  const fills: symbol = clone(node.fills);
+  const fills = clone(node.fills);
   fills[0].color.r = r / 100;
   fills[0].color.g = g / 100;
   fills[0].color.b = b / 100;
@@ -35,7 +35,7 @@ figma.ui.postMessage({
     figma.root.getPluginData("lastSelectedColor") || DEFAULT_BASE_COLOR,
 });
 
-const createPaletteBar = (paletteBarProps: PaletteBarProps): FrameNode => {
+const createPaletteBar = (paletteBarProps: PaletteBarProps) => {
   const {
     size: { width, height },
     position: { y },
@@ -43,7 +43,7 @@ const createPaletteBar = (paletteBarProps: PaletteBarProps): FrameNode => {
     color: { rgb, hex },
     swatchIndex,
   } = paletteBarProps;
-  const rect: RectangleNode = figma.createRectangle();
+  const rect = figma.createRectangle();
   const paletteHex: TextNode = figma.createText();
   const paletteNumber: TextNode = figma.createText();
 
@@ -110,7 +110,7 @@ figma.ui.onmessage = async (msg) => {
     headerHex.x = headerRect.width - 80;
     headerHex.y = headerRect.height - 30;
 
-    const headerRectFills: symbol = clone(headerRect.fills);
+    const headerRectFills = clone(headerRect.fills);
     headerRectFills[0].color.r = baseColor.rgb.r / 100;
     headerRectFills[0].color.g = baseColor.rgb.g / 100;
     headerRectFills[0].color.b = baseColor.rgb.b / 100;
@@ -176,9 +176,9 @@ type PaletteBarProps = {
     width: number;
     height: number;
   };
-  position?: {
+  position: {
     x?: number;
-    y?: number;
+    y: number;
   };
   fontSize: number;
   color: {
