@@ -1,11 +1,6 @@
 import * as React from "react";
-import {
-  Tooltip,
-  FormControlLabel,
-  Switch,
-  Typography,
-} from "@mui/material";
-import makeStyles from '@mui/styles/makeStyles';
+import { Tooltip, FormControlLabel, Switch, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 
 interface Props {
   onChange: (
