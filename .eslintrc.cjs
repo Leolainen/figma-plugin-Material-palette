@@ -19,6 +19,9 @@ module.exports = {
       files: ["*.js", "*.cjs", "*.ts", "*.tsx"],
       rules: {
         quotes: ["warn", "double"],
+        "react/no-unescaped-entities": "off",
+        "require-jsdoc": "off",
+        "valid-jsdoc": "off", // TS should be sufficient
       },
     },
   ],
