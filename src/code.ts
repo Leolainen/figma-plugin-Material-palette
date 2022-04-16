@@ -24,8 +24,8 @@ type PaintNodeProps = {
 export function handleTextNodeContrast(
   text: TextNode,
   backgroundColor: string
-): symbol {
-  // @ts-ignore - incorrect typing in figma? `fills` should be ReadonlyArray<Paint> | symbol
+): typeof text.fills {
+  // @ts-expect-error - issues with type definition
   const textRGB = text.fills[0].color; // Get contrast ratio to set text color
   const textHex = rgbToHex(textRGB);
   const contrastRatio = getContrastRatio(textHex, backgroundColor);
@@ -155,7 +155,7 @@ figma.ui.onmessage = async (msg) => {
     headerHex.characters = baseColor.hex.toUpperCase();
     headerRect.name = `${headerName.characters} - ${headerHex.characters} - ${headerNumber.characters}`;
 
-    const headerGroup: FrameNode = figma.group(
+    const headerGroup = figma.group(
       [headerRect, headerName, headerNumber, headerHex],
       figma.currentPage
     );

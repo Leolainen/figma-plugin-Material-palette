@@ -15,11 +15,11 @@ import {
   Tooltip,
 } from "@mui/material";
 import { Colorize as ColorizeIcon } from "@mui/icons-material";
-import { ChromePicker } from "react-color";
+import { ChromePicker, ColorChangeHandler } from "react-color";
 import { DEFAULT_BASE_COLOR } from "./constants";
 import { generateMaterialPalette } from "./generators/material";
 import { generateMonochromePalette } from "./generators/monochrome";
-import { ChromePickerColor, Palette, RgbHslHexObject } from "./types";
+import { Palette, RgbHslHexObject } from "./types";
 import { hexToRGB } from "./converters/toRgb";
 import { hexToHSL } from "./converters/toHsl";
 import { isValidHex } from "./utils/validation";
@@ -55,6 +55,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "flex-end",
 
     "& > button + button": {
+      // @ts-ignore – will migrate to sx in v5
       marginLeft: theme.spacing(2),
     },
   },
@@ -63,6 +64,7 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: "50%",
 
     "& > * + *": {
+      // @ts-ignore – will migrate to sx in v5
       marginBottom: theme.spacing(3),
     },
   },
@@ -84,6 +86,7 @@ const useStyles = makeStyles((theme) => ({
 
   preview: {
     position: "relative",
+    // @ts-ignore – will migrate to sx in v5
     marginLeft: theme.spacing(2),
     maxWidth: 360,
   },
@@ -231,7 +234,7 @@ const Main: React.FC = () => {
     setSchema(event.target.value);
   };
 
-  const handleColorPickerChange = (color: ChromePickerColor) => {
+  const handleColorPickerChange: ColorChangeHandler = (color) => {
     setInputValue(color.hex);
   };
 

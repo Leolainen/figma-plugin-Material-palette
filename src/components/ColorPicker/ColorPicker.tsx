@@ -1,10 +1,9 @@
 import * as React from "react";
-import { ChromePicker } from "react-color";
 import { Popover, PopoverProps } from "@mui/material";
-import { ChromePickerColor } from "../../types";
+import { ChromePicker, ColorChangeHandler } from "react-color";
 
 export interface Props {
-  onChange: (color: ChromePickerColor) => void;
+  onChange: ColorChangeHandler;
   onClose: PopoverProps["onClose"];
   anchorEl: PopoverProps["anchorEl"];
   open: PopoverProps["open"];
