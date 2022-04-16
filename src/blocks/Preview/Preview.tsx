@@ -1,8 +1,9 @@
 import * as React from "react";
-import makeStyles from '@mui/styles/makeStyles';
+import makeStyles from "@mui/styles/makeStyles";
 import { ButtonBase, Typography } from "@mui/material";
 import classnames from "classnames";
-import { Palette, ColorKeys, ChromePickerColor } from "../../types";
+import { ColorChangeHandler } from "react-color";
+import { Palette } from "../../types";
 import { handleTextContrast } from "../../utils";
 import ColorPicker from "../../components/ColorPicker";
 
@@ -70,18 +71,22 @@ const Preview = ({
 }: Props) => {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const selectedSwatch = React.useRef("");
+  const [selectedColor, setSelectedColor] =
+    React.useState<[keyof Palette, string]>();
 
-  const handleSwatchClick = (swatch) => (event) => {
-    selectedSwatch.current = swatch;
-    setAnchorEl(event.currentTarget);
-  };
+  const handleSwatchClick =
+    (swatch: [string, any]) => (event: React.MouseEvent<HTMLButtonElement>) => {
+      setSelectedColor(swatch as typeof selectedColor);
+      setAnchorEl(event.currentTarget);
+    };
 
-  const handleColorChange = (color: ChromePickerColor) => {
-    const swatch = Object.keys(selectedSwatch.current)[0];
+  const handleColorChange: ColorChangeHandler = (color) => {
+    if (!selectedColor) return;
 
-    if (!swatch) {
-      console.error("no swatch was found");
+    const [swatch, hex] = selectedColor;
+
+    if (!swatch || !hex) {
+      console.error("no swatch or hex was found");
       return;
     }
 
@@ -114,48 +119,47 @@ const Preview = ({
         </div>
       </div>
 
-      {Object.entries(preview).map(
-        ([swatchKey, value]: [ColorKeys, string], idx) => (
-          <React.Fragment key={swatchKey + value}>
-            <ColorPicker
-              open={Boolean(anchorEl)}
-              anchorEl={anchorEl}
-              onClose={() => setAnchorEl(null)}
-              onChange={handleColorChange}
-              value={Object.values(selectedSwatch.current)[0]}
-            />
+      <ColorPicker
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        onChange={handleColorChange}
+        // value={Object.values(selectedSwatch.current)[0]}
+        value={(selectedColor && selectedColor[1]) || "#000000"}
+      />
 
-            <ButtonBase
-              className={classnames(classes.previewSwatch, {
-                [classes.mainSwatch]: colorValue === value,
-              })}
+      {Object.entries(preview).map(([swatchKey, value], idx) => (
+        <React.Fragment key={swatchKey + value}>
+          <ButtonBase
+            className={classnames(classes.previewSwatch, {
+              [classes.mainSwatch]: colorValue === value,
+            })}
+            style={{
+              backgroundColor: value,
+            }}
+            key={`${colorValue}${idx}`}
+            onClick={handleSwatchClick([swatchKey, value])}
+          >
+            <Typography
+              variant="body2"
               style={{
-                backgroundColor: value,
+                color: handleTextContrast(value),
               }}
-              key={`${colorValue}${idx}`}
-              onClick={handleSwatchClick({ [swatchKey]: value })}
             >
-              <Typography
-                variant="body2"
-                style={{
-                  color: handleTextContrast(value),
-                }}
-              >
-                {swatchKey}
-              </Typography>
+              {swatchKey}
+            </Typography>
 
-              <Typography
-                variant="body2"
-                style={{
-                  color: handleTextContrast(value),
-                }}
-              >
-                {value}
-              </Typography>
-            </ButtonBase>
-          </React.Fragment>
-        )
-      )}
+            <Typography
+              variant="body2"
+              style={{
+                color: handleTextContrast(value),
+              }}
+            >
+              {value}
+            </Typography>
+          </ButtonBase>
+        </React.Fragment>
+      ))}
     </div>
   );
 };
