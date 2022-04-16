@@ -1,13 +1,16 @@
 import * as React from "react";
-import { ThemeProvider, Theme, StyledEngineProvider, createTheme } from "@mui/material/styles";
+import {
+  ThemeProvider,
+  /* Theme, */
+  StyledEngineProvider,
+  createTheme,
+} from "@mui/material/styles";
 import Main from "./main";
 
-
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
-
+// declare module '@mui/styles/defaultTheme' {
+//   // eslint-disable-next-line @typescript-eslint/no-empty-interface
+//   interface DefaultTheme extends Theme {}
+// }
 
 const theme = createTheme();
 
