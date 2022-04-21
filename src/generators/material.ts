@@ -1,7 +1,8 @@
 import Color from "colorjs.io";
 import { BASECOLOR, COLORKEYS } from "../constants";
+import { hcl2hex } from "../converters/toHex";
 import { materialColorSchema } from "../schemas";
-import { Palette, BaseColorKey } from "../types";
+import { BaseColorKey, Palette } from "../types";
 
 type Options = {
   lockSwatch: boolean;
@@ -134,7 +135,7 @@ function materialScale(hex: string, baseColor: BaseColorKey) {
       (rangeValue, index) => hcl[index] + rangeValue
     );
 
-    acc[curr as keyof Palette] = new Color("lch", modifiedHCL.reverse()).hex;
+    acc[curr as keyof Palette] = hcl2hex(modifiedHCL);
 
     // 500 does not exist in the COLORKEYS constant so we have to fill it here
     if (curr === "400") {
@@ -216,6 +217,7 @@ function generateFluidScale(hex: string) {
   let key: keyof Palette;
   // let hueKey: string;
   let dist = 360;
+
   let { baseColor: newBaseColor } = findClosestBaseColor(hex);
 
   // look for which hue and base color is closest to our input
@@ -238,11 +240,17 @@ function generateFluidScale(hex: string) {
     }
   );
 
-  const new500Swatch = new Color(BASECOLOR.material[newBaseColor]);
-  const newScale = materialScale(
-    new500Swatch.hex,
-    newBaseColor as BaseColorKey
-  );
+  /**
+   * compressing should make the end result look better
+   */
+  newBaseColor = compressBasecolor({
+    baseColor: newBaseColor,
+    hex,
+  } as BaseColorHexPair);
+
+  const new500hex = BASECOLOR.material[newBaseColor];
+  const new500Swatch = new Color(new500hex);
+  const newScale = materialScale(new500hex, newBaseColor as BaseColorKey);
   const lchDiffs = getLchDifference(hex, newScale);
 
   /**
@@ -312,8 +320,16 @@ function generateFluidScale(hex: string) {
   // const new500 = new Color("lch", new500lch);
   // const finalScale = materialScale(new500.hex, newBaseColor);
 
-  const finalScale = materialScale(new500Swatch.hex, newBaseColor);
-  const finalDistances = getLchDifference(color.hex, finalScale);
+  /**
+   * Warning:
+   * There seem to be a bug with the .hex method of the Color class.
+   * This "hcl2hex" workaround, although more costly, works fine
+   */
+  const finalScale = materialScale(
+    hcl2hex(new500Swatch.lch.reverse()),
+    newBaseColor
+  );
+  const finalDistances = getLchDifference(hex, finalScale);
 
   key = finalDistances.lightness.key;
 
@@ -376,11 +392,11 @@ function lockedScale(hex: string) {
 export function generateMaterialPalette(baseColor: string, options: Options) {
   try {
     let palette: Palette;
-    const color = findClosestBaseColor(baseColor);
 
     if (options.lockSwatch) {
       palette = lockedScale(baseColor);
     } else {
+      const color = findClosestBaseColor(baseColor);
       palette = fluidScale(color);
     }
 
