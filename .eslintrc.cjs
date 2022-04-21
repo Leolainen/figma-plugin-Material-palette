@@ -20,6 +20,7 @@ module.exports = {
       rules: {
         quotes: ["warn", "double"],
         "react/no-unescaped-entities": "off",
+        "react/prop-types": "off", // TS handles this better
         "require-jsdoc": "off",
         "valid-jsdoc": "off", // TS should be sufficient
       },
