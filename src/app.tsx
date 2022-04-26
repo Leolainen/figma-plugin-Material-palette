@@ -5,6 +5,7 @@ import {
   StyledEngineProvider,
   createTheme,
 } from "@mui/material/styles";
+import { AppContextProvider } from "./appContext";
 import Main from "./main";
 
 // declare module '@mui/styles/defaultTheme' {
@@ -23,7 +24,9 @@ function App() {
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
-        <Main />
+        <AppContextProvider>
+          <Main />
+        </AppContextProvider>
       </ThemeProvider>
     </StyledEngineProvider>
   );

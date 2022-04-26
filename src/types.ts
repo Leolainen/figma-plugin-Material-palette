@@ -20,9 +20,7 @@ export type RgbHslHexObject = {
   hex: string;
 };
 
-export type Schema = {
-  [key: string]: Array<[number, number, number]>;
-};
+export type Schema = "material" | "monochrome" | "trueMonochrome";
 
 export type BaseColorList = {
   red: "#f44336";
@@ -67,8 +65,9 @@ export type BaseColorKey =
   | "grey"
   | "blueGrey";
 
-export type BaseColor = {
-  [key: string]: BaseColorList;
+export type MaterialSwatchValues = {
+  // eslint-disable-next-line no-unused-vars -- I only want the key
+  [key in BaseColorKey]: Array<[number, number, number]>;
 };
 
 export type ColorKeys =

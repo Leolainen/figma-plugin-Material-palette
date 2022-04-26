@@ -1,5 +1,3 @@
-import { BaseColor } from "./types";
-
 /**
  * Material algorithm
  * Kudos to Sebastian Lasse
@@ -38,7 +36,7 @@ export const FULL_COLOR_KEYS = [
   "a700",
 ] as const;
 
-export const BASECOLOR: BaseColor = {
+export const BASECOLOR = {
   /* should have l*sl 15 - 35 */
   material: {
     red: "#f44336",
@@ -61,6 +59,6 @@ export const BASECOLOR: BaseColor = {
     grey: "#9e9e9e",
     blueGrey: "#607d8b",
   },
-};
+} as const;
 
 export const DEFAULT_BASE_COLOR = "#F1392B";
