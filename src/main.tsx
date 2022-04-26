@@ -1,142 +1,26 @@
 import * as React from "react";
-import makeStyles from "@mui/styles/makeStyles";
-import {
-  Button,
-  FormControl,
-  IconButton,
-  InputAdornment,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  TextField,
-  Typography,
-  Popover,
-  Tooltip,
-} from "@mui/material";
-import { Colorize as ColorizeIcon } from "@mui/icons-material";
-import { ChromePicker, ColorChangeHandler } from "react-color";
-import { DEFAULT_BASE_COLOR } from "./constants";
+import Button from "@mui/material/Button";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
+import Slider from "@mui/material/Slider";
+import SettingsIcon from "@mui/icons-material/SettingsOutlined";
+import PaletteIcon from "@mui/icons-material/PaletteOutlined";
 import { generateMaterialPalette } from "./generators/material";
 import { generateMonochromePalette } from "./generators/monochrome";
 import { Palette, RgbHslHexObject } from "./types";
 import { hexToRGB } from "./converters/toRgb";
 import { hexToHSL } from "./converters/toHsl";
 import { isValidHex } from "./utils/validation";
-import useDebounce from "./hooks/useDebounce";
 import Preview from "./blocks/Preview";
-import Options from "./blocks/Options";
+import Settings from "./blocks/Settings";
 import PreviewError from "./blocks/PreviewError";
-
-const schemaOptions = [
-  {
-    value: "material",
-    label: "Material",
-  },
-  {
-    value: "monochrome",
-    label: "Monochrome",
-  },
-  {
-    value: "trueMonochrome",
-    label: "True Monochrome",
-  },
-];
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    height: "100%",
-    display: "flex",
-    justifyContent: "center",
-  },
-
-  buttons: {
-    display: "flex",
-    justifyContent: "flex-end",
-
-    "& > button + button": {
-      // @ts-ignore – will migrate to sx in v5
-      marginLeft: theme.spacing(2),
-    },
-  },
-
-  paletteSetup: {
-    maxWidth: "50%",
-
-    "& > * + *": {
-      // @ts-ignore – will migrate to sx in v5
-      marginBottom: theme.spacing(3),
-    },
-  },
-
-  baseColor: {},
-  introduction: {},
-  paletteName: {},
-  colorPickerContainer: {},
-
-  colorPicker: {
-    cursor: "pointer",
-    "-webkit-appearance": "button",
-    background: "none",
-    height: 50,
-    border: "none",
-    outline: "none",
-    padding: 0,
-  },
-
-  preview: {
-    position: "relative",
-    // @ts-ignore – will migrate to sx in v5
-    marginLeft: theme.spacing(2),
-    maxWidth: 360,
-  },
-
-  previewScaled: {
-    transform: "scale(0.7)",
-    transformOrigin: "top",
-  },
-
-  previewCloned: {
-    position: "absolute",
-    filter: "blur(10px) brightness(125%) saturate(110%)",
-    width: "100%",
-    zIndex: -1,
-    transform: "translate3d(2px, 6px, 0)",
-  },
-
-  previewSwatchHeader: {
-    height: 102,
-    width: 360,
-    display: "flex",
-    flexDirection: "column",
-    padding: 20,
-
-    "& > div": {
-      marginTop: "auto",
-      display: "flex",
-      justifyContent: "space-between",
-      textTransform: "uppercase",
-    },
-  },
-
-  previewSwatch: {
-    width: 360,
-    height: 14,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 20,
-    textTransform: "uppercase",
-
-    p: {
-      fontSize: 18,
-    },
-  },
-
-  options: {
-    marginRight: "auto",
-  },
-}));
+import SchemaSelect from "./blocks/SchemaSelect";
+import NameInput from "./blocks/NameInput";
+import ColorInput from "./blocks/ColorInput";
+import AppContext from "./appContext";
+import { useTheme } from "@mui/material/styles";
 
 const extendColorModel = (hex: string): RgbHslHexObject => ({
   rgb: hexToRGB(hex, true),
@@ -144,53 +28,20 @@ const extendColorModel = (hex: string): RgbHslHexObject => ({
   hex,
 });
 
-const defaultOptions = {
-  lockSwatch: false,
-  accent: true,
-};
-
 const accents = ["a100", "a200", "a400", "a700"] as const;
 
 const Main: React.FC = () => {
-  const classes = useStyles();
-  const [paletteName, setPaletteName] = React.useState("");
-  const [inputValue, setInputValue] = React.useState(DEFAULT_BASE_COLOR);
-  const [hex, setHex] = React.useState(inputValue);
-  const [schema, setSchema] = React.useState(schemaOptions[0].value);
-  const [options, setOptions] = React.useState(defaultOptions);
-  const [colorPickerAnchor, setColorPickerAnchor] =
-    React.useState<HTMLElement | null>(null);
-  const [palette, setPalette] = React.useState<Palette>();
   const [modifiedPalette, setModifiedPalette] = React.useState<Palette>();
   const [hasAccents, setHasAccents] = React.useState(false);
-
-  const debouncedValue: string = useDebounce(inputValue, 200);
-
-  React.useEffect(() => {
-    window.addEventListener("message", (event: MessageEvent) => {
-      if (event.data && event.data.pluginMessage) {
-        setInputValue(
-          event.data.pluginMessage.lastSelectedColor || DEFAULT_BASE_COLOR
-        );
-      }
-    });
-  }, []);
+  const [activeTab, setActiveTab] = React.useState(0);
+  const [zoom, setZoom] = React.useState(75);
+  const { palette, setPalette, paletteName, schema, hex, settings } =
+    React.useContext(AppContext);
+  const theme = useTheme();
 
   React.useEffect(() => {
     setModifiedPalette(palette);
   }, [palette]);
-
-  React.useEffect(() => {
-    if (isValidHex(debouncedValue)) {
-      setHex(debouncedValue);
-    }
-  }, [debouncedValue]);
-
-  const handlePaletteNameChange: React.ChangeEventHandler<HTMLInputElement> = (
-    event
-  ) => {
-    setPaletteName(event.target.value);
-  };
 
   const handleCreateClick = () => {
     if (!modifiedPalette) {
@@ -209,7 +60,7 @@ const Main: React.FC = () => {
           schema,
           palette: postPalette,
           value: hex,
-          name: paletteName,
+          paletteName,
         },
       },
       "*"
@@ -220,55 +71,31 @@ const Main: React.FC = () => {
     parent.postMessage({ pluginMessage: { type: "cancel" } }, "*");
   };
 
-  const handleColorPickerClick: React.MouseEventHandler<HTMLButtonElement> = (
-    event
-  ) => {
-    setColorPickerAnchor(event.currentTarget);
-  };
-
-  const handleColorPickerClose = () => {
-    setColorPickerAnchor(null);
-  };
-
-  const handleSchemaChange = (event: SelectChangeEvent) => {
-    setSchema(event.target.value);
-  };
-
-  const handleColorPickerChange: ColorChangeHandler = (color) => {
-    setInputValue(color.hex);
-  };
-
-  const handleInputValueChange: React.ChangeEventHandler<
-    HTMLTextAreaElement | HTMLInputElement
-  > = (event) => {
-    const cleanedValue = event.target.value.replace("#", "");
-
-    setInputValue(`#${cleanedValue}`);
-  };
-
-  const handleOptionsChange = (newOptions: typeof options) => {
-    setOptions(newOptions);
-  };
-
   React.useEffect(() => {
-    switch (schema) {
-      case "material":
-        setPalette(
-          generateMaterialPalette(hex, {
-            ...options,
-          })
-        );
-        break;
-      case "monochrome":
-        setPalette(generateMonochromePalette(hex));
-        break;
-      case "trueMonochrome":
-        setPalette(generateMonochromePalette(hex, true));
-        break;
-      default:
-        console.error("no schema selected. This is impossible!");
+    if (!hex) {
+      return;
     }
-  }, [hex, options, schema]);
+
+    React.startTransition(() => {
+      switch (schema) {
+        case "material":
+          setPalette(
+            generateMaterialPalette(hex, {
+              ...settings.material,
+            })
+          );
+          break;
+        case "monochrome":
+          setPalette(generateMonochromePalette(hex));
+          break;
+        case "trueMonochrome":
+          setPalette(generateMonochromePalette(hex, true));
+          break;
+        default:
+          console.error("no schema selected. This is impossible!");
+      }
+    });
+  }, [hex, settings, schema]);
 
   React.useEffect(() => {
     if (palette) {
@@ -280,145 +107,139 @@ const Main: React.FC = () => {
       }
 
       // remove accents if material schema and accents is turned off
-      if (foundAccents && !options.accent) {
+      if (foundAccents && !settings.material.accent) {
         accents.forEach((accent) => delete paletteClone[accent]);
 
         setModifiedPalette(paletteClone);
       }
     }
-  }, [hasAccents, options.accent, palette, setModifiedPalette]);
-
-  const optionsDisabled = {
-    lockSwatch: schema !== "material",
-    accent: !hasAccents,
-  };
+  }, [hasAccents, settings.material.accent, palette, setModifiedPalette]);
 
   const handlePreviewChange = (previewPalette: Palette) => {
     setPalette(previewPalette);
   };
 
+  const handleSlideChange = (
+    event: Event,
+    value: number | number[],
+    activeThumb: number
+  ) => {
+    setZoom(value as number);
+  };
+
+  const error = !palette || !modifiedPalette || !hex || !isValidHex(hex);
   return (
-    <div className={classes.root}>
-      <div className={classes.paletteSetup}>
-        <Typography variant="h3" component="h1">
-          Material Palette
-        </Typography>
-
-        <div className={classes.introduction}>
-          <Typography variant="body2">1. Name your palette!</Typography>
-
-          <Typography variant="body2">
-            2. Type your base color or use the colorpicker!
-          </Typography>
-
-          <Typography variant="body2">3. Select a schema!</Typography>
-        </div>
-
-        <TextField
-          className={classes.paletteName}
-          label="Palette name"
-          variant="outlined"
-          onChange={handlePaletteNameChange}
-          fullWidth
-        />
-
-        <TextField
-          className={classes.baseColor}
-          variant="outlined"
-          label="Base color"
-          value={inputValue}
-          onChange={handleInputValueChange}
-          fullWidth
-          error={!palette || !isValidHex(debouncedValue)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <Tooltip title="Color picker" placement="bottom">
-                  <IconButton onClick={handleColorPickerClick} size="large">
-                    <ColorizeIcon />
-                  </IconButton>
-                </Tooltip>
-
-                <Popover
-                  anchorEl={colorPickerAnchor}
-                  open={Boolean(colorPickerAnchor)}
-                  onClose={handleColorPickerClose}
-                  anchorOrigin={{
-                    vertical: "center",
-                    horizontal: "right",
-                  }}
-                  transformOrigin={{
-                    vertical: "center",
-                    horizontal: "right",
-                  }}
-                >
-                  <ChromePicker
-                    onChange={handleColorPickerChange}
-                    color={inputValue}
-                  />
-                </Popover>
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <FormControl variant="outlined" fullWidth>
-          <InputLabel id="select-label">Schema</InputLabel>
-
-          <Select
-            labelId="select-label"
-            onChange={handleSchemaChange}
-            value={schema}
-            label="Schema"
-          >
-            {schemaOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <div className={classes.buttons}>
-          <Options
-            options={options}
-            optionsDisabled={optionsDisabled}
-            onOptionsChange={handleOptionsChange}
-            className={classes.options}
+    <Stack px={2} sx={{ height: "inherit" }}>
+      <Stack spacing={4} alignItems="center" direction="row" pt={4}>
+        <Tabs
+          sx={{ flex: "50%" }}
+          value={activeTab}
+          onChange={(e, newValue) => setActiveTab(newValue)}
+          variant="fullWidth"
+        >
+          <Tab
+            icon={<PaletteIcon />}
+            iconPosition="start"
+            label="Palette"
+            sx={{ minHeight: "auto" }}
           />
-
-          <Button
-            onClick={handleCancelClick}
-            variant="contained"
-            color="secondary"
-          >
-            Cancel
-          </Button>
-
-          <Button
-            onClick={handleCreateClick}
-            variant="contained"
-            color="primary"
-            disabled={!palette}
-          >
-            Create
-          </Button>
-        </div>
-      </div>
-
-      <div className={classes.preview}>
-        {!palette || !modifiedPalette || !hex || !isValidHex(hex) ? (
-          <PreviewError />
-        ) : (
-          <Preview
-            preview={modifiedPalette}
-            paletteName={paletteName}
-            colorValue={hex}
-            onPaletteChange={handlePreviewChange}
+          <Tab
+            icon={<SettingsIcon />}
+            iconPosition="start"
+            label="Settings"
+            sx={{ minHeight: "auto" }}
           />
-        )}
-      </div>
-    </div>
+        </Tabs>
+
+        <Slider
+          sx={{ flex: "50%" }}
+          defaultValue={75}
+          min={50}
+          max={100}
+          onChange={handleSlideChange}
+          valueLabelDisplay="auto"
+          marks={[
+            {
+              value: 50,
+              label: "50%",
+            },
+            {
+              value: 75,
+              label: "75%",
+            },
+            {
+              value: 100,
+              label: "100%",
+            },
+          ]}
+        />
+      </Stack>
+
+      <Stack direction="row" spacing={2} sx={{ flexGrow: 1 }}>
+        <Box sx={{ flex: 1, overflow: "hidden" }}>
+          <Stack
+            direction="row"
+            sx={{
+              width: "200%",
+              position: "relative",
+              transition: `transform ${theme.transitions.duration.shorter}ms`,
+              transform: `translate(${-50 * activeTab}%)`,
+            }}
+          >
+            <Stack my={2} spacing={2} sx={{ flex: 1 }}>
+              <NameInput />
+              <ColorInput />
+              <SchemaSelect />
+
+              <Button
+                onClick={handleCreateClick}
+                variant="outlined"
+                color="primary"
+                disabled={!palette}
+                fullWidth
+              >
+                Create
+              </Button>
+
+              <Button
+                onClick={handleCancelClick}
+                variant="outlined"
+                color="error"
+                fullWidth
+              >
+                Cancel
+              </Button>
+            </Stack>
+
+            <Box sx={{ flex: 1 }}>
+              <Settings />
+            </Box>
+          </Stack>
+        </Box>
+
+        <Box sx={{ flex: 1 }}>
+          {error ? (
+            <PreviewError />
+          ) : (
+            <Box sx={{ height: "inherit", overflow: "hidden" }}>
+              <Box
+                sx={{
+                  transform: `scale(${zoom / 100})`,
+                  transformOrigin: "center",
+                }}
+              >
+                <Preview
+                  preview={modifiedPalette}
+                  paletteName={paletteName || ""}
+                  colorValue={hex}
+                  onPaletteChange={handlePreviewChange}
+                />
+              </Box>
+            </Box>
+          )}
+        </Box>
+      </Stack>
+    </Stack>
   );
 };
 

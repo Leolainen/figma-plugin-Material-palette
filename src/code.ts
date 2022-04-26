@@ -115,8 +115,7 @@ figma.ui.onmessage = async (msg) => {
     figma.root.setPluginData("lastSelectedColor", msg.value);
 
     const nodes: SceneNode[] = [];
-    const { palette } = msg;
-    const paletteName: string = msg.name;
+    const { palette, paletteName = "" } = msg;
     const baseColor: RgbHslHexObject = palette[5];
 
     await figma.loadFontAsync({ family: "Roboto", style: "Regular" });
