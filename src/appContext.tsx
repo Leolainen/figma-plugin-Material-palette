@@ -9,15 +9,59 @@ export type MaterialSettings = {
   accent: boolean;
 };
 
-export type Settings = {
-  material: MaterialSettings;
+// TODO: add these settings
+export type FigmaSettings = {
+  nodeType: "component" | "frame" | "rectangle";
+  renderWithOutline: boolean; // render outline around input hex in figma
+  lock: "everything" | "swatches" | "nothing";
 };
 
-const defaultSettings = {
+// TODO: Add these settings
+export type GeneralSettings = {
+  presets: "default" | "boxes"; // these should only run logic inside context
+  paletteDirection: "column" | "row";
+  colorBarWidth: number;
+  colorBarHeight: number;
+  primaryColor: boolean; // toggle the big heading color
+};
+
+// RENAME MONOCHROME?? (suggestions: linear, basic, simple, )
+// TODO: add these settings
+export type LinearSettings = {
+  hueMultiplier: number; // 0 - 1 (0 - 100%?)
+  lightnessMultiplier: number; // 0 - 1 (0 - 100%?)
+  saturationMultiplier: number;
+};
+
+export type Settings = {
+  material: MaterialSettings;
+  figma: FigmaSettings;
+  linear: LinearSettings;
+  general: GeneralSettings;
+};
+
+const defaultSettings: Settings = {
   material: {
     algorithm: "auto" as AlgorithmSetting,
     lockSwatch: false,
     accent: true,
+  },
+  figma: {
+    nodeType: "component",
+    lock: "swatches",
+    renderWithOutline: false,
+  },
+  general: {
+    presets: "default",
+    paletteDirection: "column",
+    colorBarWidth: 360,
+    colorBarHeight: 34,
+    primaryColor: true,
+  },
+  linear: {
+    hueMultiplier: 0,
+    lightnessMultiplier: 0,
+    saturationMultiplier: 0,
   },
 };
 
