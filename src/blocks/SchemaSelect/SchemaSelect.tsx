@@ -18,12 +18,8 @@ const schemaOptions: Array<SchemaOption> = [
     label: "Material",
   },
   {
-    value: "monochrome",
-    label: "Monochrome",
-  },
-  {
-    value: "trueMonochrome",
-    label: "True Monochrome",
+    value: "linear",
+    label: "Linear",
   },
 ];
 

@@ -16,14 +16,7 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       type LinearSettingsTypeValue = LinearSettings[keyof LinearSettings];
 
-      // const value: LinearSettingsTypeValue = event.target.value
       const value = parseInt(event.target.value, 10) as LinearSettingsTypeValue;
-
-      // if (event.target.type === "checkbox") {
-      //   value = event.target.checked;
-      // } else {
-      //   value = event.target.value as LinearSettingsTypeValue;
-      // }
 
       const newSettings: Settings = {
         ...settings,
@@ -52,10 +45,6 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
             defaultValue={0}
             name="hueMultiplier"
             type="number"
-            inputProps={{
-              min: 0,
-              max: 100,
-            }}
             onChange={handleChange}
           />
         </ListItem>
@@ -70,10 +59,6 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
             defaultValue={0}
             name="lightnessMultiplier"
             type="number"
-            inputProps={{
-              min: 0,
-              max: 100,
-            }}
             onChange={handleChange}
           />
         </ListItem>
@@ -88,10 +73,6 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
             defaultValue={0}
             name="saturationMultiplier"
             type="number"
-            inputProps={{
-              min: 0,
-              max: 100,
-            }}
             onChange={handleChange}
           />
         </ListItem>

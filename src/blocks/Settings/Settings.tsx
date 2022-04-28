@@ -25,9 +25,9 @@ const Settings = React.forwardRef<HTMLUListElement, Props>((props, ref) => {
       }}
     >
       <MaterialSettings />
+      <LinearSettings />
       <FigmaSettings />
       <GeneralSettings />
-      <LinearSettings />
     </Stack>
   );
 });

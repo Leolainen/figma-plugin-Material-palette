@@ -20,7 +20,7 @@ export type RgbHslHexObject = {
   hex: string;
 };
 
-export type Schema = "material" | "monochrome" | "trueMonochrome";
+export type Schema = "material" | "linear";
 
 export type BaseColorList = {
   red: "#f44336";

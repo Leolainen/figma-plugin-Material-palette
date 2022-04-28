@@ -8,7 +8,7 @@ import Slider from "@mui/material/Slider";
 import SettingsIcon from "@mui/icons-material/SettingsOutlined";
 import PaletteIcon from "@mui/icons-material/PaletteOutlined";
 import { generateMaterialPalette } from "./generators/material";
-import { generateMonochromePalette } from "./generators/monochrome";
+import { generateLinearPalette } from "./generators/linear";
 import { Palette, RgbHslHexObject } from "./types";
 import { hexToRGB } from "./converters/toRgb";
 import { hexToHSL } from "./converters/toHsl";
@@ -85,11 +85,8 @@ const Main: React.FC = () => {
             })
           );
           break;
-        case "monochrome":
-          setPalette(generateMonochromePalette(hex));
-          break;
-        case "trueMonochrome":
-          setPalette(generateMonochromePalette(hex, true));
+        case "linear":
+          setPalette(generateLinearPalette(hex, settings.linear));
           break;
         default:
           console.error("no schema selected. This is impossible!");
