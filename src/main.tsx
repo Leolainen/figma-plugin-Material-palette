@@ -226,6 +226,7 @@ const Main: React.FC = () => {
                 sx={{
                   transform: `scale(${zoom / 100})`,
                   transformOrigin: "center",
+                  transition: `transform ${theme.transitions.duration.shortest}ms ease-out`,
                 }}
               >
                 <Preview
