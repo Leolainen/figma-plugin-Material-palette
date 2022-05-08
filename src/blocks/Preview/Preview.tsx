@@ -7,23 +7,20 @@ import ColorBar from "../../components/ColorBar";
 import ColorPicker from "../../components/ColorPicker";
 import { Palette } from "../../types";
 import { handleTextContrast } from "../../utils";
+import { AppContext } from "../../appContext";
 
 interface Props {
   colorValue: string;
   paletteName: string;
   preview: Palette;
-  onPaletteChange: (palette: Palette) => void;
 }
 
-const Preview = ({
-  colorValue,
-  paletteName,
-  preview,
-  onPaletteChange,
-}: Props) => {
+const Preview = ({ colorValue, paletteName, preview }: Props) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [selectedColor, setSelectedColor] =
     React.useState<[keyof Palette, string]>();
+  const { settings, setPalette } = React.useContext(AppContext);
+  const { paletteDirection, colorBarWidth, header } = settings.general;
 
   const handleSwatchClick = (
     swatch: [string, any],
@@ -69,7 +66,7 @@ const Preview = ({
 
     anchorEl?.removeAttribute("style");
 
-    onPaletteChange(newPalette);
+    setPalette(newPalette);
     setAnchorEl(null);
   };
 
@@ -78,18 +75,18 @@ const Preview = ({
   }
 
   return (
-    <Box mx={2}>
-      <Box
-        sx={{
-          width: 360,
-          margin: "auto",
-        }}
-      >
-        <Box
+    <Box
+      sx={{
+        width: "fit-content",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {header && (
+        <Stack
           sx={{
-            height: 102,
-            display: "flex",
-            flexDirection: "column",
+            minHeight: 122,
+            minWidth: colorBarWidth,
             color: handleTextContrast(preview["500"]),
             backgroundColor: preview["500"],
           }}
@@ -100,7 +97,9 @@ const Preview = ({
 
           <Stack
             direction="row"
-            justifyContent="space-between"
+            justifyContent={
+              paletteDirection === "column" ? "space-between" : "flex-start"
+            }
             typography="button"
             mt="auto"
             px={2}
@@ -109,8 +108,10 @@ const Preview = ({
             <span>500</span>
             <span>{preview["500"]}</span>
           </Stack>
-        </Box>
+        </Stack>
+      )}
 
+      <Stack direction={paletteDirection}>
         <ColorPicker
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
@@ -128,12 +129,11 @@ const Preview = ({
             sx={{
               ...(value === colorValue && {
                 border: "2px dashed white",
-                padding: "18px",
               }),
             }}
           />
         ))}
-      </Box>
+      </Stack>
     </Box>
   );
 };

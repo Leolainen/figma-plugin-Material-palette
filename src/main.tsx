@@ -4,21 +4,18 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
-import Slider from "@mui/material/Slider";
 import SettingsIcon from "@mui/icons-material/SettingsOutlined";
 import PaletteIcon from "@mui/icons-material/PaletteOutlined";
 import { generateMaterialPalette } from "./generators/material";
 import { generateLinearPalette } from "./generators/linear";
-import { Palette, RgbHslHexObject } from "./types";
+import { RgbHslHexObject } from "./types";
 import { hexToRGB } from "./converters/toRgb";
 import { hexToHSL } from "./converters/toHsl";
-import { isValidHex } from "./utils/validation";
-import Preview from "./blocks/Preview";
 import Settings from "./blocks/Settings";
-import PreviewError from "./blocks/PreviewError";
 import SchemaSelect from "./blocks/SchemaSelect";
 import NameInput from "./blocks/NameInput";
 import ColorInput from "./blocks/ColorInput";
+import DemoArea from "./blocks/DemoArea";
 import AppContext from "./appContext";
 import { useTheme } from "@mui/material/styles";
 
@@ -28,20 +25,18 @@ const extendColorModel = (hex: string): RgbHslHexObject => ({
   hex,
 });
 
-const accents = ["a100", "a200", "a400", "a700"] as const;
-
 const Main: React.FC = () => {
-  const [modifiedPalette, setModifiedPalette] = React.useState<Palette>();
-  const [hasAccents, setHasAccents] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState(0);
-  const [zoom, setZoom] = React.useState(75);
-  const { palette, setPalette, paletteName, schema, hex, settings } =
-    React.useContext(AppContext);
+  const {
+    palette,
+    setPalette,
+    paletteName,
+    schema,
+    hex,
+    settings,
+    modifiedPalette,
+  } = React.useContext(AppContext);
   const theme = useTheme();
-
-  React.useEffect(() => {
-    setModifiedPalette(palette);
-  }, [palette]);
 
   const handleCreateClick = () => {
     if (!modifiedPalette) {
@@ -57,10 +52,13 @@ const Main: React.FC = () => {
       {
         pluginMessage: {
           type: "create-palette",
-          schema,
-          palette: postPalette,
-          value: hex,
-          paletteName,
+          data: {
+            hex,
+            paletteName,
+            settings,
+            schema,
+            palette: postPalette,
+          },
         },
       },
       "*"
@@ -94,86 +92,39 @@ const Main: React.FC = () => {
     });
   }, [hex, settings, schema]);
 
-  React.useEffect(() => {
-    if (palette) {
-      const paletteClone = { ...palette };
-      const foundAccents = accents.every((accent) => accent in paletteClone);
-
-      if (foundAccents !== hasAccents) {
-        setHasAccents(foundAccents);
-      }
-
-      // remove accents if material schema and accents is turned off
-      if (foundAccents && !settings.material.accent) {
-        accents.forEach((accent) => delete paletteClone[accent]);
-
-        setModifiedPalette(paletteClone);
-      }
-    }
-  }, [hasAccents, settings.material.accent, palette, setModifiedPalette]);
-
-  const handlePreviewChange = (previewPalette: Palette) => {
-    setPalette(previewPalette);
-  };
-
-  const handleSlideChange = (
-    event: Event,
-    value: number | number[],
-    activeThumb: number
-  ) => {
-    setZoom(value as number);
-  };
-
-  const error = !palette || !modifiedPalette || !hex || !isValidHex(hex);
   return (
     <Stack px={2} sx={{ height: "inherit" }}>
-      <Stack spacing={4} alignItems="center" direction="row" pt={4}>
-        <Tabs
-          sx={{ flex: "50%" }}
-          value={activeTab}
-          onChange={(e, newValue) => setActiveTab(newValue)}
-          variant="fullWidth"
-        >
-          <Tab
-            icon={<PaletteIcon />}
-            iconPosition="start"
-            label="Palette"
-            sx={{ minHeight: "auto" }}
-          />
-          <Tab
-            icon={<SettingsIcon />}
-            iconPosition="start"
-            label="Settings"
-            sx={{ minHeight: "auto" }}
-          />
-        </Tabs>
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{
+          "& > div": {
+            flex: 1,
+            overflow: "hidden",
+          },
+        }}
+      >
+        <Box>
+          <Tabs
+            sx={{ flex: "50%" }}
+            value={activeTab}
+            onChange={(e, newValue) => setActiveTab(newValue)}
+            variant="fullWidth"
+          >
+            <Tab
+              icon={<PaletteIcon />}
+              iconPosition="start"
+              label="Palette"
+              sx={{ minHeight: "auto" }}
+            />
+            <Tab
+              icon={<SettingsIcon />}
+              iconPosition="start"
+              label="Settings"
+              sx={{ minHeight: "auto" }}
+            />
+          </Tabs>
 
-        <Slider
-          sx={{ flex: "50%" }}
-          defaultValue={75}
-          min={50}
-          max={100}
-          onChange={handleSlideChange}
-          valueLabelDisplay="auto"
-          marks={[
-            {
-              value: 50,
-              label: "50%",
-            },
-            {
-              value: 75,
-              label: "75%",
-            },
-            {
-              value: 100,
-              label: "100%",
-            },
-          ]}
-        />
-      </Stack>
-
-      <Stack direction="row" spacing={2} sx={{ flexGrow: 1 }}>
-        <Box sx={{ flex: 1, overflow: "hidden" }}>
           <Stack
             direction="row"
             sx={{
@@ -214,28 +165,7 @@ const Main: React.FC = () => {
           </Stack>
         </Box>
 
-        <Box sx={{ flex: 1 }}>
-          {error ? (
-            <PreviewError />
-          ) : (
-            <Box sx={{ height: "inherit", overflow: "hidden" }}>
-              <Box
-                sx={{
-                  transform: `scale(${zoom / 100})`,
-                  transformOrigin: "center",
-                  transition: `transform ${theme.transitions.duration.shortest}ms ease-out`,
-                }}
-              >
-                <Preview
-                  preview={modifiedPalette}
-                  paletteName={paletteName || ""}
-                  colorValue={hex}
-                  onPaletteChange={handlePreviewChange}
-                />
-              </Box>
-            </Box>
-          )}
-        </Box>
+        <DemoArea />
       </Stack>
     </Stack>
   );

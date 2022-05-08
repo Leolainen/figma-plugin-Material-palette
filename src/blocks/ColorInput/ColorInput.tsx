@@ -5,7 +5,6 @@ import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
-import { DEFAULT_BASE_COLOR } from "../../constants";
 import { isValidHex } from "../../utils/validation";
 import ColorPicker from "../../components/ColorPicker";
 import AppContext from "../../appContext";
@@ -17,21 +16,10 @@ export interface Props extends Omit<React.HTMLProps<HTMLElement>, "style"> {}
  */
 const ColorInput = () => {
   const { hex, setHex, palette } = React.useContext(AppContext);
-  const [inputValue, setInputValue] = React.useState(DEFAULT_BASE_COLOR);
+  const [inputValue, setInputValue] = React.useState(hex);
   const [colorPickerAnchor, setColorPickerAnchor] =
     React.useState<HTMLElement | null>(null);
   const [, startTransition] = React.useTransition();
-
-  React.useLayoutEffect(() => {
-    window.addEventListener("message", (event: MessageEvent) => {
-      if (event.data && event.data.pluginMessage) {
-        const defaultColor =
-          event.data.pluginMessage.lastSelectedColor || DEFAULT_BASE_COLOR;
-        setHex(defaultColor);
-        setInputValue(defaultColor);
-      }
-    });
-  }, []);
 
   const handleInputValueChange: React.ChangeEventHandler<
     HTMLTextAreaElement | HTMLInputElement
@@ -39,14 +27,18 @@ const ColorInput = () => {
     startTransition(() => {
       const cleanedValue = event.target.value.replace("#", "");
       setInputValue(`#${cleanedValue}`);
+
+      if (isValidHex(cleanedValue)) {
+        setHex(event.target.value);
+      }
     });
   };
 
   React.useEffect(() => {
-    if (isValidHex(inputValue)) {
-      setHex(inputValue);
+    if (hex !== inputValue) {
+      setInputValue(hex);
     }
-  }, [inputValue]);
+  }, [hex]);
 
   const handleColorPickerClick: React.MouseEventHandler<HTMLButtonElement> = (
     event
