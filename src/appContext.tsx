@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Palette, Schema } from "./types";
-import { BASECOLOR } from "./constants";
+import { DEFAULT_BASE_COLOR, BASECOLOR } from "./constants";
 
 export type AlgorithmSetting = "auto" | keyof typeof BASECOLOR.material;
 export type MaterialSettings = {
@@ -9,24 +9,20 @@ export type MaterialSettings = {
   accent: boolean;
 };
 
-// TODO: add these settings
 export type FigmaSettings = {
   nodeType: "component" | "frame" | "rectangle";
   renderWithOutline: boolean; // render outline around input hex in figma
   lock: "everything" | "swatches" | "nothing";
 };
 
-// TODO: Add these settings
 export type GeneralSettings = {
   presets: "default" | "boxes"; // these should only run logic inside context
   paletteDirection: "column" | "row";
   colorBarWidth: number;
   colorBarHeight: number;
-  primaryColor: boolean; // toggle the big heading color
+  header: boolean; // toggle the big heading color
 };
 
-// RENAME MONOCHROME?? (suggestions: linear, basic, simple, )
-// TODO: add these settings
 export type LinearSettings = {
   hueMultiplier: number; // 0 - 1 (0 - 100%?)
   lightnessMultiplier: number; // 0 - 1 (0 - 100%?)
@@ -40,7 +36,7 @@ export type Settings = {
   general: GeneralSettings;
 };
 
-const defaultSettings: Settings = {
+export const defaultSettings: Settings = {
   material: {
     algorithm: "auto" as AlgorithmSetting,
     lockSwatch: false,
@@ -56,7 +52,7 @@ const defaultSettings: Settings = {
     paletteDirection: "column",
     colorBarWidth: 360,
     colorBarHeight: 34,
-    primaryColor: true,
+    header: true,
   },
   linear: {
     hueMultiplier: 0,
@@ -65,40 +61,47 @@ const defaultSettings: Settings = {
   },
 };
 
-const initialValues: Context = {
-  hex: undefined,
+export const initialValues: Context = {
+  hex: DEFAULT_BASE_COLOR,
+  modifiedPalette: undefined,
   palette: undefined,
   paletteName: undefined,
   schema: "material",
   settings: defaultSettings,
   setHex: () => {},
+  setModifiedPalette: () => {},
   setPalette: () => {},
   setPaletteName: () => {},
   setSchema: () => {},
   setSettings: () => {},
 };
 
-interface Context {
-  hex?: string;
+export interface Context {
+  hex: string;
+  modifiedPalette?: Palette;
   palette?: Palette;
   paletteName?: string;
   schema: Schema;
   settings: Settings;
   setHex: (value: string) => void;
+  setModifiedPalette: (value: Palette | undefined) => void;
   setPalette: (value: Palette | undefined) => void;
   setPaletteName: (value: string) => void;
   setSchema: (value: Schema) => void;
   setSettings: (value: Settings) => void;
 }
 
-const useAppContext = (props = initialValues): Context => {
+export const useAppContext = (props = initialValues): Context => {
   const [paletteName, setContextPaletteName] = React.useState<
     string | undefined
   >(props.paletteName);
-  const [hex, setContextHex] = React.useState<string | undefined>(props.hex);
+  const [hex, setContextHex] = React.useState<string>(props.hex);
   const [palette, setContextPalette] = React.useState<Palette | undefined>(
     props.palette
   );
+  const [modifiedPalette, setContextModifiedPalette] = React.useState<
+    Palette | undefined
+  >(props.palette);
   const [schema, setContextSchema] = React.useState<Schema>(props.schema);
   const [settings, setContextSettings] = React.useState<Settings>(
     props.settings
@@ -112,6 +115,13 @@ const useAppContext = (props = initialValues): Context => {
     setContextPalette(value);
   }, []);
 
+  const setModifiedPalette: Context["setModifiedPalette"] = React.useCallback(
+    (value) => {
+      setContextModifiedPalette(value);
+    },
+    []
+  );
+
   const setPaletteName: Context["setPaletteName"] = React.useCallback(
     (value) => {
       setContextPaletteName(value);
@@ -120,7 +130,6 @@ const useAppContext = (props = initialValues): Context => {
   );
 
   const setSettings: Context["setSettings"] = React.useCallback((value) => {
-    console.log("settings update", value);
     setContextSettings(value);
   }, []);
 
@@ -130,15 +139,17 @@ const useAppContext = (props = initialValues): Context => {
 
   return {
     hex,
-    setHex,
+    modifiedPalette,
     palette,
-    schema,
-    settings,
-    setPalette,
     paletteName,
+    schema,
+    setHex,
+    setModifiedPalette,
+    setPalette,
     setPaletteName,
     setSchema,
     setSettings,
+    settings,
   };
 };
 
