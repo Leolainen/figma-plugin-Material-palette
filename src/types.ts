@@ -1,3 +1,5 @@
+import { Settings } from "./appContext";
+
 export type ColorCalc = number[];
 
 export type RGB = {
@@ -135,4 +137,27 @@ export interface Palette {
   a200?: string;
   a400?: string;
   a700?: string;
+}
+
+export interface StoredData {
+  hex: string;
+  settings: Settings;
+  schema: Schema;
+}
+
+export interface PluginMessage {
+  pluginMessage: {
+    storedSettings: string;
+  };
+}
+
+export interface Message {
+  type: string;
+  data: {
+    hex: string;
+    settings: Settings;
+    palette: RgbHslHexObject[];
+    paletteName: string;
+    schema: Schema;
+  };
 }
