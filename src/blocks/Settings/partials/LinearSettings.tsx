@@ -31,7 +31,7 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
 
     return (
       <List dense ref={ref}>
-        <ListSubheader>Linear</ListSubheader>
+        <ListSubheader>Palette (Linear schema)</ListSubheader>
 
         <Divider />
 
@@ -42,7 +42,7 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
           />
 
           <TextField
-            defaultValue={0}
+            defaultValue={settings.linear.hueMultiplier}
             name="hueMultiplier"
             type="number"
             onChange={handleChange}
@@ -56,7 +56,7 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
           />
 
           <TextField
-            defaultValue={0}
+            defaultValue={settings.linear.lightnessMultiplier}
             name="lightnessMultiplier"
             type="number"
             onChange={handleChange}
@@ -70,7 +70,7 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
           />
 
           <TextField
-            defaultValue={0}
+            defaultValue={settings.linear.saturationMultiplier}
             name="saturationMultiplier"
             type="number"
             onChange={handleChange}

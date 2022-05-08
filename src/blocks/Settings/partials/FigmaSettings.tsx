@@ -49,7 +49,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
             secondary="What node type will be used as the root for the palette"
           />
 
-          <TextField select defaultValue="component" fullWidth>
+          <TextField select defaultValue={settings.figma.nodeType} fullWidth>
             <MenuItem value="component">Component</MenuItem>
             <MenuItem value="frame">Frame</MenuItem>
             <MenuItem value="rectangle">Rectangle</MenuItem>
@@ -62,7 +62,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
             secondary="The nodes that should be locked in the palete"
           />
 
-          <TextField select defaultValue="swatches" fullWidth>
+          <TextField select defaultValue={settings.figma.lock} fullWidth>
             <MenuItem value="everything">Everything</MenuItem>
             <MenuItem value="swatches">Swatches</MenuItem>
             <MenuItem value="nothing">Nothing</MenuItem>
@@ -76,7 +76,6 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
           />
 
           <Checkbox
-            edge="end"
             onChange={handleChange}
             name="renderWithOutline"
             defaultChecked={settings.figma.renderWithOutline}

@@ -40,7 +40,7 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
 
     return (
       <List dense ref={ref}>
-        <ListSubheader>Material</ListSubheader>
+        <ListSubheader>Palette (Material schema)</ListSubheader>
         <Divider />
         <ListItem>
           <ListItemText
@@ -52,7 +52,7 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
             name="algorithm"
             fullWidth
             select
-            defaultValue="auto"
+            defaultValue={settings.material.algorithm}
             onChange={handleChange}
           >
             {["auto", ...Object.keys(BASECOLOR.material)].map((color) => (

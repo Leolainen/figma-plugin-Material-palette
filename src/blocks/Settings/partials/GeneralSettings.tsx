@@ -6,6 +6,7 @@ import ListItemText from "@mui/material/ListItemText";
 import ListSubheader from "@mui/material/ListSubheader";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
+import Switch from "@mui/material/Switch";
 import AppContext, { GeneralSettings, Settings } from "../../../appContext";
 
 interface Props {}
@@ -22,7 +23,12 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
       if (event.target.type === "checkbox") {
         value = event.target.checked;
       } else {
-        value = event.target.value as GeneralSettingsValueType;
+        // fix bug with rect resizing in figma (code.ts, line: 91)
+        if (["colorBarWidth", "colorBarHeight"].includes(event.target.name)) {
+          value = parseInt(event.target.value, 10) as GeneralSettingsValueType;
+        } else {
+          value = event.target.value as GeneralSettingsValueType;
+        }
       }
 
       const newSettings: Settings = {
@@ -41,7 +47,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
         <ListSubheader>General</ListSubheader>
 
         <Divider />
-
+        {/* 
         <ListItem>
           <ListItemText
             primary="Presets"
@@ -59,7 +65,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
             <MenuItem value="default">Default</MenuItem>
             <MenuItem value="boxes">Boxes</MenuItem>
           </TextField>
-        </ListItem>
+        </ListItem> */}
 
         <ListItem>
           <ListItemText
@@ -69,7 +75,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
 
           <TextField
             select
-            defaultValue="column"
+            defaultValue={settings.general.paletteDirection}
             fullWidth
             name="paletteDirection"
             onChange={handleChange}
@@ -88,7 +94,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
           <TextField
             placeholder="swatch width"
             type="number"
-            defaultValue={360}
+            defaultValue={settings.general.colorBarWidth}
             name="colorBarWidth"
             onChange={handleChange}
           />
@@ -103,9 +109,23 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
           <TextField
             placeholder="swatch height"
             type="number"
-            defaultValue={34}
+            defaultValue={settings.general.colorBarHeight}
             name="colorBarHeight"
             onChange={handleChange}
+          />
+        </ListItem>
+
+        <ListItem>
+          <ListItemText
+            primary="Header color"
+            secondary="Toggles the primary 500 color as a header"
+          />
+
+          <Switch
+            edge="end"
+            onChange={handleChange}
+            name="header"
+            defaultChecked={settings.general.header}
           />
         </ListItem>
       </List>
