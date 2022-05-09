@@ -91,7 +91,7 @@ export interface Context {
   setSettings: (value: Settings) => void;
 }
 
-export const useAppContext = (props = initialValues): Context => {
+export const useAppContext = (props: Context): Context => {
   const [paletteName, setContextPaletteName] = React.useState<
     string | undefined
   >(props.paletteName);
@@ -101,7 +101,7 @@ export const useAppContext = (props = initialValues): Context => {
   );
   const [modifiedPalette, setContextModifiedPalette] = React.useState<
     Palette | undefined
-  >(props.palette);
+  >(props.modifiedPalette);
   const [schema, setContextSchema] = React.useState<Schema>(props.schema);
   const [settings, setContextSettings] = React.useState<Settings>(
     props.settings
@@ -113,6 +113,7 @@ export const useAppContext = (props = initialValues): Context => {
 
   const setPalette: Context["setPalette"] = React.useCallback((value) => {
     setContextPalette(value);
+    setContextModifiedPalette(value);
   }, []);
 
   const setModifiedPalette: Context["setModifiedPalette"] = React.useCallback(
