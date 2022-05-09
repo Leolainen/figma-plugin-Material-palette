@@ -59,6 +59,12 @@ const Main: React.FC = () => {
             schema,
             palette: postPalette,
           },
+          store: {
+            schema,
+            settings,
+            hex,
+            palette: modifiedPalette,
+          },
         },
       },
       "*"

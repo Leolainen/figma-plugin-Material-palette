@@ -140,9 +140,10 @@ export interface Palette {
 }
 
 export interface StoredData {
-  hex: string;
-  settings: Settings;
   schema: Schema;
+  settings: Settings;
+  hex: string;
+  palette: Palette;
 }
 
 export interface PluginMessage {
@@ -151,13 +152,15 @@ export interface PluginMessage {
   };
 }
 
+export interface MessageData {
+  hex: string;
+  settings: Settings;
+  palette: RgbHslHexObject[];
+  paletteName: string;
+  schema: Schema;
+}
 export interface Message {
   type: string;
-  data: {
-    hex: string;
-    settings: Settings;
-    palette: RgbHslHexObject[];
-    paletteName: string;
-    schema: Schema;
-  };
+  data: MessageData;
+  store: StoredData;
 }

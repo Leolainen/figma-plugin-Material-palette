@@ -153,14 +153,7 @@ const createPaletteBar = (paletteBarProps: PaletteBarProps) => {
 figma.ui.onmessage = async (msg: Message) => {
   if (msg.type === "create-palette") {
     // Store plugin data so they load on next launch
-    figma.root.setPluginData(
-      "storedSettings",
-      JSON.stringify({
-        schema: msg.data.schema,
-        settings: msg.data.settings,
-        hex: msg.data.hex,
-      })
-    );
+    figma.root.setPluginData("storedSettings", JSON.stringify(msg.store));
 
     const nodes: SceneNode[] = [];
     const { palette, paletteName = "", settings } = msg.data;
