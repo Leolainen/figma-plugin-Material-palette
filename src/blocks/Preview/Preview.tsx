@@ -8,19 +8,25 @@ import ColorPicker from "../../components/ColorPicker";
 import { Palette } from "../../types";
 import { handleTextContrast } from "../../utils";
 import { AppContext } from "../../appContext";
+import CircularProgress from "@mui/material/CircularProgress";
 
-interface Props {
-  colorValue: string;
-  paletteName: string;
-  preview: Palette;
-}
-
-const Preview = ({ colorValue, paletteName, preview }: Props) => {
+const Preview = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [selectedColor, setSelectedColor] =
     React.useState<[keyof Palette, string]>();
-  const { settings, setPalette } = React.useContext(AppContext);
+  const { paletteName, modifiedPalette, setModifiedPalette, hex, settings } =
+    React.useContext(AppContext);
   const { paletteDirection, colorBarWidth, header } = settings.general;
+
+  if (!modifiedPalette) {
+    return (
+      <Box
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   const handleSwatchClick = (
     swatch: [string, any],
@@ -40,7 +46,7 @@ const Preview = ({ colorValue, paletteName, preview }: Props) => {
       return;
     }
 
-    const newPalette: Palette = { ...preview };
+    const newPalette: Palette = { ...modifiedPalette };
     newPalette[swatch] = color.hex;
 
     anchorEl?.setAttribute("style", "background-color: " + color.hex);
@@ -61,18 +67,15 @@ const Preview = ({ colorValue, paletteName, preview }: Props) => {
       return;
     }
 
-    const newPalette: Palette = { ...preview };
+    const newPalette: Palette = { ...modifiedPalette };
     newPalette[swatch] = color.hex;
 
     anchorEl?.removeAttribute("style");
 
-    setPalette(newPalette);
+    // setPalette(newPalette);
+    setModifiedPalette(newPalette);
     setAnchorEl(null);
   };
-
-  if (!preview) {
-    return <p>loading palette</p>;
-  }
 
   return (
     <Box
@@ -87,8 +90,8 @@ const Preview = ({ colorValue, paletteName, preview }: Props) => {
           sx={{
             minHeight: 122,
             minWidth: colorBarWidth,
-            color: handleTextContrast(preview["500"]),
-            backgroundColor: preview["500"],
+            color: handleTextContrast(modifiedPalette["500"]),
+            backgroundColor: modifiedPalette["500"],
           }}
         >
           <Typography px={2} pt={2}>
@@ -106,7 +109,7 @@ const Preview = ({ colorValue, paletteName, preview }: Props) => {
             pb={2}
           >
             <span>500</span>
-            <span>{preview["500"]}</span>
+            <span>{modifiedPalette["500"]}</span>
           </Stack>
         </Stack>
       )}
@@ -121,13 +124,13 @@ const Preview = ({ colorValue, paletteName, preview }: Props) => {
           value={(selectedColor && selectedColor[1]) || "#000000"}
         />
 
-        {Object.entries(preview).map(([swatchKey, value], idx) => (
+        {Object.entries(modifiedPalette).map(([swatchKey, value], idx) => (
           <ColorBar
             key={swatchKey + value}
             swatch={[swatchKey as keyof Palette, value]}
             onClick={handleSwatchClick}
             sx={{
-              ...(value === colorValue && {
+              ...(value === hex && {
                 border: "2px dashed white",
               }),
             }}

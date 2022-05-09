@@ -18,32 +18,15 @@ const MOUSE_ACC = 2;
 const Main: React.FC = () => {
   const [zoom, setZoom] = React.useState(75);
   const [toggleZoom, setToggleZoom] = React.useState<HTMLElement | null>();
-  const [hasAccents, setHasAccents] = React.useState(false);
-  const {
-    modifiedPalette,
-    setModifiedPalette,
-    palette,
-    paletteName,
-    hex,
-    settings,
-  } = React.useContext(AppContext);
+  const { modifiedPalette, setModifiedPalette, palette, hex, settings } =
+    React.useContext(AppContext);
   const theme = useTheme();
   const containerRef = React.useRef();
 
-  // const [, startTransition] = React.useTransition();
-
   React.useEffect(() => {
-    setModifiedPalette(palette);
-  }, [palette]);
-
-  React.useEffect(() => {
-    if (palette) {
-      const paletteClone = { ...palette };
-      const foundAccents = accents.every((accent) => accent in paletteClone);
-
-      if (foundAccents !== hasAccents) {
-        setHasAccents(foundAccents);
-      }
+    if (palette && modifiedPalette) {
+      const paletteClone = { ...modifiedPalette };
+      const foundAccents = accents.every((accent) => accent in palette);
 
       // remove accents if material schema and accents is turned off
       if (foundAccents && !settings.material.accent) {
@@ -53,7 +36,7 @@ const Main: React.FC = () => {
         setModifiedPalette(paletteClone);
       }
     }
-  }, [hasAccents, settings.material.accent, palette, setModifiedPalette]);
+  }, [settings.material.accent]);
 
   const handleSlideChange = (
     event: Event,
@@ -253,11 +236,7 @@ const Main: React.FC = () => {
               transition: `transform ${theme.transitions.duration.shortest}ms ease-out`,
             }}
           >
-            <Preview
-              preview={modifiedPalette}
-              paletteName={paletteName || ""}
-              colorValue={hex}
-            />
+            <Preview />
           </Box>
         </Box>
       )}
