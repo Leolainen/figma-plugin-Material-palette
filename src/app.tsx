@@ -33,7 +33,7 @@ function App() {
    */
   const validateSettings = (settings: StoredData): boolean => {
     const settingsKeys = Object.keys(settings);
-    const keysToInclude = ["hex", "settings", "schema"];
+    const keysToInclude = ["hex", "settings", "schema", "palette"];
     const containsAllKeys = settingsKeys.every((key) =>
       keysToInclude.includes(key)
     );
@@ -53,6 +53,15 @@ function App() {
   };
 
   const handleMessageEvent = (event: MessageEvent) => {
+    if (
+      !event.data ||
+      !event.data.pluginMessage ||
+      !event.data.pluginMessage.storedSettings
+    ) {
+      setInitContextValues(initialValues);
+      return;
+    }
+
     const { storedSettings } = event.data.pluginMessage;
     const settings = JSON.parse(storedSettings) as StoredData;
     let context: Context;
@@ -63,6 +72,7 @@ function App() {
       context = {
         ...initialValues,
         ...settings,
+        modifiedPalette: settings.palette,
       };
     } else {
       console.warn(
@@ -87,13 +97,13 @@ function App() {
   }
 
   return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <AppContextProvider value={initContextValues}>
+    <AppContextProvider value={initContextValues}>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
           <Main />
-        </AppContextProvider>
-      </ThemeProvider>
-    </StyledEngineProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </AppContextProvider>
   );
 }
 
