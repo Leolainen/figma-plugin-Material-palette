@@ -3,7 +3,7 @@ import clone from "./utils/clone";
 import { getContrastRatio } from "./utils/contrast";
 import { Message, RgbHslHexObject } from "./types";
 import { rgbToHex } from "./converters/toHex";
-import { Settings } from "./appContext";
+import { Settings } from "./store/types/settings";
 
 const fullColorKeys = COLORKEYS;
 fullColorKeys.splice(5, 0, "500"); // include 500 swatch that's missing in the COLORKEYS

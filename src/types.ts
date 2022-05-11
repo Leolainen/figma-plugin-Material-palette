@@ -1,4 +1,4 @@
-import { Settings } from "./appContext";
+import { Settings } from "./store/types/settings";
 
 export type ColorCalc = number[];
 

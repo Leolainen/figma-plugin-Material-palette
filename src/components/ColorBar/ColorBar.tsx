@@ -5,7 +5,8 @@ import TouchRipple, {
 } from "@mui/material/ButtonBase/TouchRipple";
 import { Palette } from "../../types";
 import { handleTextContrast } from "../../utils";
-import { AppContext } from "../../appContext";
+import { useAtom } from "jotai";
+import * as atoms from "../../store";
 
 type Swatch = [swatchKey: keyof Palette, hex: string];
 
@@ -31,8 +32,8 @@ export interface Props extends Omit<ButtonBaseProps, "onClick"> {
 const ColorBar = React.forwardRef<HTMLButtonElement, Props>((props, ref) => {
   const { onClick, swatch, sx, ...other } = props;
   const rippleRef = React.useRef<TouchRippleActions>();
-  const { settings } = React.useContext(AppContext);
-  const { colorBarWidth, colorBarHeight } = settings.general;
+  const [colorBarWidth] = useAtom(atoms.colorBarWidthAtom);
+  const [colorBarHeight] = useAtom(atoms.colorBarHeightAtom);
 
   const handleClick: ButtonBaseProps["onClick"] = (event) => {
     onClick(swatch, event);

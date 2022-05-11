@@ -5,28 +5,37 @@ import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import ListSubheader from "@mui/material/ListSubheader";
 import TextField from "@mui/material/TextField";
-import AppContext, { LinearSettings, Settings } from "../../../appContext";
+import { useAtom } from "jotai";
+import * as atoms from "../../../store";
 
 interface Props {}
 
 const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
   (props, ref) => {
-    const { settings, setSettings } = React.useContext(AppContext);
+    const [hueMultiplier, setHueMultiplier] = useAtom(atoms.hueMultiplierAtom);
+    const [saturationMultiplier, setSaturationMultiplier] = useAtom(
+      atoms.saturationMultiplierAtom
+    );
+    const [lightnessMultiplier, setLightnessMultiplier] = useAtom(
+      atoms.lightnessMultiplierAtom
+    );
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      type LinearSettingsTypeValue = LinearSettings[keyof LinearSettings];
+      const value = parseInt(event.target.value, 10);
 
-      const value = parseInt(event.target.value, 10) as LinearSettingsTypeValue;
-
-      const newSettings: Settings = {
-        ...settings,
-        linear: {
-          ...settings.linear,
-          [event.target.name as keyof LinearSettings]: value,
-        },
-      };
-
-      setSettings(newSettings);
+      switch (event.target.name) {
+        case "hueMultiplier":
+          setHueMultiplier(value);
+          break;
+        case "saturationMultiplier":
+          setSaturationMultiplier(value);
+          break;
+        case "lightnessMultiplier":
+          setLightnessMultiplier(value);
+          break;
+        default:
+          break;
+      }
     };
 
     return (
@@ -42,7 +51,7 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
           />
 
           <TextField
-            defaultValue={settings.linear.hueMultiplier}
+            defaultValue={hueMultiplier}
             name="hueMultiplier"
             type="number"
             onChange={handleChange}
@@ -56,7 +65,7 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
           />
 
           <TextField
-            defaultValue={settings.linear.lightnessMultiplier}
+            defaultValue={lightnessMultiplier}
             name="lightnessMultiplier"
             type="number"
             onChange={handleChange}
@@ -70,7 +79,7 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
           />
 
           <TextField
-            defaultValue={settings.linear.saturationMultiplier}
+            defaultValue={saturationMultiplier}
             name="saturationMultiplier"
             type="number"
             onChange={handleChange}

@@ -7,7 +7,8 @@ import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import { isValidHex } from "../../utils/validation";
 import ColorPicker from "../../components/ColorPicker";
-import AppContext from "../../appContext";
+import { useAtom } from "jotai";
+import * as atoms from "../../store";
 
 export interface Props extends Omit<React.HTMLProps<HTMLElement>, "style"> {}
 
@@ -15,7 +16,8 @@ export interface Props extends Omit<React.HTMLProps<HTMLElement>, "style"> {}
  * Input field for main color
  */
 const ColorInput = () => {
-  const { hex, setHex, palette } = React.useContext(AppContext);
+  const [hex, setHex] = useAtom(atoms.hexAtom);
+  const [palette] = useAtom(atoms.paletteAtom);
   const [inputValue, setInputValue] = React.useState(hex);
   const [colorPickerAnchor, setColorPickerAnchor] =
     React.useState<HTMLElement | null>(null);

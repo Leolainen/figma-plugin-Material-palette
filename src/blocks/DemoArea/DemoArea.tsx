@@ -6,37 +6,22 @@ import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import Tooltip from "@mui/material/Tooltip";
 import { useTheme } from "@mui/material/styles";
 import { isValidHex } from "../../utils/validation";
-import AppContext from "../../appContext";
 import Preview from "../Preview";
 import PreviewError from "../PreviewError";
 import Popover from "@mui/material/Popover";
 import CenterFocusStrongIcon from "@mui/icons-material/CenterFocusStrong";
+import { useAtom } from "jotai";
+import * as atoms from "../../store";
 
-const accents = ["a100", "a200", "a400", "a700"] as const;
 const MOUSE_ACC = 2;
 
 const Main: React.FC = () => {
   const [zoom, setZoom] = React.useState(75);
   const [toggleZoom, setToggleZoom] = React.useState<HTMLElement | null>();
-  const { modifiedPalette, setModifiedPalette, palette, hex, settings } =
-    React.useContext(AppContext);
+  const [palette] = useAtom(atoms.paletteAtom);
+  const [hex] = useAtom(atoms.hexAtom);
   const theme = useTheme();
   const containerRef = React.useRef();
-
-  React.useEffect(() => {
-    if (palette && modifiedPalette) {
-      const paletteClone = { ...modifiedPalette };
-      const foundAccents = accents.every((accent) => accent in palette);
-
-      // remove accents if material schema and accents is turned off
-      if (foundAccents && !settings.material.accent) {
-        accents.forEach((accent) => delete paletteClone[accent]);
-
-        console.log("setting modified palette", paletteClone);
-        setModifiedPalette(paletteClone);
-      }
-    }
-  }, [settings.material.accent]);
 
   const handleSlideChange = (
     event: Event,
@@ -46,7 +31,7 @@ const Main: React.FC = () => {
     setZoom(value as number);
   };
 
-  const error = !palette || !modifiedPalette || !hex || !isValidHex(hex);
+  const error = !palette || !hex || !isValidHex(hex);
 
   const handleZoomChange = (
     event: React.MouseEvent<HTMLElement, MouseEvent>

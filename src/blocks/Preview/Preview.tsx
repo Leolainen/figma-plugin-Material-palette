@@ -7,18 +7,25 @@ import ColorBar from "../../components/ColorBar";
 import ColorPicker from "../../components/ColorPicker";
 import { Palette } from "../../types";
 import { handleTextContrast } from "../../utils";
-import { AppContext } from "../../appContext";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useAtom } from "jotai";
+import * as atoms from "../../store";
+
+const ACCENTS = ["a100", "a200", "a400", "a700"];
 
 const Preview = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [selectedColor, setSelectedColor] =
     React.useState<[keyof Palette, string]>();
-  const { paletteName, modifiedPalette, setModifiedPalette, hex, settings } =
-    React.useContext(AppContext);
-  const { paletteDirection, colorBarWidth, header } = settings.general;
+  const [paletteName] = useAtom(atoms.paletteNameAtom);
+  const [palette, setPalette] = useAtom(atoms.paletteAtom);
+  const [hex] = useAtom(atoms.hexAtom);
+  const [paletteDirection] = useAtom(atoms.paletteDirectionAtom);
+  const [colorBarWidth] = useAtom(atoms.colorBarWidthAtom);
+  const [header] = useAtom(atoms.headerAtom);
+  const [accent] = useAtom(atoms.accentAtom);
 
-  if (!modifiedPalette) {
+  if (!palette) {
     return (
       <Box
         sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
@@ -46,9 +53,6 @@ const Preview = () => {
       return;
     }
 
-    const newPalette: Palette = { ...modifiedPalette };
-    newPalette[swatch] = color.hex;
-
     anchorEl?.setAttribute("style", "background-color: " + color.hex);
   };
 
@@ -67,15 +71,24 @@ const Preview = () => {
       return;
     }
 
-    const newPalette: Palette = { ...modifiedPalette };
+    const newPalette: Palette = { ...palette };
     newPalette[swatch] = color.hex;
 
     anchorEl?.removeAttribute("style");
 
-    // setPalette(newPalette);
-    setModifiedPalette(newPalette);
+    setPalette(newPalette);
     setAnchorEl(null);
   };
+
+  const demoPalette = accent
+    ? palette
+    : Object.keys(palette).reduce((acc, curr) => {
+        if (ACCENTS.includes(curr)) {
+          return acc;
+        }
+
+        return { ...acc, [curr]: palette[curr as keyof Palette] };
+      }, {} as Palette);
 
   return (
     <Box
@@ -90,8 +103,8 @@ const Preview = () => {
           sx={{
             minHeight: 122,
             minWidth: colorBarWidth,
-            color: handleTextContrast(modifiedPalette["500"]),
-            backgroundColor: modifiedPalette["500"],
+            color: handleTextContrast(palette["500"]),
+            backgroundColor: palette["500"],
           }}
         >
           <Typography px={2} pt={2}>
@@ -109,7 +122,7 @@ const Preview = () => {
             pb={2}
           >
             <span>500</span>
-            <span>{modifiedPalette["500"]}</span>
+            <span>{palette["500"]}</span>
           </Stack>
         </Stack>
       )}
@@ -124,7 +137,7 @@ const Preview = () => {
           value={(selectedColor && selectedColor[1]) || "#000000"}
         />
 
-        {Object.entries(modifiedPalette).map(([swatchKey, value], idx) => (
+        {Object.entries(demoPalette).map(([swatchKey, value], idx) => (
           <ColorBar
             key={swatchKey + value}
             swatch={[swatchKey as keyof Palette, value]}

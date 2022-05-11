@@ -7,39 +7,53 @@ import ListSubheader from "@mui/material/ListSubheader";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Switch from "@mui/material/Switch";
-import AppContext, { GeneralSettings, Settings } from "../../../appContext";
+import { useAtom } from "jotai";
+import * as atoms from "../../../store";
+import * as SettingsTypes from "../../../store/types/settings";
 
 interface Props {}
 
 const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
   (props, ref) => {
-    const { settings, setSettings } = React.useContext(AppContext);
+    const [paletteDirection, setPaletteDirection] = useAtom(
+      atoms.paletteDirectionAtom
+    );
+    const [colorBarWidth, setColorBarWidth] = useAtom(atoms.colorBarWidthAtom);
+    const [colorBarHeight, setColorBarHeight] = useAtom(
+      atoms.colorBarHeightAtom
+    );
+    const [header, setHeader] = useAtom(atoms.headerAtom);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      type GeneralSettingsValueType = GeneralSettings[keyof GeneralSettings];
-
-      let value: GeneralSettingsValueType;
+      let value;
 
       if (event.target.type === "checkbox") {
         value = event.target.checked;
       } else {
         // fix bug with rect resizing in figma (code.ts, line: 91)
         if (["colorBarWidth", "colorBarHeight"].includes(event.target.name)) {
-          value = parseInt(event.target.value, 10) as GeneralSettingsValueType;
+          value = parseInt(event.target.value, 10);
         } else {
-          value = event.target.value as GeneralSettingsValueType;
+          value = event.target.value;
         }
       }
 
-      const newSettings: Settings = {
-        ...settings,
-        general: {
-          ...settings.general,
-          [event.target.name as keyof GeneralSettings]: value,
-        },
-      };
-
-      setSettings(newSettings);
+      switch (event.target.name) {
+        case "paletteDirection":
+          setPaletteDirection(value as SettingsTypes.PaletteDirection);
+          break;
+        case "colorBarWidth":
+          setColorBarWidth(value as number);
+          break;
+        case "colorBarHeight":
+          setColorBarHeight(value as number);
+          break;
+        case "header":
+          setHeader(value as boolean);
+          break;
+        default:
+          break;
+      }
     };
 
     return (
@@ -75,7 +89,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
 
           <TextField
             select
-            defaultValue={settings.general.paletteDirection}
+            defaultValue={paletteDirection}
             fullWidth
             name="paletteDirection"
             onChange={handleChange}
@@ -94,7 +108,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
           <TextField
             placeholder="swatch width"
             type="number"
-            defaultValue={settings.general.colorBarWidth}
+            defaultValue={colorBarWidth}
             name="colorBarWidth"
             onChange={handleChange}
           />
@@ -109,7 +123,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
           <TextField
             placeholder="swatch height"
             type="number"
-            defaultValue={settings.general.colorBarHeight}
+            defaultValue={colorBarHeight}
             name="colorBarHeight"
             onChange={handleChange}
           />
@@ -125,7 +139,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
             edge="end"
             onChange={handleChange}
             name="header"
-            defaultChecked={settings.general.header}
+            defaultChecked={header}
           />
         </ListItem>
       </List>

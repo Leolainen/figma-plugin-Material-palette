@@ -2,7 +2,7 @@ import { hslToHex } from "../converters/toHex";
 import { hexToHSL } from "../converters/toHsl";
 import { Palette } from "../types";
 import { FULL_COLOR_KEYS } from "../constants";
-import { LinearSettings } from "../appContext";
+import { LinearSettings } from "../store/types/settings";
 
 function createBrighterColors(baseColor: string, settings: LinearSettings) {
   const hueMultiplier = settings.hueMultiplier / 100;

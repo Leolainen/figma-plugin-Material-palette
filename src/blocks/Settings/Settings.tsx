@@ -4,12 +4,13 @@ import MaterialSettings from "./partials/MaterialSettings";
 import FigmaSettings from "./partials/FigmaSettings";
 import GeneralSettings from "./partials/GeneralSettings";
 import LinearSettings from "./partials/LinearSettings";
-import AppContext from "../../appContext";
+import { useAtom } from "jotai";
+import * as atoms from "../../store";
 
 interface Props {}
 
 const Settings = React.forwardRef<HTMLUListElement, Props>((props, ref) => {
-  const { schema } = React.useContext(AppContext);
+  const [schema] = useAtom(atoms.schemaAtom);
 
   return (
     <Stack

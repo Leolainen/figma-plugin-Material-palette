@@ -7,34 +7,42 @@ import ListSubheader from "@mui/material/ListSubheader";
 import TextField from "@mui/material/TextField";
 import Checkbox from "@mui/material/Checkbox";
 import MenuItem from "@mui/material/MenuItem";
-import AppContext, { FigmaSettings, Settings } from "../../../appContext";
+import { useAtom } from "jotai";
+import * as atoms from "../../../store";
+import * as SettingsTypes from "../../../store/types/settings";
 
 interface Props {}
 
 const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
   (props, ref) => {
-    const { settings, setSettings } = React.useContext(AppContext);
+    const [renderWithOutline, setRenderWithOutline] = useAtom(
+      atoms.renderWithOutlineAtom
+    );
+    const [lock, setLock] = useAtom(atoms.lockAtom);
+    const [nodeType, setNodeType] = useAtom(atoms.nodeTypeAtom);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      type FigmaSettingsValueType = FigmaSettings[keyof FigmaSettings];
-
-      let value: FigmaSettingsValueType;
+      let value;
 
       if (event.target.type === "checkbox") {
         value = event.target.checked;
       } else {
-        value = event.target.value as FigmaSettingsValueType;
+        value = event.target.value;
       }
 
-      const newSettings: Settings = {
-        ...settings,
-        figma: {
-          ...settings.figma,
-          [event.target.name as keyof FigmaSettings]: value,
-        },
-      };
-
-      setSettings(newSettings);
+      switch (event.target.name) {
+        case "renderWithOutline":
+          setRenderWithOutline(value as boolean);
+          break;
+        case "lock":
+          setLock(value as SettingsTypes.Lock);
+          break;
+        case "nodeType":
+          setNodeType(value as SettingsTypes.NodeType);
+          break;
+        default:
+          break;
+      }
     };
 
     return (
@@ -49,7 +57,12 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
             secondary="What node type will be used as the root for the palette"
           />
 
-          <TextField select defaultValue={settings.figma.nodeType} fullWidth>
+          <TextField
+            onChange={handleChange}
+            select
+            defaultValue={nodeType}
+            fullWidth
+          >
             <MenuItem value="component">Component</MenuItem>
             <MenuItem value="frame">Frame</MenuItem>
             <MenuItem value="rectangle">Rectangle</MenuItem>
@@ -62,7 +75,12 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
             secondary="The nodes that should be locked in the palete"
           />
 
-          <TextField select defaultValue={settings.figma.lock} fullWidth>
+          <TextField
+            onChange={handleChange}
+            select
+            defaultValue={lock}
+            fullWidth
+          >
             <MenuItem value="everything">Everything</MenuItem>
             <MenuItem value="swatches">Swatches</MenuItem>
             <MenuItem value="nothing">Nothing</MenuItem>
@@ -78,7 +96,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
           <Checkbox
             onChange={handleChange}
             name="renderWithOutline"
-            defaultChecked={settings.figma.renderWithOutline}
+            defaultChecked={renderWithOutline}
           />
         </ListItem>
       </List>
