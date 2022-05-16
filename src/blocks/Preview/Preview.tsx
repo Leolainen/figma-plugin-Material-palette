@@ -91,12 +91,11 @@ const Preview = () => {
       }, {} as Palette);
 
   return (
-    <Box
+    <Stack
       sx={{
         width: "fit-content",
-        display: "flex",
-        flexDirection: "column",
       }}
+      m="auto"
     >
       {header && (
         <Stack
@@ -150,7 +149,7 @@ const Preview = () => {
           />
         ))}
       </Stack>
-    </Box>
+    </Stack>
   );
 };
 
