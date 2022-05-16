@@ -33,16 +33,18 @@ const ColorPicker = ({
     }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm: NonNullable<ButtonProps["onClick"]> = (event) => {
     if (!selectedColor) return;
 
     onConfirm(selectedColor);
+    handleClose(event);
   };
 
-  const handleClose: ButtonProps["onClick"] = (event) => {
+  const handleClose: NonNullable<ButtonProps["onClick"]> = (event) => {
     if (!onClose) return;
 
     onClose(event, "backdropClick"); // "reason" arg just to satisfy typescript
+    setSelectedColor(undefined);
   };
 
   return (
