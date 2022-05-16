@@ -54,7 +54,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
         <ListItem>
           <ListItemText
             primary="Node type"
-            secondary="What node type will be used as the root for the palette"
+            secondary="Node type of the palette"
           />
 
           <TextField
@@ -62,10 +62,10 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
             select
             defaultValue={nodeType}
             fullWidth
+            name="nodeType"
           >
             <MenuItem value="component">Component</MenuItem>
             <MenuItem value="frame">Frame</MenuItem>
-            <MenuItem value="rectangle">Rectangle</MenuItem>
           </TextField>
         </ListItem>
 
@@ -80,6 +80,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
             select
             defaultValue={lock}
             fullWidth
+            name="lock"
           >
             <MenuItem value="everything">Everything</MenuItem>
             <MenuItem value="swatches">Swatches</MenuItem>
