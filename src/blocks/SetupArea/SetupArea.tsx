@@ -42,8 +42,6 @@ const SetupArea: React.FC = () => {
       extendColorModel(swatchHex)
     );
 
-    console.log("posting palette", palette);
-
     parent.postMessage(
       {
         pluginMessage: {
