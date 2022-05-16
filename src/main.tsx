@@ -20,7 +20,7 @@ const Main: React.FC = () => {
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    if (!hex) {
+    if (!hex || loading) {
       return;
     }
 
@@ -46,14 +46,20 @@ const Main: React.FC = () => {
     });
   }, [hex, settings, schema]);
 
+  const applyStoredData = (data: StoredData): void => {
+    setHex(data.hex);
+    setSchema(data.schema);
+    setSettings(data.settings);
+    setPalette(data.palette);
+  };
+
+  // get stored data
   const handleMessageEvent = (event: MessageEvent<PluginMessage>) => {
-    console.log({ data: event.data });
     if (
       !event.data ||
       !event.data.pluginMessage ||
       !event.data.pluginMessage.storedSettings
     ) {
-      console.warn("no stored data");
       setLoading(false);
       return;
     }
@@ -61,13 +67,12 @@ const Main: React.FC = () => {
     const { storedSettings } = event.data.pluginMessage;
     const storedData = JSON.parse(storedSettings) as StoredData;
 
-    console.log("stored data found", storedData);
-    setHex(storedData.hex);
-    setPalette(storedData.palette);
-    setSchema(storedData.schema);
-    setSettings(storedData.settings);
+    applyStoredData(storedData);
 
-    setLoading(false);
+    // necessary to prevent stored data from being overwritten
+    setTimeout(() => {
+      setLoading(false);
+    }, 0);
   };
 
   React.useLayoutEffect(() => {
