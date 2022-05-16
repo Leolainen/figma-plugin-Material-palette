@@ -23,7 +23,7 @@ const extendColorModel = (hex: string): RgbHslHexObject => ({
   hex,
 });
 
-const Main: React.FC = () => {
+const SetupArea: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState(0);
   const [palette] = useAtom(atoms.paletteAtom);
   const [hex] = useAtom(atoms.hexAtom);
@@ -41,6 +41,8 @@ const Main: React.FC = () => {
     const postPalette = Object.values(palette).map((swatchHex) =>
       extendColorModel(swatchHex)
     );
+
+    console.log("posting palette", palette);
 
     parent.postMessage(
       {
@@ -133,4 +135,4 @@ const Main: React.FC = () => {
   );
 };
 
-export default Main;
+export default SetupArea;
