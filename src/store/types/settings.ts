@@ -1,6 +1,6 @@
 import { BASECOLOR } from "../../constants";
 
-export type NodeType = "component" | "frame" | "rectangle";
+export type NodeType = "component" | "frame";
 export type Lock = "everything" | "swatches" | "nothing";
 export type PaletteDirection = "column" | "row";
 export type Algorithm = "auto" | keyof typeof BASECOLOR.material;
