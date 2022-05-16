@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "npx webpack --mode=production",
+    "dev": "npx webpack --mode=development --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "eslint": "eslint ./src",
     "lint": "eslint ./src --ext '.js,.ts,.tsx' --quiet"
@@ -28,9 +29,9 @@
     "@figma/plugin-typings": "^1.47.0",
     "@types/react": "^18.0.9",
     "@types/react-color": "^3.0.6",
-    "@types/react-dom": "^18.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.23.0",
-    "@typescript-eslint/parser": "^5.23.0",
+    "@types/react-dom": "^18.0.4",
+    "@typescript-eslint/eslint-plugin": "^5.24.0",
+    "@typescript-eslint/parser": "^5.24.0",
     "css-loader": "^6.7.1",
     "eslint": "^8.15.0",
     "eslint-config-google": "^0.14.0",
