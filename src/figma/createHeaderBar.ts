@@ -12,8 +12,6 @@ type HeaderBarProps = {
   isColumn: boolean;
 };
 
-const HEADER_MIN_HEIGHT = 122;
-
 const createHeaderBar = ({
   width,
   height,
@@ -27,7 +25,7 @@ const createHeaderBar = ({
   const headerNumber: TextNode = figma.createText();
   const headerHex: TextNode = figma.createText();
 
-  headerRect.resize(width, Math.max(HEADER_MIN_HEIGHT, height));
+  headerRect.resize(width, height);
 
   headerName.fontSize = 14;
   headerName.x = 20;

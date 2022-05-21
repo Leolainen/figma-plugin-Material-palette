@@ -2,6 +2,8 @@ import { Message, RgbHslHexObject } from "./types";
 import { Settings } from "./store/types/settings";
 import { createHeaderBar, createPaletteBar } from "./figma";
 
+const HEADER_MIN_HEIGHT = 122;
+
 figma.showUI(__html__, {
   height: 650,
   width: 890,
@@ -26,7 +28,7 @@ figma.ui.onmessage = async (msg: Message) => {
     } = settings as Settings;
 
     const baseColor: RgbHslHexObject = palette[5];
-    let initialHeight = 0;
+    // const initialHeight = 0;
     let totalHeight = 0;
     let totalWidth = 0;
     const isColumn = generalSettings.paletteDirection === "column";
@@ -38,11 +40,25 @@ figma.ui.onmessage = async (msg: Message) => {
 
     // Create header rectangle
     let headerRect: GroupNode | undefined = undefined;
+    const paletteLength = !materialSettings.accent ? 10 : palette.length;
+
+    if (isColumn) {
+      totalHeight = generalSettings.colorBarHeight * paletteLength;
+      totalWidth = generalSettings.colorBarWidth;
+    } else {
+      totalHeight = generalSettings.colorBarHeight;
+      totalWidth = generalSettings.colorBarWidth * paletteLength;
+    }
 
     if (generalSettings.header) {
+      const headerHeight = Math.max(
+        HEADER_MIN_HEIGHT,
+        generalSettings.colorBarHeight
+      );
+
       headerRect = createHeaderBar({
-        width: generalSettings.colorBarWidth,
-        height: generalSettings.colorBarHeight,
+        width: totalWidth, // generalSettings.colorBarWidth,
+        height: headerHeight,
         baseColor,
         name: paletteName,
         locked: figmaSettings.lock,
@@ -52,12 +68,11 @@ figma.ui.onmessage = async (msg: Message) => {
       nodes.push(headerRect);
 
       totalHeight += headerRect.height;
-      initialHeight = headerRect.height;
+      // initialHeight = headerRect.height;
     }
 
-    const paletteLength = !materialSettings.accent ? 10 : palette.length;
-
     for (let i = 0; i < paletteLength; i++) {
+      const initialHeight = headerRect?.height || 0;
       const paletteBar = createPaletteBar({
         size: {
           height: generalSettings.colorBarHeight,
@@ -77,14 +92,6 @@ figma.ui.onmessage = async (msg: Message) => {
       });
 
       paletteBar.locked = !noneIsLocked;
-
-      if (isColumn) {
-        totalHeight += paletteBar.height;
-        totalWidth = paletteBar.width;
-      } else {
-        totalHeight = paletteBar.height + initialHeight;
-        totalWidth += paletteBar.width;
-      }
 
       nodes.push(paletteBar);
     }
