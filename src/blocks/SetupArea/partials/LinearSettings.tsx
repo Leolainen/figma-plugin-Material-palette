@@ -1,9 +1,7 @@
 import * as React from "react";
-import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import ListSubheader from "@mui/material/ListSubheader";
 import TextField from "@mui/material/TextField";
 import { useAtom } from "jotai";
 import * as atoms from "../../../store";
@@ -39,47 +37,56 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
     };
 
     return (
-      <List dense ref={ref}>
-        <ListSubheader>Palette (Linear schema)</ListSubheader>
-
-        <Divider />
-
-        <ListItem>
+      <List
+        dense
+        ref={ref}
+        sx={{
+          "& li > div:first-child": {
+            flex: "70%",
+            maxWidth: "65%",
+          },
+          "& li > *:last-child": {
+            maxWidth: "30%",
+            ml: "auto",
+          },
+        }}
+      >
+        <ListItem disableGutters>
           <ListItemText
             primary="Hue modifier"
             secondary="Applies a multiplier that modifies the hue on each swatch"
           />
 
           <TextField
-            defaultValue={hueMultiplier}
+            value={hueMultiplier}
             name="hueMultiplier"
             type="number"
             onChange={handleChange}
           />
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Lightness modifier"
             secondary="Applies a multiplier that modifies the lightness on each swatch"
           />
 
           <TextField
-            defaultValue={lightnessMultiplier}
+            value={lightnessMultiplier}
             name="lightnessMultiplier"
             type="number"
             onChange={handleChange}
           />
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Saturation modifier"
             secondary="Applies a multiplier that modifies the saturation on each swatch"
           />
 
           <TextField
-            defaultValue={saturationMultiplier}
+            value={saturationMultiplier}
             name="saturationMultiplier"
             type="number"
             onChange={handleChange}

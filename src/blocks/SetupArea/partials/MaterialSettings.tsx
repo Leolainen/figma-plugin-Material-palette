@@ -1,9 +1,7 @@
 import * as React from "react";
-import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import ListSubheader from "@mui/material/ListSubheader";
 import TextField from "@mui/material/TextField";
 import Switch from "@mui/material/Switch";
 import MenuItem from "@mui/material/MenuItem";
@@ -45,10 +43,21 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
     };
 
     return (
-      <List dense ref={ref}>
-        <ListSubheader>Palette (Material schema)</ListSubheader>
-        <Divider />
-        <ListItem>
+      <List
+        dense
+        ref={ref}
+        sx={{
+          "& li > div:first-child": {
+            flex: "70%",
+            maxWidth: "65%",
+          },
+          "& li > *:last-child": {
+            maxWidth: "30%",
+            ml: "auto",
+          },
+        }}
+      >
+        <ListItem disableGutters>
           <ListItemText
             primary="Color pattern algorithm"
             secondary="Set which algorithm the palette should generate with"
@@ -58,7 +67,7 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
             name="algorithm"
             fullWidth
             select
-            defaultValue={algorithm}
+            value={algorithm}
             onChange={handleChange}
           >
             {["auto", ...Object.keys(BASECOLOR.material)].map((color) => (
@@ -69,7 +78,7 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
           </TextField>
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Accent colors"
             secondary="Toggles accent colors if they're available"
@@ -83,7 +92,7 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
           />
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Lock swatch"
             secondary="Locks the input value to swatch 500 when active"
