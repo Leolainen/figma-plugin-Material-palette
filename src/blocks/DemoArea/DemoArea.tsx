@@ -11,8 +11,6 @@ import CenterFocusStrongIcon from "@mui/icons-material/CenterFocusStrong";
 import { useAtom } from "jotai";
 import * as atoms from "../../store";
 
-const MOUSE_ACC = 2;
-
 const Main: React.FC = () => {
   const [zoom, setZoom] = React.useState(75);
   const [zoomActive, setZoomActive] = React.useState(false);
@@ -45,10 +43,6 @@ const Main: React.FC = () => {
 
   // should be renamed – x and y are used to translate position of demo area
   const [mousePos, setMousePos] = React.useState({
-    startX: 0,
-    startY: 0,
-    endX: 0,
-    endY: 0,
     x: 0,
     y: 0,
   });
@@ -72,29 +66,16 @@ const Main: React.FC = () => {
         const { x, y } = lastMousePos;
         const newX = x - event.deltaX;
         const newY = y - event.deltaY;
-        return { ...lastMousePos, x: newX, y: newY };
+        return { x: newX, y: newY };
       });
     });
   };
 
   const handleDrag = (event: MouseEvent) => {
     setMousePos((lastMousePos) => {
-      if (lastMousePos.startX === 0 && lastMousePos.startY === 0) {
-        return {
-          ...lastMousePos,
-          startX: event.clientX,
-          startY: event.clientY,
-        };
-      }
-
       return {
-        ...lastMousePos,
-        x:
-          -(lastMousePos.startX - event.clientX) * MOUSE_ACC +
-          lastMousePos.endX,
-        y:
-          -(lastMousePos.startY - event.clientY) * MOUSE_ACC +
-          lastMousePos.endY,
+        x: lastMousePos.x + event.movementX,
+        y: lastMousePos.y + event.movementY,
       };
     });
   };
@@ -115,18 +96,8 @@ const Main: React.FC = () => {
     demoAreaRef.current.addEventListener("mouseup", handleDragEnd, true);
   };
 
-  const handleDragEnd = (event: MouseEvent) => {
+  const handleDragEnd = () => {
     if (!demoAreaRef.current) return;
-
-    setMousePos((lastMousePos) => {
-      return {
-        ...lastMousePos,
-        startX: 0,
-        startY: 0,
-        endX: lastMousePos.x,
-        endY: lastMousePos.y,
-      };
-    });
 
     demoAreaRef.current.removeEventListener("mousemove", handleDrag, true);
     demoAreaRef.current.removeEventListener("mousedown", handleDragStart, true);
@@ -142,6 +113,7 @@ const Main: React.FC = () => {
         "&:active": { cursor: "grabbing" },
       }}
       onMouseDown={handleMouseDown}
+      onMouseUp={handleDragEnd}
     >
       <Box
         sx={{
@@ -158,10 +130,6 @@ const Main: React.FC = () => {
             value="center"
             onChange={() =>
               setMousePos({
-                startX: 0,
-                startY: 0,
-                endX: 0,
-                endY: 0,
                 x: 0,
                 y: 0,
               })
