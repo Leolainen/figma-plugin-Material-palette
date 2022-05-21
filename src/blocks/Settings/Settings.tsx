@@ -43,7 +43,7 @@ const Settings = React.forwardRef<HTMLUListElement, Props>((props, ref) => {
         <ListItem disableGutters>
           <ListItemText
             primary="Reset settings"
-            secondary="Restore settings back to default"
+            secondary="Restore all settings back to default"
           />
 
           <Button onClick={handleReset}>Reset</Button>

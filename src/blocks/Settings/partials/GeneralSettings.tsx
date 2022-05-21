@@ -96,7 +96,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
         <ListItem disableGutters>
           <ListItemText
             primary="Swatch width"
-            secondary="edit the width of the swatch in pixels"
+            secondary="The width of the swatches in pixels"
           />
 
           <TextField
@@ -111,7 +111,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
         <ListItem disableGutters>
           <ListItemText
             primary="Swatch height"
-            secondary="edit the width of the swatch in pixels"
+            secondary="The height of the swatches in pixels"
           />
 
           <TextField
@@ -126,7 +126,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
         <ListItem disableGutters>
           <ListItemText
             primary="Header color"
-            secondary="Toggles the primary 500 color as a header"
+            secondary="Toggle the header color"
           />
 
           <Switch

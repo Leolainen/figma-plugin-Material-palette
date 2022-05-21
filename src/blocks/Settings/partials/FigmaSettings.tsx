@@ -47,7 +47,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
         <ListItem disableGutters>
           <ListItemText
             primary="Node type"
-            secondary="Node type of the palette"
+            secondary="The node type of the palette"
           />
 
           <TextField
@@ -65,7 +65,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
         <ListItem disableGutters>
           <ListItemText
             primary="Lock"
-            secondary="The nodes that should be locked in the palete"
+            secondary="The nodes that should be locked"
           />
 
           <TextField
@@ -84,7 +84,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
         <ListItem disableGutters>
           <ListItemText
             primary="Render with outlines"
-            secondary="Draw an outline around the input color when created in Figma"
+            secondary="Add an outline to the input color node"
           />
 
           <Checkbox
