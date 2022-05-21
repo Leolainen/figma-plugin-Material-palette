@@ -121,7 +121,9 @@ const Preview = () => {
             pb={2}
           >
             <span>500</span>
-            <span>{palette["500"]}</span>
+            <Box component="span" ml={paletteDirection === "row" ? 2 : 0}>
+              {palette["500"]}
+            </Box>
           </Stack>
         </Stack>
       )}
