@@ -1,9 +1,6 @@
 import * as React from "react";
-import Divider from "@mui/material/Divider";
-import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import ListSubheader from "@mui/material/ListSubheader";
 import TextField from "@mui/material/TextField";
 import Checkbox from "@mui/material/Checkbox";
 import MenuItem from "@mui/material/MenuItem";
@@ -46,12 +43,8 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
     };
 
     return (
-      <List dense ref={ref}>
-        <ListSubheader>Figma</ListSubheader>
-
-        <Divider />
-
-        <ListItem>
+      <>
+        <ListItem disableGutters>
           <ListItemText
             primary="Node type"
             secondary="Node type of the palette"
@@ -60,7 +53,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
           <TextField
             onChange={handleChange}
             select
-            defaultValue={nodeType}
+            value={nodeType}
             fullWidth
             name="nodeType"
           >
@@ -69,7 +62,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
           </TextField>
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Lock"
             secondary="The nodes that should be locked in the palete"
@@ -78,7 +71,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
           <TextField
             onChange={handleChange}
             select
-            defaultValue={lock}
+            value={lock}
             fullWidth
             name="lock"
           >
@@ -88,7 +81,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
           </TextField>
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Render with outlines"
             secondary="Draw an outline around the input color when created in Figma"
@@ -100,7 +93,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
             defaultChecked={renderWithOutline}
           />
         </ListItem>
-      </List>
+      </>
     );
   }
 );

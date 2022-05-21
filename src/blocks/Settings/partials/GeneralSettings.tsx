@@ -1,9 +1,6 @@
 import * as React from "react";
-import Divider from "@mui/material/Divider";
-import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import ListSubheader from "@mui/material/ListSubheader";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Switch from "@mui/material/Switch";
@@ -30,7 +27,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
       if (event.target.type === "checkbox") {
         value = event.target.checked;
       } else {
-        // fix bug with rect resizing in figma (code.ts, line: 91)
+        // fix bug with rect resizing in figma
         if (["colorBarWidth", "colorBarHeight"].includes(event.target.name)) {
           value = parseInt(event.target.value, 10);
         } else {
@@ -57,12 +54,9 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
     };
 
     return (
-      <List dense ref={ref}>
-        <ListSubheader>General</ListSubheader>
-
-        <Divider />
+      <>
         {/* 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Presets"
             secondary="Presets for palette layout"
@@ -81,7 +75,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
           </TextField>
         </ListItem> */}
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Direction"
             secondary="Arrange colors in row or column"
@@ -89,7 +83,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
 
           <TextField
             select
-            defaultValue={paletteDirection}
+            value={paletteDirection}
             fullWidth
             name="paletteDirection"
             onChange={handleChange}
@@ -99,7 +93,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
           </TextField>
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Swatch width"
             secondary="edit the width of the swatch in pixels"
@@ -108,13 +102,13 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
           <TextField
             placeholder="swatch width"
             type="number"
-            defaultValue={colorBarWidth}
+            value={colorBarWidth}
             name="colorBarWidth"
             onChange={handleChange}
           />
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Swatch height"
             secondary="edit the width of the swatch in pixels"
@@ -123,13 +117,13 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
           <TextField
             placeholder="swatch height"
             type="number"
-            defaultValue={colorBarHeight}
+            value={colorBarHeight}
             name="colorBarHeight"
             onChange={handleChange}
           />
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Header color"
             secondary="Toggles the primary 500 color as a header"
@@ -142,7 +136,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
             defaultChecked={header}
           />
         </ListItem>
-      </List>
+      </>
     );
   }
 );
