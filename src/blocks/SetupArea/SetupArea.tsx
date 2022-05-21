@@ -16,6 +16,8 @@ import ColorInput from "../ColorInput";
 import { useTheme } from "@mui/material/styles";
 import { useAtom } from "jotai";
 import * as atoms from "../../store";
+import MaterialSettings from "./partials/MaterialSettings";
+import LinearSettings from "./partials/LinearSettings";
 
 const extendColorModel = (hex: string): RgbHslHexObject => ({
   rgb: hexToRGB(hex, true),
@@ -105,26 +107,31 @@ const SetupArea: React.FC = () => {
           <ColorInput />
           <SchemaSelect />
 
-          <Button
-            onClick={handleCreateClick}
-            variant="outlined"
-            color="primary"
-            disabled={!palette}
-            fullWidth
-          >
-            Create
-          </Button>
+          {schema === "linear" && <LinearSettings />}
+          {schema === "material" && <MaterialSettings />}
 
-          <Button
-            onClick={handleCancelClick}
-            variant="outlined"
-            color="error"
-            fullWidth
-          >
-            Cancel
-          </Button>
+          <Box mt="auto">
+            <Button
+              onClick={handleCreateClick}
+              variant="outlined"
+              color="primary"
+              disabled={!palette}
+              fullWidth
+            >
+              Create
+            </Button>
+
+            <Button
+              onClick={handleCancelClick}
+              variant="outlined"
+              color="error"
+              fullWidth
+              sx={{ mt: 1 }}
+            >
+              Cancel
+            </Button>
+          </Box>
         </Stack>
-
         <Box sx={{ flex: 1 }}>
           <Settings />
         </Box>
