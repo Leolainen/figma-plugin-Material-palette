@@ -1,93 +1,46 @@
 import * as React from "react";
-import Button from "@mui/material/Button";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
+import { useAtom } from "jotai";
+import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
-import Box from "@mui/material/Box";
-import SettingsIcon from "@mui/icons-material/SettingsOutlined";
-import PaletteIcon from "@mui/icons-material/PaletteOutlined";
-import { generateMaterialPalette } from "./generators/material";
 import { generateLinearPalette } from "./generators/linear";
-import { RgbHslHexObject } from "./types";
-import { hexToRGB } from "./converters/toRgb";
-import { hexToHSL } from "./converters/toHsl";
-import Settings from "./blocks/Settings";
-import SchemaSelect from "./blocks/SchemaSelect";
-import NameInput from "./blocks/NameInput";
-import ColorInput from "./blocks/ColorInput";
+import { generateMaterialPalette } from "./generators/material";
 import DemoArea from "./blocks/DemoArea";
-import AppContext from "./appContext";
-import { useTheme } from "@mui/material/styles";
-
-const extendColorModel = (hex: string): RgbHslHexObject => ({
-  rgb: hexToRGB(hex, true),
-  hsl: hexToHSL(hex),
-  hex,
-});
+import SetupArea from "./blocks/SetupArea";
+import * as atoms from "./store";
+import { PluginMessage, StoredData } from "./types";
 
 const Main: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState(0);
-  const {
-    palette,
-    setPalette,
-    paletteName,
-    schema,
-    hex,
-    settings,
-    modifiedPalette,
-  } = React.useContext(AppContext);
-  const theme = useTheme();
+  const [hex] = useAtom(atoms.hexAtom);
+  const [schema] = useAtom(atoms.schemaAtom);
+  const [settings, setSettings] = useAtom(atoms.settingsAtom);
+  const [, setSchema] = useAtom(atoms.schemaAtom);
+  const [, setHex] = useAtom(atoms.hexAtom);
+  const [, setPalette] = useAtom(atoms.paletteAtom);
+  const [algorithm] = useAtom(atoms.algorithmAtom);
+  const [lockSwatch] = useAtom(atoms.lockSwatchAtom);
+  const [hueMultiplier] = useAtom(atoms.hueMultiplierAtom);
+  const [lightnessMultiplier] = useAtom(atoms.lightnessMultiplierAtom);
+  const [saturationMultiplier] = useAtom(atoms.saturationMultiplierAtom);
 
-  const handleCreateClick = () => {
-    if (!modifiedPalette) {
-      console.error("Palette is missing!");
-      return;
-    }
-
-    const postPalette = Object.values(modifiedPalette).map((swatchHex) =>
-      extendColorModel(swatchHex)
-    );
-
-    parent.postMessage(
-      {
-        pluginMessage: {
-          type: "create-palette",
-          data: {
-            hex,
-            paletteName,
-            settings,
-            schema,
-            palette: postPalette,
-          },
-          store: {
-            schema,
-            settings,
-            hex,
-            palette: modifiedPalette,
-          },
-        },
-      },
-      "*"
-    );
-  };
-
-  const handleCancelClick = () => {
-    parent.postMessage({ pluginMessage: { type: "cancel" } }, "*");
-  };
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    if (!hex) {
+    if (!hex || loading) {
       return;
     }
 
     React.startTransition(() => {
       switch (schema) {
         case "material":
-          setPalette(
-            generateMaterialPalette(hex, {
-              ...settings.material,
-            })
-          );
+          const nextPalette = generateMaterialPalette(hex, {
+            ...settings.material,
+          });
+
+          if (!nextPalette) {
+            return;
+          }
+
+          setPalette(nextPalette);
           break;
         case "linear":
           setPalette(generateLinearPalette(hex, settings.linear));
@@ -96,7 +49,56 @@ const Main: React.FC = () => {
           console.error("no schema selected. This is impossible!");
       }
     });
-  }, [hex, settings, schema]);
+  }, [
+    hex,
+    schema,
+    algorithm,
+    lockSwatch,
+    hueMultiplier,
+    lightnessMultiplier,
+    saturationMultiplier,
+  ]);
+
+  const applyStoredData = (data: StoredData): void => {
+    setHex(data.hex);
+    setSchema(data.schema);
+    setSettings(data.settings);
+    setPalette(data.palette);
+  };
+
+  // get stored data
+  const handleMessageEvent = (event: MessageEvent<PluginMessage>) => {
+    if (
+      !event.data ||
+      !event.data.pluginMessage ||
+      !event.data.pluginMessage.storedSettings
+    ) {
+      setLoading(false);
+      return;
+    }
+
+    const { storedSettings } = event.data.pluginMessage;
+    const storedData = JSON.parse(storedSettings) as StoredData;
+
+    applyStoredData(storedData);
+
+    // necessary to prevent stored data from being overwritten
+    setTimeout(() => {
+      setLoading(false);
+    }, 0);
+  };
+
+  React.useLayoutEffect(() => {
+    window.addEventListener("message", handleMessageEvent);
+
+    () => {
+      window.removeEventListener("message", handleMessageEvent);
+    };
+  }, []);
+
+  if (loading) {
+    return <CircularProgress />;
+  }
 
   return (
     <Stack px={2} sx={{ height: "inherit" }}>
@@ -110,66 +112,7 @@ const Main: React.FC = () => {
           },
         }}
       >
-        <Box>
-          <Tabs
-            sx={{ flex: "50%" }}
-            value={activeTab}
-            onChange={(e, newValue) => setActiveTab(newValue)}
-            variant="fullWidth"
-          >
-            <Tab
-              icon={<PaletteIcon />}
-              iconPosition="start"
-              label="Palette"
-              sx={{ minHeight: "auto" }}
-            />
-            <Tab
-              icon={<SettingsIcon />}
-              iconPosition="start"
-              label="Settings"
-              sx={{ minHeight: "auto" }}
-            />
-          </Tabs>
-
-          <Stack
-            direction="row"
-            sx={{
-              width: "200%",
-              position: "relative",
-              transition: `transform ${theme.transitions.duration.shorter}ms`,
-              transform: `translate(${-50 * activeTab}%)`,
-            }}
-          >
-            <Stack my={2} spacing={2} sx={{ flex: 1 }}>
-              <NameInput />
-              <ColorInput />
-              <SchemaSelect />
-
-              <Button
-                onClick={handleCreateClick}
-                variant="outlined"
-                color="primary"
-                disabled={!palette}
-                fullWidth
-              >
-                Create
-              </Button>
-
-              <Button
-                onClick={handleCancelClick}
-                variant="outlined"
-                color="error"
-                fullWidth
-              >
-                Cancel
-              </Button>
-            </Stack>
-
-            <Box sx={{ flex: 1 }}>
-              <Settings />
-            </Box>
-          </Stack>
-        </Box>
+        <SetupArea />
 
         <DemoArea />
       </Stack>

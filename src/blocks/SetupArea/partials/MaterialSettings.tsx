@@ -1,48 +1,63 @@
 import * as React from "react";
-import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import ListSubheader from "@mui/material/ListSubheader";
 import TextField from "@mui/material/TextField";
 import Switch from "@mui/material/Switch";
 import MenuItem from "@mui/material/MenuItem";
-import AppContext, { MaterialSettings, Settings } from "../../../appContext";
 import { BASECOLOR } from "../../../constants";
+import { useAtom } from "jotai";
+import * as atoms from "../../../store";
+import * as SettingsTypes from "../../../store/types/settings";
 
 interface Props {}
 
 const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
   (props, ref) => {
-    const { settings, setSettings } = React.useContext(AppContext);
+    const [algorithm, setAlgorithm] = useAtom(atoms.algorithmAtom);
+    const [lockSwatch, setLockSwatch] = useAtom(atoms.lockSwatchAtom);
+    const [accent, setAccent] = useAtom(atoms.accentAtom);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      type MaterialSettingsValueType = MaterialSettings[keyof MaterialSettings];
-
-      let value: MaterialSettingsValueType;
+      let value;
 
       if (event.target.type === "checkbox") {
         value = event.target.checked;
       } else {
-        value = event.target.value as MaterialSettingsValueType;
+        value = event.target.value;
       }
 
-      const newSettings: Settings = {
-        ...settings,
-        material: {
-          ...settings.material,
-          [event.target.name as keyof MaterialSettings]: value,
-        },
-      };
-
-      setSettings(newSettings);
+      switch (event.target.name) {
+        case "algorithm":
+          setAlgorithm(value as SettingsTypes.Algorithm);
+          break;
+        case "lockSwatch":
+          setLockSwatch(value as boolean);
+          break;
+        case "accent":
+          setAccent(value as boolean);
+          break;
+        default:
+          break;
+      }
     };
 
     return (
-      <List dense ref={ref}>
-        <ListSubheader>Palette (Material schema)</ListSubheader>
-        <Divider />
-        <ListItem>
+      <List
+        dense
+        ref={ref}
+        sx={{
+          "& li > div:first-child": {
+            flex: "70%",
+            maxWidth: "65%",
+          },
+          "& li > *:last-child": {
+            maxWidth: "30%",
+            ml: "auto",
+          },
+        }}
+      >
+        <ListItem disableGutters>
           <ListItemText
             primary="Color pattern algorithm"
             secondary="Set which algorithm the palette should generate with"
@@ -52,7 +67,7 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
             name="algorithm"
             fullWidth
             select
-            defaultValue={settings.material.algorithm}
+            value={algorithm}
             onChange={handleChange}
           >
             {["auto", ...Object.keys(BASECOLOR.material)].map((color) => (
@@ -63,7 +78,7 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
           </TextField>
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Accent colors"
             secondary="Toggles accent colors if they're available"
@@ -73,11 +88,11 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
             edge="end"
             onChange={handleChange}
             name="accent"
-            defaultChecked={settings.material.accent}
+            checked={accent}
           />
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Lock swatch"
             secondary="Locks the input value to swatch 500 when active"
@@ -87,7 +102,7 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
             edge="end"
             onChange={handleChange}
             name="lockSwatch"
-            defaultChecked={settings.material.lockSwatch}
+            checked={lockSwatch}
           />
         </ListItem>
       </List>

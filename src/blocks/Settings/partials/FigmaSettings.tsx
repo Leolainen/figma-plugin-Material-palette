@@ -1,87 +1,99 @@
 import * as React from "react";
-import Divider from "@mui/material/Divider";
-import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import ListSubheader from "@mui/material/ListSubheader";
 import TextField from "@mui/material/TextField";
 import Checkbox from "@mui/material/Checkbox";
 import MenuItem from "@mui/material/MenuItem";
-import AppContext, { FigmaSettings, Settings } from "../../../appContext";
+import { useAtom } from "jotai";
+import * as atoms from "../../../store";
+import * as SettingsTypes from "../../../store/types/settings";
 
 interface Props {}
 
 const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
   (props, ref) => {
-    const { settings, setSettings } = React.useContext(AppContext);
+    const [renderWithOutline, setRenderWithOutline] = useAtom(
+      atoms.renderWithOutlineAtom
+    );
+    const [lock, setLock] = useAtom(atoms.lockAtom);
+    const [nodeType, setNodeType] = useAtom(atoms.nodeTypeAtom);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      type FigmaSettingsValueType = FigmaSettings[keyof FigmaSettings];
-
-      let value: FigmaSettingsValueType;
+      let value;
 
       if (event.target.type === "checkbox") {
         value = event.target.checked;
       } else {
-        value = event.target.value as FigmaSettingsValueType;
+        value = event.target.value;
       }
 
-      const newSettings: Settings = {
-        ...settings,
-        figma: {
-          ...settings.figma,
-          [event.target.name as keyof FigmaSettings]: value,
-        },
-      };
-
-      setSettings(newSettings);
+      switch (event.target.name) {
+        case "renderWithOutline":
+          setRenderWithOutline(value as boolean);
+          break;
+        case "lock":
+          setLock(value as SettingsTypes.Lock);
+          break;
+        case "nodeType":
+          setNodeType(value as SettingsTypes.NodeType);
+          break;
+        default:
+          break;
+      }
     };
 
     return (
-      <List dense ref={ref}>
-        <ListSubheader>Figma</ListSubheader>
-
-        <Divider />
-
-        <ListItem>
+      <>
+        <ListItem disableGutters>
           <ListItemText
             primary="Node type"
-            secondary="What node type will be used as the root for the palette"
+            secondary="The node type of the palette"
           />
 
-          <TextField select defaultValue={settings.figma.nodeType} fullWidth>
+          <TextField
+            onChange={handleChange}
+            select
+            value={nodeType}
+            fullWidth
+            name="nodeType"
+          >
             <MenuItem value="component">Component</MenuItem>
             <MenuItem value="frame">Frame</MenuItem>
-            <MenuItem value="rectangle">Rectangle</MenuItem>
           </TextField>
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Lock"
-            secondary="The nodes that should be locked in the palete"
+            secondary="The nodes that should be locked"
           />
 
-          <TextField select defaultValue={settings.figma.lock} fullWidth>
+          <TextField
+            onChange={handleChange}
+            select
+            value={lock}
+            fullWidth
+            name="lock"
+          >
             <MenuItem value="everything">Everything</MenuItem>
             <MenuItem value="swatches">Swatches</MenuItem>
             <MenuItem value="nothing">Nothing</MenuItem>
           </TextField>
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Render with outlines"
-            secondary="Draw an outline around the input color when created in Figma"
+            secondary="Add an outline to the input color node"
           />
 
           <Checkbox
             onChange={handleChange}
             name="renderWithOutline"
-            defaultChecked={settings.figma.renderWithOutline}
+            checked={renderWithOutline}
           />
         </ListItem>
-      </List>
+      </>
     );
   }
 );

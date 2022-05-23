@@ -3,7 +3,7 @@ import { BASECOLOR, COLORKEYS } from "../constants";
 import { hcl2hex } from "../converters/toHex";
 import { materialColorSchema } from "../schemas";
 import { BaseColorKey, Palette } from "../types";
-import { MaterialSettings } from "../appContext";
+import { MaterialSettings } from "../store/types/settings";
 
 type BaseColorHexPair = {
   baseColor: BaseColorKey;

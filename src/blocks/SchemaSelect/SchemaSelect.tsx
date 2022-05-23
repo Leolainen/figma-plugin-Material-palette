@@ -5,7 +5,8 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import { Schema } from "../../types";
-import AppContext from "../../appContext";
+import { useAtom } from "jotai";
+import * as atoms from "../../store";
 
 type SchemaOption = {
   label: string;
@@ -24,7 +25,7 @@ const schemaOptions: Array<SchemaOption> = [
 ];
 
 const SchemaSelect = () => {
-  const { schema, setSchema } = React.useContext(AppContext);
+  const [schema, setSchema] = useAtom(atoms.schemaAtom);
 
   const handleSchemaChange = (event: SelectChangeEvent) => {
     setSchema(event.target.value as Schema);

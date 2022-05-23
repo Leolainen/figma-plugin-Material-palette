@@ -1,54 +1,62 @@
 import * as React from "react";
-import Divider from "@mui/material/Divider";
-import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import ListSubheader from "@mui/material/ListSubheader";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Switch from "@mui/material/Switch";
-import AppContext, { GeneralSettings, Settings } from "../../../appContext";
+import { useAtom } from "jotai";
+import * as atoms from "../../../store";
+import * as SettingsTypes from "../../../store/types/settings";
 
 interface Props {}
 
 const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
   (props, ref) => {
-    const { settings, setSettings } = React.useContext(AppContext);
+    const [paletteDirection, setPaletteDirection] = useAtom(
+      atoms.paletteDirectionAtom
+    );
+    const [colorBarWidth, setColorBarWidth] = useAtom(atoms.colorBarWidthAtom);
+    const [colorBarHeight, setColorBarHeight] = useAtom(
+      atoms.colorBarHeightAtom
+    );
+    const [header, setHeader] = useAtom(atoms.headerAtom);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      type GeneralSettingsValueType = GeneralSettings[keyof GeneralSettings];
-
-      let value: GeneralSettingsValueType;
+      let value;
 
       if (event.target.type === "checkbox") {
         value = event.target.checked;
       } else {
-        // fix bug with rect resizing in figma (code.ts, line: 91)
+        // fix bug with rect resizing in figma
         if (["colorBarWidth", "colorBarHeight"].includes(event.target.name)) {
-          value = parseInt(event.target.value, 10) as GeneralSettingsValueType;
+          value = parseInt(event.target.value, 10);
         } else {
-          value = event.target.value as GeneralSettingsValueType;
+          value = event.target.value;
         }
       }
 
-      const newSettings: Settings = {
-        ...settings,
-        general: {
-          ...settings.general,
-          [event.target.name as keyof GeneralSettings]: value,
-        },
-      };
-
-      setSettings(newSettings);
+      switch (event.target.name) {
+        case "paletteDirection":
+          setPaletteDirection(value as SettingsTypes.PaletteDirection);
+          break;
+        case "colorBarWidth":
+          setColorBarWidth(value as number);
+          break;
+        case "colorBarHeight":
+          setColorBarHeight(value as number);
+          break;
+        case "header":
+          setHeader(value as boolean);
+          break;
+        default:
+          break;
+      }
     };
 
     return (
-      <List dense ref={ref}>
-        <ListSubheader>General</ListSubheader>
-
-        <Divider />
+      <>
         {/* 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Presets"
             secondary="Presets for palette layout"
@@ -67,7 +75,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
           </TextField>
         </ListItem> */}
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Direction"
             secondary="Arrange colors in row or column"
@@ -75,7 +83,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
 
           <TextField
             select
-            defaultValue={settings.general.paletteDirection}
+            value={paletteDirection}
             fullWidth
             name="paletteDirection"
             onChange={handleChange}
@@ -85,50 +93,50 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
           </TextField>
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Swatch width"
-            secondary="edit the width of the swatch in pixels"
+            secondary="The width of the swatches in pixels"
           />
 
           <TextField
             placeholder="swatch width"
             type="number"
-            defaultValue={settings.general.colorBarWidth}
+            value={colorBarWidth}
             name="colorBarWidth"
             onChange={handleChange}
           />
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Swatch height"
-            secondary="edit the width of the swatch in pixels"
+            secondary="The height of the swatches in pixels"
           />
 
           <TextField
             placeholder="swatch height"
             type="number"
-            defaultValue={settings.general.colorBarHeight}
+            value={colorBarHeight}
             name="colorBarHeight"
             onChange={handleChange}
           />
         </ListItem>
 
-        <ListItem>
+        <ListItem disableGutters>
           <ListItemText
             primary="Header color"
-            secondary="Toggles the primary 500 color as a header"
+            secondary="Toggle the header color"
           />
 
           <Switch
             edge="end"
             onChange={handleChange}
             name="header"
-            defaultChecked={settings.general.header}
+            checked={header}
           />
         </ListItem>
-      </List>
+      </>
     );
   }
 );

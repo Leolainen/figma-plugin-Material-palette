@@ -2,41 +2,24 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Slider from "@mui/material/Slider";
 import ToggleButton from "@mui/material/ToggleButton";
-import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import Tooltip from "@mui/material/Tooltip";
 import { useTheme } from "@mui/material/styles";
 import { isValidHex } from "../../utils/validation";
-import AppContext from "../../appContext";
 import Preview from "../Preview";
 import PreviewError from "../PreviewError";
-import Popover from "@mui/material/Popover";
 import CenterFocusStrongIcon from "@mui/icons-material/CenterFocusStrong";
-
-const accents = ["a100", "a200", "a400", "a700"] as const;
-const MOUSE_ACC = 2;
+import { useAtom } from "jotai";
+import * as atoms from "../../store";
 
 const Main: React.FC = () => {
   const [zoom, setZoom] = React.useState(75);
-  const [toggleZoom, setToggleZoom] = React.useState<HTMLElement | null>();
-  const { modifiedPalette, setModifiedPalette, palette, hex, settings } =
-    React.useContext(AppContext);
+  const [zoomActive, setZoomActive] = React.useState(false);
+  const [palette] = useAtom(atoms.paletteAtom);
+  const [hex] = useAtom(atoms.hexAtom);
   const theme = useTheme();
   const containerRef = React.useRef();
-
-  React.useEffect(() => {
-    if (palette && modifiedPalette) {
-      const paletteClone = { ...modifiedPalette };
-      const foundAccents = accents.every((accent) => accent in palette);
-
-      // remove accents if material schema and accents is turned off
-      if (foundAccents && !settings.material.accent) {
-        accents.forEach((accent) => delete paletteClone[accent]);
-
-        console.log("setting modified palette", paletteClone);
-        setModifiedPalette(paletteClone);
-      }
-    }
-  }, [settings.material.accent]);
+  const demoAreaRef = React.useRef<HTMLDivElement>();
+  const [, startTransition] = React.useTransition();
 
   const handleSlideChange = (
     event: Event,
@@ -46,85 +29,91 @@ const Main: React.FC = () => {
     setZoom(value as number);
   };
 
-  const error = !palette || !modifiedPalette || !hex || !isValidHex(hex);
-
-  const handleZoomChange = (
-    event: React.MouseEvent<HTMLElement, MouseEvent>
-  ) => {
-    setToggleZoom(event.currentTarget);
+  const handleSlideStart = () => {
+    if (!zoomActive) {
+      setZoomActive(true);
+    }
   };
 
+  const handleSlideStop = () => {
+    setZoomActive(false);
+  };
+
+  const error = !palette || !hex || !isValidHex(hex);
+
+  // should be renamed – x and y are used to translate position of demo area
   const [mousePos, setMousePos] = React.useState({
-    startX: 0,
-    startY: 0,
-    endX: 0,
-    endY: 0,
     x: 0,
     y: 0,
   });
 
+  React.useEffect(() => {
+    if (!demoAreaRef.current) return;
+
+    demoAreaRef.current.addEventListener("wheel", handleWheel, {
+      passive: true,
+    });
+
+    return () => {
+      if (!demoAreaRef.current) return;
+      demoAreaRef.current.removeEventListener("wheel", handleWheel);
+    };
+  });
+
+  const handleWheel = (event: WheelEvent) => {
+    startTransition(() => {
+      setMousePos((lastMousePos) => {
+        const { x, y } = lastMousePos;
+        const newX = x - event.deltaX;
+        const newY = y - event.deltaY;
+        return { x: newX, y: newY };
+      });
+    });
+  };
+
   const handleDrag = (event: MouseEvent) => {
     setMousePos((lastMousePos) => {
-      if (lastMousePos.startX === 0 && lastMousePos.startY === 0) {
-        return {
-          ...lastMousePos,
-          startX: event.clientX,
-          startY: event.clientY,
-        };
-      }
-
       return {
-        ...lastMousePos,
-        x:
-          -(lastMousePos.startX - event.clientX) * MOUSE_ACC +
-          lastMousePos.endX,
-        y:
-          -(lastMousePos.startY - event.clientY) * MOUSE_ACC +
-          lastMousePos.endY,
+        x: lastMousePos.x + event.movementX,
+        y: lastMousePos.y + event.movementY,
       };
     });
   };
 
   const handleDragStart = (event: MouseEvent) => {
-    console.log({ target: event.target, currentTarget: event.currentTarget });
+    if (!demoAreaRef.current) return;
 
-    window.addEventListener("mousemove", handleDrag, true);
+    demoAreaRef.current.addEventListener("mousemove", handleDrag, true);
   };
 
   const handleMouseDown: React.MouseEventHandler<HTMLDivElement> = (event) => {
     // prevent dragging while adjusting zoom
-    if (Boolean(toggleZoom)) {
+    if (zoomActive || !demoAreaRef.current) {
       return;
     }
 
     handleDragStart(event.nativeEvent);
-    window.addEventListener("mouseup", handleDragEnd, true);
+    demoAreaRef.current.addEventListener("mouseup", handleDragEnd, true);
   };
 
-  const handleDragEnd = (event: MouseEvent) => {
-    setMousePos((lastMousePos) => {
-      return {
-        ...lastMousePos,
-        startX: 0,
-        startY: 0,
-        endX: lastMousePos.x,
-        endY: lastMousePos.y,
-      };
-    });
+  const handleDragEnd = () => {
+    if (!demoAreaRef.current) return;
 
-    window.removeEventListener("mousemove", handleDrag, true);
-    window.removeEventListener("mousedown", handleDragStart, true);
-    window.removeEventListener("mouseup", handleDragEnd, true);
+    demoAreaRef.current.removeEventListener("mousemove", handleDrag, true);
+    demoAreaRef.current.removeEventListener("mousedown", handleDragStart, true);
+    demoAreaRef.current.removeEventListener("mouseup", handleDragEnd, true);
   };
 
   return (
     <Box
+      ref={demoAreaRef}
       sx={{
         position: "relative",
         cursor: "grab",
         "&:active": { cursor: "grabbing" },
       }}
       onMouseDown={handleMouseDown}
+      onMouseUp={handleDragEnd}
     >
       <Box
         sx={{
@@ -141,10 +130,6 @@ const Main: React.FC = () => {
             value="center"
             onChange={() =>
               setMousePos({
-                startX: 0,
-                startY: 0,
-                endX: 0,
-                endY: 0,
                 x: 0,
                 y: 0,
               })
@@ -154,65 +139,45 @@ const Main: React.FC = () => {
           </ToggleButton>
         </Tooltip>
 
-        <Tooltip title="Zoom" placement="bottom">
-          <ToggleButton
-            value="zoom"
-            selected={Boolean(toggleZoom)}
-            onChange={handleZoomChange}
-          >
-            <ZoomInIcon />
-          </ToggleButton>
-        </Tooltip>
-
-        <Popover
-          anchorEl={toggleZoom}
-          container={containerRef.current}
-          open={Boolean(toggleZoom)}
-          onClose={() => setToggleZoom(null)}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
+        <Slider
           sx={{
-            "& .MuiPopover-paper": {
-              p: 1,
-              pb: 5,
-              height: 500,
+            m: 0,
+            mt: 2,
+            ml: "44px",
+
+            "& .MuiSlider-markLabel": {
+              left: -36, // inversed
+            },
+
+            position: "absolute",
+            right: 8,
+            top: 64,
+            opacity: 0.1,
+            transition: `opacity ${theme.transitions.duration.shorter}ms ease`,
+
+            "&:hover": {
+              opacity: 1,
             },
           }}
-        >
-          <Slider
-            sx={{
-              m: 0,
-              mt: 2,
-              ml: "44px",
-
-              "& .MuiSlider-markLabel": {
-                left: -36, // inversed
-              },
-            }}
-            orientation="vertical"
-            value={zoom}
-            min={25}
-            max={100}
-            onChange={handleSlideChange}
-            valueLabelDisplay="auto"
-            marks={[
-              {
-                value: 25,
-                label: "25%",
-              },
-              {
-                value: 100,
-                label: "100%",
-              },
-            ]}
-          />
-        </Popover>
+          orientation="vertical"
+          value={zoom}
+          min={25}
+          max={100}
+          onChange={handleSlideChange}
+          onMouseOver={handleSlideStart}
+          onMouseLeave={handleSlideStop}
+          valueLabelDisplay="auto"
+          marks={[
+            {
+              value: 25,
+              label: "25%",
+            },
+            {
+              value: 100,
+              label: "100%",
+            },
+          ]}
+        />
       </Box>
 
       {error ? (
@@ -233,7 +198,6 @@ const Main: React.FC = () => {
                 mousePos.y
               }px)`,
               transformOrigin: "center",
-              transition: `transform ${theme.transitions.duration.shortest}ms ease-out`,
             }}
           >
             <Preview />
