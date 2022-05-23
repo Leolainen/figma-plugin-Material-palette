@@ -16,6 +16,11 @@ const Main: React.FC = () => {
   const [, setSchema] = useAtom(atoms.schemaAtom);
   const [, setHex] = useAtom(atoms.hexAtom);
   const [, setPalette] = useAtom(atoms.paletteAtom);
+  const [algorithm] = useAtom(atoms.algorithmAtom);
+  const [lockSwatch] = useAtom(atoms.lockSwatchAtom);
+  const [hueMultiplier] = useAtom(atoms.hueMultiplierAtom);
+  const [lightnessMultiplier] = useAtom(atoms.lightnessMultiplierAtom);
+  const [saturationMultiplier] = useAtom(atoms.saturationMultiplierAtom);
 
   const [loading, setLoading] = React.useState(true);
 
@@ -44,7 +49,15 @@ const Main: React.FC = () => {
           console.error("no schema selected. This is impossible!");
       }
     });
-  }, [hex, settings, schema]);
+  }, [
+    hex,
+    schema,
+    algorithm,
+    lockSwatch,
+    hueMultiplier,
+    lightnessMultiplier,
+    saturationMultiplier,
+  ]);
 
   const applyStoredData = (data: StoredData): void => {
     setHex(data.hex);
