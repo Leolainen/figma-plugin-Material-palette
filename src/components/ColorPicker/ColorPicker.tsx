@@ -37,7 +37,6 @@ const ColorPicker = ({
     if (!selectedColor) return;
 
     onConfirm(selectedColor);
-    handleClose(event);
   };
 
   const handleClose: NonNullable<ButtonProps["onClick"]> = (event) => {
