@@ -6,12 +6,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import Stack from "@mui/material/Stack";
 import { ChromePicker, ColorChangeHandler, ColorResult } from "react-color";
 
-export interface Props {
+export interface Props extends Omit<PopoverProps, "onChange"> {
   onConfirm: (color: ColorResult) => void;
-  onClose: PopoverProps["onClose"];
   onChange?: ColorChangeHandler;
-  anchorEl: PopoverProps["anchorEl"];
-  open: PopoverProps["open"];
   value: string;
 }
 
@@ -22,6 +19,7 @@ const ColorPicker = ({
   open,
   value,
   onClose,
+  ...popoverProps
 }: Props) => {
   const [selectedColor, setSelectedColor] = React.useState<ColorResult>();
 
@@ -62,6 +60,7 @@ const ColorPicker = ({
       sx={{
         p: 1,
       }}
+      {...popoverProps}
     >
       <ChromePicker
         onChange={handleChange}
