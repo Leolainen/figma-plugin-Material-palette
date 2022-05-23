@@ -133,7 +133,7 @@ const GeneralSettings = React.forwardRef<HTMLUListElement, Props>(
             edge="end"
             onChange={handleChange}
             name="header"
-            defaultChecked={header}
+            checked={header}
           />
         </ListItem>
       </>

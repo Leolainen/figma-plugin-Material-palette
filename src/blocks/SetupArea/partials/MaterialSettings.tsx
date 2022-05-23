@@ -88,7 +88,7 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
             edge="end"
             onChange={handleChange}
             name="accent"
-            defaultChecked={accent}
+            checked={accent}
           />
         </ListItem>
 
@@ -102,7 +102,7 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
             edge="end"
             onChange={handleChange}
             name="lockSwatch"
-            defaultChecked={lockSwatch}
+            checked={lockSwatch}
           />
         </ListItem>
       </List>

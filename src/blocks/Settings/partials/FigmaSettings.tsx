@@ -90,7 +90,7 @@ const FigmaSettings = React.forwardRef<HTMLUListElement, Props>(
           <Checkbox
             onChange={handleChange}
             name="renderWithOutline"
-            defaultChecked={renderWithOutline}
+            checked={renderWithOutline}
           />
         </ListItem>
       </>
