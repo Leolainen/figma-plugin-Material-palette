@@ -107,7 +107,7 @@ const Preview = () => {
           }}
         >
           <Typography px={2} pt={2}>
-            {paletteName}
+            {paletteName.toUpperCase()}
           </Typography>
 
           <Stack
@@ -136,6 +136,14 @@ const Preview = () => {
           onConfirm={handleColorConfirm}
           onChange={handleColorChange}
           value={(selectedColor && selectedColor[1]) || "#000000"}
+          anchorOrigin={{
+            vertical: "center",
+            horizontal: "left",
+          }}
+          transformOrigin={{
+            vertical: "center",
+            horizontal: "right",
+          }}
         />
 
         {Object.entries(demoPalette).map(([swatchKey, value], idx) => (
