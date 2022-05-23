@@ -1,3 +1,5 @@
+import { Settings } from "./store/types/settings";
+
 export type ColorCalc = number[];
 
 export type RGB = {
@@ -20,9 +22,7 @@ export type RgbHslHexObject = {
   hex: string;
 };
 
-export type Schema = {
-  [key: string]: Array<[number, number, number]>;
-};
+export type Schema = "material" | "linear";
 
 export type BaseColorList = {
   red: "#f44336";
@@ -67,8 +67,9 @@ export type BaseColorKey =
   | "grey"
   | "blueGrey";
 
-export type BaseColor = {
-  [key: string]: BaseColorList;
+export type MaterialSwatchValues = {
+  // eslint-disable-next-line no-unused-vars -- I only want the key
+  [key in BaseColorKey]: Array<[number, number, number]>;
 };
 
 export type ColorKeys =
@@ -85,3 +86,81 @@ export type ColorKeys =
   | "a200"
   | "a400"
   | "a700";
+
+export type FullColorKeys =
+  | "50"
+  | "100"
+  | "200"
+  | "300"
+  | "400"
+  | "500"
+  | "600"
+  | "700"
+  | "800"
+  | "900"
+  | "a100"
+  | "a200"
+  | "a400"
+  | "a700";
+
+export interface ChromePickerColor {
+  hsl: {
+    h: number;
+    s: number;
+    l: number;
+    a: number;
+  };
+  hex: string;
+  rgb: {
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+  };
+  hsv: { h: number; s: number; v: number; a: number };
+  oldHue: number;
+  source: string;
+}
+
+export interface Palette {
+  "50": string;
+  "100": string;
+  "200": string;
+  "300": string;
+  "400": string;
+  "500": string;
+  "600": string;
+  "700": string;
+  "800": string;
+  "900": string;
+  a100?: string;
+  a200?: string;
+  a400?: string;
+  a700?: string;
+}
+
+export interface StoredData {
+  schema: Schema;
+  settings: Settings;
+  hex: string;
+  palette: Palette;
+}
+
+export interface PluginMessage {
+  pluginMessage: {
+    storedSettings: string;
+  };
+}
+
+export interface MessageData {
+  hex: string;
+  settings: Settings;
+  palette: RgbHslHexObject[];
+  paletteName: string;
+  schema: Schema;
+}
+export interface Message {
+  type: string;
+  data: MessageData;
+  store: StoredData;
+}

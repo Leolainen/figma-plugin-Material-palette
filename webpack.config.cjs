@@ -1,4 +1,4 @@
-const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
+const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const path = require("path");
 
@@ -18,16 +18,10 @@ module.exports = (env, argv) => ({
       // Converts TypeScript code to JavaScript
       { test: /\.(ts|tsx)?$/, use: "ts-loader", exclude: /node_modules/ },
 
-      // Enables including CSS by doing "import './file.css'" in your TypeScript code
-      {
-        test: /\.css$/,
-        loader: [{ loader: "style-loader" }, { loader: "css-loader" }],
-      },
-
       // Allows you to use "<%= require('./file.svg') %>" in your HTML code to get a data URI
       {
         test: /\.(png|jpg|gif|webp|svg|zip)$/,
-        loader: [{ loader: "url-loader" }],
+        loader: "url-loader",
       },
     ],
   },
@@ -37,6 +31,7 @@ module.exports = (env, argv) => ({
 
   output: {
     filename: "[name].js",
+    publicPath: "/dist",
     path: path.resolve(__dirname, "dist"), // Compile into a folder called "dist"
   },
 
@@ -47,7 +42,8 @@ module.exports = (env, argv) => ({
       filename: "ui.html",
       inlineSource: ".(js)$",
       chunks: ["ui"],
+      inject: "body",
     }),
-    new HtmlWebpackInlineSourcePlugin(),
+    new HtmlInlineScriptPlugin(),
   ],
 });

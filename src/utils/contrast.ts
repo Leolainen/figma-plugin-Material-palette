@@ -1,6 +1,4 @@
-import { RGBToHex } from "../converters/toHex";
 import { hexToRGB } from "../converters/toRgb";
-import clone from "./clone";
 
 // Functions picked and adjusted from
 // https://github.com/mui-org/material-ui/blob/master/packages/material-ui/src/styles/colorManipulator.js
@@ -43,35 +41,6 @@ export function getContrastRatio(
   const lumA = getLuminance(foreground);
   const lumB = getLuminance(background);
   return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05);
-}
-
-/**
- * default TextNode.fills text color is black
- * this function turns it white if the contrast between text and background
- * is too low.
- *
- * @param {TextNode} text – Figma textNode object
- * @param {string} backgroundColor – CSS Hex color. Ex: #440044
- * @returns {symbol} used by figma TextNodes
- */
-export function handleTextNodeContrast(
-  text: TextNode,
-  backgroundColor: string
-): symbol {
-  // Get contrast ratio to set text color
-  const textRGB = text.fills[0].color;
-  const textHex = RGBToHex(textRGB);
-  const contrastRatio = getContrastRatio(textHex, backgroundColor);
-  const textFills = clone(text.fills);
-
-  // Sets text color if contrast is too low
-  if (contrastRatio < 6) {
-    textFills[0].color.r = 1;
-    textFills[0].color.g = 1;
-    textFills[0].color.b = 1;
-  }
-
-  return textFills;
 }
 
 // returns #fff or #000 depending on contrast value

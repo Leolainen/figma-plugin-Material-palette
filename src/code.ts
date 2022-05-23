@@ -1,29 +1,8 @@
-import { COLORKEYS, DEFAULT_BASE_COLOR } from "./constants";
-import clone from "./utils/clone";
-import { handleTextNodeContrast } from "./utils/contrast";
-import { RgbHslHexObject } from "./types";
+import { Message, RgbHslHexObject } from "./types";
+import { Settings } from "./store/types/settings";
+import { createHeaderBar, createPaletteBar } from "./figma";
 
-const fullColorKeys = COLORKEYS;
-fullColorKeys.splice(5, 0, "500"); // include 500 swatch that's missing in the COLORKEYS
-
-type PaintNodeProps = {
-  node: RectangleNode;
-  rgb: [number, number, number];
-};
-
-const paintNode = (paintNodeProps: PaintNodeProps) => {
-  const {
-    node,
-    rgb: [r, g, b],
-  } = paintNodeProps;
-
-  const fills: symbol = clone(node.fills);
-  fills[0].color.r = r / 100;
-  fills[0].color.g = g / 100;
-  fills[0].color.b = b / 100;
-
-  return fills;
-};
+const HEADER_MIN_HEIGHT = 122;
 
 figma.showUI(__html__, {
   height: 650,
@@ -31,137 +10,117 @@ figma.showUI(__html__, {
 });
 
 figma.ui.postMessage({
-  lastSelectedColor:
-    figma.root.getPluginData("lastSelectedColor") || DEFAULT_BASE_COLOR,
+  storedSettings: figma.root.getPluginData("storedSettings") || "",
 });
 
-const createPaletteBar = (paletteBarProps: PaletteBarProps): FrameNode => {
-  const {
-    size: { width, height },
-    position: { y },
-    fontSize,
-    color: { rgb, hex },
-    swatchIndex,
-  } = paletteBarProps;
-  const rect: RectangleNode = figma.createRectangle();
-  const paletteHex: TextNode = figma.createText();
-  const paletteNumber: TextNode = figma.createText();
-
-  paletteHex.fontSize = fontSize;
-  paletteNumber.fontSize = fontSize;
-
-  rect.resize(360, height);
-  rect.y = y;
-  paletteHex.x = width - 80;
-  paletteHex.y = y + height / 2 - paletteHex.height / 2;
-  paletteNumber.x = 20;
-  paletteNumber.y = y + height / 2 - paletteNumber.height / 2;
-
-  // Get contrast ratio to set paletteHex color
-  paletteHex.fills = handleTextNodeContrast(paletteHex, hex);
-  paletteNumber.fills = handleTextNodeContrast(paletteHex, hex);
-  rect.fills = paintNode({
-    node: rect,
-    rgb: [rgb.r, rgb.g, rgb.b],
-  });
-
-  paletteHex.characters = hex.toUpperCase();
-  paletteNumber.characters = fullColorKeys[swatchIndex];
-
-  rect.name = `${paletteNumber.characters} ${hex}`;
-
-  const group = figma.group(
-    [rect, paletteHex, paletteNumber],
-    figma.currentPage
-  );
-  group.name = paletteNumber.characters;
-  group.locked = true;
-
-  return group;
-};
-
-figma.ui.onmessage = async (msg) => {
+figma.ui.onmessage = async (msg: Message) => {
   if (msg.type === "create-palette") {
-    figma.root.setPluginData("lastSelectedColor", msg.value);
+    console.log("storing data:", msg.store);
+    // Store plugin data so they load on next launch
+    figma.root.setPluginData("storedSettings", JSON.stringify(msg.store));
 
     const nodes: SceneNode[] = [];
-    const { palette } = msg;
-    const paletteName: string = msg.name;
+    const { hex, palette, paletteName = "", settings } = msg.data;
+    const {
+      figma: figmaSettings,
+      general: generalSettings,
+      material: materialSettings,
+    } = settings as Settings;
+
     const baseColor: RgbHslHexObject = palette[5];
+    // const initialHeight = 0;
+    let totalHeight = 0;
+    let totalWidth = 0;
+    const isColumn = generalSettings.paletteDirection === "column";
+    const allIsLocked = figmaSettings.lock === "everything";
+    const noneIsLocked = figmaSettings.lock === "nothing";
 
     await figma.loadFontAsync({ family: "Roboto", style: "Regular" });
     await figma.loadFontAsync({ family: "Inter", style: "Regular" }); // missing in browser version
 
     // Create header rectangle
-    const headerRect: RectangleNode = figma.createRectangle();
-    const headerName: TextNode = figma.createText();
-    const headerNumber: TextNode = figma.createText();
-    const headerHex: TextNode = figma.createText();
+    let headerRect: GroupNode | undefined = undefined;
+    const paletteLength = !materialSettings.accent ? 10 : palette.length;
 
-    headerRect.resize(360, 122);
+    if (isColumn) {
+      totalHeight = generalSettings.colorBarHeight * paletteLength;
+      totalWidth = generalSettings.colorBarWidth;
+    } else {
+      totalHeight = generalSettings.colorBarHeight;
+      totalWidth = generalSettings.colorBarWidth * paletteLength;
+    }
 
-    headerName.fontSize = 14;
-    headerName.x = 20;
-    headerName.y = 20;
-    headerNumber.fontSize = 14;
-    headerNumber.x = 20;
-    headerNumber.y = headerRect.height - 30;
-    headerHex.fontSize = 14;
-    headerHex.x = headerRect.width - 80;
-    headerHex.y = headerRect.height - 30;
+    if (generalSettings.header) {
+      const headerHeight = Math.max(
+        HEADER_MIN_HEIGHT,
+        generalSettings.colorBarHeight
+      );
 
-    const headerRectFills: symbol = clone(headerRect.fills);
-    headerRectFills[0].color.r = baseColor.rgb.r / 100;
-    headerRectFills[0].color.g = baseColor.rgb.g / 100;
-    headerRectFills[0].color.b = baseColor.rgb.b / 100;
+      headerRect = createHeaderBar({
+        width: totalWidth, // generalSettings.colorBarWidth,
+        height: headerHeight,
+        baseColor,
+        name: paletteName,
+        locked: figmaSettings.lock,
+        isColumn,
+      });
 
-    headerRect.fills = headerRectFills;
-    headerName.fills = handleTextNodeContrast(headerName, baseColor.hex);
-    headerNumber.fills = handleTextNodeContrast(headerNumber, baseColor.hex);
-    headerHex.fills = handleTextNodeContrast(headerHex, baseColor.hex);
+      nodes.push(headerRect);
 
-    headerName.characters = paletteName.toUpperCase();
-    headerNumber.characters = "500";
-    headerHex.characters = baseColor.hex.toUpperCase();
-    headerRect.name = `${headerName.characters} - ${headerHex.characters} - ${headerNumber.characters}`;
+      totalHeight += headerRect.height;
+      // initialHeight = headerRect.height;
+    }
 
-    const headerGroup: FrameNode = figma.group(
-      [headerRect, headerName, headerNumber, headerHex],
-      figma.currentPage
-    );
-    headerGroup.name = `${paletteName} Header`;
-    headerGroup.locked = true;
-    nodes.push(headerGroup);
-
-    for (let i = 0; i < palette.length; i++) {
+    for (let i = 0; i < paletteLength; i++) {
+      const initialHeight = headerRect?.height || 0;
       const paletteBar = createPaletteBar({
         size: {
-          height: 34,
-          width: 360,
+          height: generalSettings.colorBarHeight,
+          width: generalSettings.colorBarWidth,
         },
         position: {
-          y: headerRect.height + i * 34,
+          x: isColumn ? 0 : i * generalSettings.colorBarWidth,
+          y: isColumn
+            ? initialHeight + i * (generalSettings.colorBarHeight || 34)
+            : initialHeight,
         },
         fontSize: 14,
         color: palette[i],
         swatchIndex: i,
+        locked: allIsLocked,
+        outlined: figmaSettings.renderWithOutline && palette[i].hex === hex,
       });
+
+      paletteBar.locked = !noneIsLocked;
 
       nodes.push(paletteBar);
     }
 
-    const parentFrame = figma.createFrame();
+    const parentNodeType = {
+      component: figma.createComponent,
+      frame: figma.createFrame,
+    };
+
+    const parentFrame = parentNodeType[figmaSettings.nodeType]();
     parentFrame.name = paletteName;
+
     parentFrame.clipsContent = false;
 
     // Appends all nodes into wrapping frame
-    nodes.forEach((node) => parentFrame.appendChild(node));
+    nodes.reverse().forEach((node) => parentFrame.appendChild(node));
 
     // Resize frame to children width & height
-    parentFrame.resize(
-      nodes[0].width,
-      nodes.reduce((acc, curr) => curr.height + acc, 0)
-    );
+    if (isColumn) {
+      parentFrame.resize(
+        nodes[0].width,
+        nodes.reduce((acc, curr) => curr.height + acc, 0)
+      );
+    } else {
+      if (generalSettings.header && headerRect) {
+        headerRect.resize(totalWidth, headerRect.height);
+      }
+      parentFrame.resize(totalWidth, totalHeight);
+    }
 
     figma.currentPage.appendChild(parentFrame);
     figma.currentPage.selection = nodes;
@@ -169,25 +128,4 @@ figma.ui.onmessage = async (msg) => {
   }
 
   figma.closePlugin();
-};
-
-type PaletteBarProps = {
-  size: {
-    width: number;
-    height: number;
-  };
-  position?: {
-    x?: number;
-    y?: number;
-  };
-  fontSize: number;
-  color: {
-    rgb: {
-      r: number;
-      g: number;
-      b: number;
-    };
-    hex: string;
-  };
-  swatchIndex: number;
 };

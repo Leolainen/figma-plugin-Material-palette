@@ -1,11 +1,6 @@
 import * as React from "react";
-import {
-  Tooltip,
-  FormControlLabel,
-  Switch,
-  Typography,
-} from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
+import { Tooltip, FormControlLabel, Switch, Typography } from "@mui/material";
+import makeStyles from "@mui/styles/makeStyles";
 
 interface Props {
   onChange: (
@@ -25,7 +20,7 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const Preview = ({ onChange, name, checked, disabled, label, hint }: Props) => {
+const Toggle = ({ onChange, name, checked, disabled, label, hint }: Props) => {
   const classes = useStyles();
 
   return (
@@ -45,4 +40,4 @@ const Preview = ({ onChange, name, checked, disabled, label, hint }: Props) => {
   );
 };
 
-export default Preview;
+export default Toggle;
