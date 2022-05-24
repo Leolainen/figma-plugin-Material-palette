@@ -1,7 +1,6 @@
 import textNodeContrast from "./textNodeContrast";
 import paintNode from "./paintNode";
 import { FULL_COLOR_KEYS } from "../constants";
-import clone from "../utils/clone";
 
 type PaletteBarProps = {
   size: {
