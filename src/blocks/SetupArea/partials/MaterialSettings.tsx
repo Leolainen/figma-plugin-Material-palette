@@ -60,7 +60,7 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
         <ListItem disableGutters>
           <ListItemText
             primary="Color pattern algorithm"
-            secondary="Set which algorithm the palette should generate with"
+            secondary="The base color used for determining the color pattern"
           />
 
           <TextField
