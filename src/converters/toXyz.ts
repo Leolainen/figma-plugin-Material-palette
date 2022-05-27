@@ -1,40 +1,39 @@
 import { ColorCalc } from "../types";
 
 export function lab2xyz(lab: ColorCalc) {
-  const y = (lab[0] + 16) / 116;
-  const x = lab[1] / 500 + y;
-  const z = y - lab[2] / 200;
+  const [l, a, b] = lab;
 
-  return [
-    [x, 0.95047],
-    [y, 1.0],
-    [z, 1.08883],
-  ].map((a) => {
-    const val = a[0];
+  let y = (l + 16) / 116;
+  let x = a / 500 + y;
+  let z = y - b / 200;
 
-    return (
-      a[1] *
-      (val * val * val > 0.008856 ? val * val * val : (val - 16 / 116) / 7.787)
-    );
-  });
+  const y2 = Math.pow(y, 3);
+  const x2 = Math.pow(x, 3);
+  const z2 = Math.pow(z, 3);
+  y = y2 > 0.008856 ? y2 : (y - 16 / 116) / 7.787;
+  x = x2 > 0.008856 ? x2 : (x - 16 / 116) / 7.787;
+  z = z2 > 0.008856 ? z2 : (z - 16 / 116) / 7.787;
+
+  x *= 95.047;
+  y *= 100;
+  z *= 108.883;
+
+  return [x, y, z];
 }
 
 export function rgb2xyz(rgb: ColorCalc) {
-  const rgbXYZ = (val: number) => {
-    if (val / 255 <= 0.04045) {
-      return val / 12.92;
-    }
+  let r = rgb[0] / 255;
+  let g = rgb[1] / 255;
+  let b = rgb[2] / 255;
 
-    return Math.pow((val + 0.055) / 1.055, 2.4);
-  };
+  // assume sRGB
+  r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
+  g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
+  b = b > 0.04045 ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
 
-  const xyzLAB = (val: number) =>
-    val > 0.008856452 ? Math.pow(val, 1 / 3) : val / 0.12841855 + 0.137931034;
-  const [r, g, b] = rgb.map(rgbXYZ);
+  const x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+  const y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+  const z = r * 0.0193 + g * 0.1192 + b * 0.9505;
 
-  return [
-    xyzLAB((0.4124564 * r + 0.3575761 * g + 0.1804375 * b) / 0.95047),
-    xyzLAB(0.2126729 * r + 0.7151522 * g + 0.072175 * b),
-    xyzLAB((0.0193339 * r + 0.119192 * g + 0.9503041 * b) / 1.08883),
-  ];
+  return [x * 100, y * 100, z * 100];
 }

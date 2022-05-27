@@ -3,9 +3,13 @@ import { hcl2rgb } from "./toRgb";
 
 export function rgb2hex(rgb: ColorCalc) {
   const [r, g, b] = rgb;
-  const rgbCalc: number = (r << 16) | (g << 8) | b;
+  const integer =
+    ((Math.round(r) & 0xff) << 16) +
+    ((Math.round(g) & 0xff) << 8) +
+    (Math.round(b) & 0xff);
 
-  return `#${`000000${rgbCalc.toString(16)}`.slice(-6)}`;
+  const string = integer.toString(16).toUpperCase();
+  return "#" + "000000".substring(string.length) + string;
 }
 
 export function hcl2hex(hcl: ColorCalc) {

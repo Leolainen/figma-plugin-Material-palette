@@ -1,6 +1,7 @@
-import Color from "colorjs.io";
+// import Color from "colorjs.io";
 import { ColorCalc } from "../types";
 import { rgb2lab } from "./toLab";
+import { hex2rgb } from "./toRgb";
 
 /**
  *
@@ -9,19 +10,23 @@ import { rgb2lab } from "./toLab";
  */
 export function lab2hcl(lab: ColorCalc) {
   const [l, a, b] = lab;
+  const hr = Math.atan2(b, a);
   const c = Math.sqrt(a * a + b * b);
-  const h = (Math.atan2(b, a) * (180 / Math.PI) + 360) % 360;
+  let h;
 
-  return [Math.round(c * 10000) === 0 ? 0 : h, c, l];
+  h = (hr * 360) / 2 / Math.PI;
+
+  if (h < 0) {
+    h += 360;
+  }
+
+  return [h, c, l];
 }
 
 export function rgb2hcl(rgb: ColorCalc) {
   return lab2hcl(rgb2lab(rgb));
 }
 
-export function hex2hcl(hex: ColorCalc | string) {
-  const color = new Color(hex);
-  const [l, c, h] = color.lch;
-
-  return [h, c, l];
+export function hex2hcl(hex: string) {
+  return rgb2hcl(hex2rgb(hex));
 }
