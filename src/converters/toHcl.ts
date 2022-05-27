@@ -1,4 +1,3 @@
-// import Color from "colorjs.io";
 import { ColorCalc } from "../types";
 import { rgb2lab } from "./toLab";
 import { hex2rgb } from "./toRgb";

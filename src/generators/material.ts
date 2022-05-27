@@ -170,7 +170,6 @@ function getLchDifference(hex: string, scale: Palette) {
   Object.entries(scale)
     .slice(0, 9)
     .forEach(([scaleKey, scaleHex]: [string, string]) => {
-      // const { lch } = new Color(scaleHex);
       const hcl = hex2hcl(scaleHex);
       const hueDist = Math.min(Math.abs(hcl[0] - h), 360 + hcl[0] - h);
       const chromaDist = Math.min(Math.abs(hcl[1] - c), 150 + hcl[1] - c);
