@@ -19,7 +19,7 @@ const LinearSettings = React.forwardRef<HTMLUListElement, Props>(
     );
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = parseInt(event.target.value, 10);
+      const value = parseInt(event.target.value || "0", 10);
 
       switch (event.target.name) {
         case "hueMultiplier":
