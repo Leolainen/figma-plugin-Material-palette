@@ -41,7 +41,10 @@ function colorData(hex: string, palette: any = undefined) {
  * @param {BaseColorHexPair} param0 Basecolor name ("red", "blue" etc) and hex code
  * @return {BaseColorKey} One of the predefined base colors by Google
  */
-function compressBasecolor({ baseColor, hex }: BaseColorHexPair): BaseColorKey {
+export function compressBasecolor({
+  baseColor,
+  hex,
+}: BaseColorHexPair): BaseColorKey {
   const { hcl, sl } = colorData(hex);
   const [, chroma, luminance] = hcl;
 
@@ -73,7 +76,7 @@ function compressBasecolor({ baseColor, hex }: BaseColorHexPair): BaseColorKey {
 /**
  * find which base color schema to use based on the provided hex
  */
-function findClosestBaseColor(hex: string): BaseColorHexPair {
+export function findClosestBaseColor(hex: string): BaseColorHexPair {
   const [h] = hex2hcl(hex);
 
   let baseColor: BaseColorKey = "grey";

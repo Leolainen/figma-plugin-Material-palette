@@ -2,12 +2,14 @@ import * as React from "react";
 import { useAtom } from "jotai";
 import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
+import { generateNaturalPalette } from "./generators/natural";
 import { generateLinearPalette } from "./generators/linear";
 import { generateMaterialPalette } from "./generators/material";
 import DemoArea from "./blocks/DemoArea";
 import SetupArea from "./blocks/SetupArea";
 import * as atoms from "./store";
 import { PluginMessage, StoredData } from "./types";
+import { defaultSettings } from "./store";
 
 const Main: React.FC = () => {
   const [hex] = useAtom(atoms.hexAtom);
@@ -21,6 +23,9 @@ const Main: React.FC = () => {
   const [hueMultiplier] = useAtom(atoms.hueMultiplierAtom);
   const [lightnessMultiplier] = useAtom(atoms.lightnessMultiplierAtom);
   const [saturationMultiplier] = useAtom(atoms.saturationMultiplierAtom);
+  const [darkerModifiers] = useAtom(atoms.darkerModifiersAtom);
+  const [lighterModifiers] = useAtom(atoms.lighterModifiersAtom);
+  const [customHCLToggled] = useAtom(atoms.customHCLToggledAtom);
 
   const [loading, setLoading] = React.useState(true);
 
@@ -45,6 +50,9 @@ const Main: React.FC = () => {
         case "linear":
           setPalette(generateLinearPalette(hex, settings.linear));
           break;
+        case "natural":
+          setPalette(generateNaturalPalette(hex, settings.natural));
+          break;
         default:
           console.error("no schema selected. This is impossible!");
       }
@@ -57,6 +65,9 @@ const Main: React.FC = () => {
     hueMultiplier,
     lightnessMultiplier,
     saturationMultiplier,
+    darkerModifiers,
+    lighterModifiers,
+    customHCLToggled,
   ]);
 
   const applyStoredData = (data: StoredData): void => {
@@ -80,7 +91,10 @@ const Main: React.FC = () => {
     const { storedSettings } = event.data.pluginMessage;
     const storedData = JSON.parse(storedSettings) as StoredData;
 
-    applyStoredData(storedData);
+    applyStoredData({
+      ...storedData,
+      settings: { ...defaultSettings, ...storedData.settings },
+    });
 
     // necessary to prevent stored data from being overwritten
     setTimeout(() => {

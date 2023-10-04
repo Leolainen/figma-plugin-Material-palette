@@ -18,6 +18,7 @@ import { useAtom } from "jotai";
 import * as atoms from "../../store";
 import MaterialSettings from "./partials/MaterialSettings";
 import LinearSettings from "./partials/LinearSettings";
+import NaturalSettings from "./partials/NaturalSettings";
 
 const extendColorModel = (hex: string): RgbHslHexObject => ({
   rgb: hexToRGB(hex, true),
@@ -25,7 +26,7 @@ const extendColorModel = (hex: string): RgbHslHexObject => ({
   hex,
 });
 
-const SetupArea: React.FC = () => {
+const SetupArea = () => {
   const [activeTab, setActiveTab] = React.useState(0);
   const [palette] = useAtom(atoms.paletteAtom);
   const [hex] = useAtom(atoms.hexAtom);
@@ -109,6 +110,7 @@ const SetupArea: React.FC = () => {
 
           {schema === "linear" && <LinearSettings />}
           {schema === "material" && <MaterialSettings />}
+          {schema === "natural" && <NaturalSettings />}
 
           <Box mt="auto">
             <Button

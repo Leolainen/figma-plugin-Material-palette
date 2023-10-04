@@ -62,3 +62,234 @@ export const BASECOLOR = {
 } as const;
 
 export const DEFAULT_BASE_COLOR = "#F1392B";
+
+export const defaultHCLMods = {
+  red: {
+    lighter: {
+      h: -1,
+      c: 0,
+      l: 9,
+    },
+    darker: {
+      h: 2,
+      c: 0,
+      l: 6,
+    },
+  },
+  deepOrange: {
+    lighter: {
+      h: 1,
+      c: 0,
+      l: 7,
+    },
+    darker: {
+      h: 0,
+      c: 0,
+      l: 6,
+    },
+  },
+  orange: {
+    lighter: {
+      h: -1,
+      c: 0,
+      l: 6,
+    },
+    darker: {
+      h: 4,
+      c: 0,
+      l: 5,
+    },
+  },
+  amber: {
+    lighter: {
+      h: -1,
+      c: -4,
+      l: 4,
+    },
+    darker: {
+      h: 6,
+      c: -2,
+      l: 4,
+    },
+  },
+  yellow: {
+    lighter: {
+      h: 1,
+      c: -10,
+      l: 2,
+    },
+    darker: {
+      h: 3,
+      c: -3,
+      l: 3,
+    },
+  },
+  lime: {
+    lighter: {
+      h: 2,
+      c: 0,
+      l: 8,
+    },
+    darker: {
+      h: -1,
+      c: 0,
+      l: 2,
+    },
+  },
+  lightGreen: {
+    lighter: {
+      h: 1,
+      c: -3,
+      l: 7,
+    },
+    darker: {
+      h: -2,
+      c: 3,
+      l: 4,
+    },
+  },
+  green: {
+    lighter: {
+      h: 1,
+      c: -2,
+      l: 9,
+    },
+    darker: {
+      h: 0,
+      c: -2,
+      l: 6,
+    },
+  },
+  teal: {
+    lighter: {
+      h: -6,
+      c: -1,
+      l: 5,
+    },
+    darker: {
+      h: 0,
+      c: -2,
+      l: 4,
+    },
+  },
+  cyan: {
+    lighter: {
+      h: 0,
+      c: -2,
+      l: 6,
+    },
+    darker: {
+      h: -2,
+      c: -3,
+      l: 4,
+    },
+  },
+  lightBlue: {
+    lighter: {
+      h: 5,
+      c: 2,
+      l: 6,
+    },
+    darker: {
+      h: 2,
+      c: 1,
+      l: 5,
+    },
+  },
+  blue: {
+    lighter: {
+      h: 0,
+      c: -2,
+      l: 6,
+    },
+    darker: {
+      h: 2,
+      c: -2,
+      l: 6,
+    },
+  },
+  indigo: {
+    lighter: {
+      h: 0,
+      c: 2,
+      l: 7,
+    },
+    darker: {
+      h: -1,
+      c: 2,
+      l: 5,
+    },
+  },
+  deepPurple: {
+    lighter: {
+      h: -2,
+      c: 0,
+      l: 7,
+    },
+    darker: {
+      h: 0,
+      c: 1,
+      l: 5,
+    },
+  },
+  purple: {
+    lighter: {
+      h: -1,
+      c: 0,
+      l: 5,
+    },
+    darker: {
+      h: 0,
+      c: 2,
+      l: 5,
+    },
+  },
+  pink: {
+    lighter: {
+      h: 1,
+      c: -1,
+      l: 5,
+    },
+    darker: {
+      h: 0,
+      c: 1,
+      l: 4,
+    },
+  },
+  brown: {
+    lighter: {
+      h: 1,
+      c: -2,
+      l: 5,
+    },
+    darker: {
+      h: -2,
+      c: 2,
+      l: 5,
+    },
+  },
+  grey: {
+    lighter: {
+      h: -1,
+      c: 0,
+      l: 5,
+    },
+    darker: {
+      h: -1,
+      c: 0,
+      l: 5,
+    },
+  },
+  blueGrey: {
+    lighter: {
+      h: 1,
+      c: -2,
+      l: 5,
+    },
+    darker: {
+      h: 1,
+      c: 1,
+      l: 5,
+    },
+  },
+};

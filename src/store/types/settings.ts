@@ -30,9 +30,22 @@ export type LinearSettings = {
   saturationMultiplier: number;
 };
 
+export type HCLModifiers = {
+  h: number;
+  c: number;
+  l: number;
+};
+
+export type NaturalSettings = {
+  darkerModifiers: HCLModifiers;
+  lighterModifiers: HCLModifiers;
+  customHCLToggled: boolean;
+};
+
 export type Settings = {
   material: MaterialSettings;
   figma: FigmaSettings;
   linear: LinearSettings;
+  natural: NaturalSettings;
   general: GeneralSettings;
 };

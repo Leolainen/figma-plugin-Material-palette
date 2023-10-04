@@ -22,6 +22,10 @@ const schemaOptions: Array<SchemaOption> = [
     value: "linear",
     label: "Linear",
   },
+  {
+    value: "natural",
+    label: "Natural",
+  },
 ];
 
 const SchemaSelect = () => {

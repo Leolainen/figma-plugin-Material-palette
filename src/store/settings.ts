@@ -3,7 +3,7 @@ import { atom } from "jotai";
 
 export const defaultSettings: SettingsTypes.Settings = {
   material: {
-    algorithm: "auto" as SettingsTypes.Algorithm,
+    algorithm: "auto",
     lockSwatch: false,
     accent: true,
   },
@@ -23,6 +23,19 @@ export const defaultSettings: SettingsTypes.Settings = {
     hueMultiplier: 0,
     lightnessMultiplier: 0,
     saturationMultiplier: 0,
+  },
+  natural: {
+    lighterModifiers: {
+      h: 0,
+      c: 0,
+      l: 0,
+    },
+    darkerModifiers: {
+      h: 0,
+      c: 0,
+      l: 0,
+    },
+    customHCLToggled: false,
   },
 };
 
@@ -138,6 +151,35 @@ export const saturationMultiplierAtom = atom<number, number>(
     set(saturationMultiplier, newSaturationMultiplier);
   }
 );
+const darkerModifiers = atom({ h: 0, c: 0, l: 0 });
+export const darkerModifiersAtom = atom<
+  SettingsTypes.HCLModifiers,
+  SettingsTypes.HCLModifiers
+>(
+  (get) => get(darkerModifiers),
+  (_get, set, newDarkerModifiers) => {
+    set(darkerModifiers, newDarkerModifiers);
+  }
+);
+
+const lighterModifiers = atom({ h: 0, c: 0, l: 0 });
+export const lighterModifiersAtom = atom<
+  SettingsTypes.HCLModifiers,
+  SettingsTypes.HCLModifiers
+>(
+  (get) => get(lighterModifiers),
+  (_get, set, newLighterModifiers) => {
+    set(lighterModifiers, newLighterModifiers);
+  }
+);
+
+const customHCLToggled = atom(false);
+export const customHCLToggledAtom = atom<boolean, boolean>(
+  (get) => get(customHCLToggled),
+  (_get, set, newCustomHCLToggled) => {
+    set(customHCLToggled, newCustomHCLToggled);
+  }
+);
 
 export const settingsAtom = atom<
   SettingsTypes.Settings,
@@ -167,6 +209,11 @@ export const settingsAtom = atom<
         lightnessMultiplier: get(lightnessMultiplier),
         saturationMultiplier: get(saturationMultiplier),
       },
+      natural: {
+        lighterModifiers: get(lighterModifiers),
+        darkerModifiers: get(darkerModifiers),
+        customHCLToggled: get(customHCLToggled),
+      },
     };
   },
   (_get, set, newSettings) => {
@@ -183,5 +230,8 @@ export const settingsAtom = atom<
     set(hueMultiplier, newSettings.linear.hueMultiplier);
     set(lightnessMultiplier, newSettings.linear.lightnessMultiplier);
     set(saturationMultiplier, newSettings.linear.saturationMultiplier);
+    set(lighterModifiers, newSettings.natural.lighterModifiers);
+    set(darkerModifiers, newSettings.natural.darkerModifiers);
+    set(customHCLToggled, newSettings.natural.customHCLToggled);
   }
 );
