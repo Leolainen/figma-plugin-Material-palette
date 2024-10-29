@@ -1,5 +1,6 @@
 {
-  "name": "material-palette",
+  "name": "figma-plugin-Material-palette",
+  "packageManager": "yarn@4.5.1",
   "version": "1.0.0",
   "description": "",
   "main": "code.ts",
