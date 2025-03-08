@@ -1,8 +1,10 @@
-const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+// const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
+// const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { defineConfig } = require("@rspack/cli");
+const rspack = require("@rspack/core");
 const path = require("path");
 
-module.exports = (env, argv) => ({
+module.exports = defineConfig((env, argv) => ({
   mode: argv.mode === "production" ? "production" : "development",
 
   // This is necessary because Figma's 'eval' works differently than normal eval
@@ -16,7 +18,21 @@ module.exports = (env, argv) => ({
   module: {
     rules: [
       // Converts TypeScript code to JavaScript
-      { test: /\.(ts|tsx)?$/, use: "ts-loader", exclude: /node_modules/ },
+      // { test: /\.(ts|tsx)?$/, use: "ts-loader", exclude: /node_modules/ },
+      {
+        test: /\.(ts|tsx)?$/,
+        use: "builtin:swc-loader",
+        exclude: /node_modules/,
+
+        options: {
+          jsc: {
+            parser: {
+              syntax: "typescript",
+            },
+          },
+        },
+        type: "javascript/auto",
+      },
 
       // Allows you to use "<%= require('./file.svg') %>" in your HTML code to get a data URI
       {
@@ -26,7 +42,7 @@ module.exports = (env, argv) => ({
     ],
   },
 
-  // Webpack tries these extensions for you if you omit the extension like "import './file'"
+  // rspack tries these extensions for you if you omit the extension like "import './file'"
   resolve: { extensions: [".tsx", ".ts", ".jsx", ".js"] },
 
   output: {
@@ -35,15 +51,15 @@ module.exports = (env, argv) => ({
     path: path.resolve(__dirname, "dist"), // Compile into a folder called "dist"
   },
 
-  // Tells Webpack to generate "ui.html" and to inline "ui.ts" into it
+  // Tells rspack to generate "ui.html" and to inline "ui.ts" into it
   plugins: [
-    new HtmlWebpackPlugin({
+    new rspack.HtmlRspackPlugin({
       template: "./src/ui.html",
       filename: "ui.html",
       inlineSource: ".(js)$",
       chunks: ["ui"],
       inject: "body",
     }),
-    new HtmlInlineScriptPlugin(),
+    // new HtmlInlineScriptPlugin(),
   ],
-});
+}));
