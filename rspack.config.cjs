@@ -1,7 +1,5 @@
-// const HtmlInlineScriptPlugin = require("html-inline-script-webpack-plugin");
-// const HtmlWebpackPlugin = require("html-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { defineConfig } = require("@rspack/cli");
-const rspack = require("@rspack/core");
 const path = require("path");
 
 module.exports = defineConfig((env, argv) => ({
@@ -13,6 +11,12 @@ module.exports = defineConfig((env, argv) => ({
   entry: {
     ui: "./src/ui.tsx", // The entry point for your UI code
     code: "./src/code.ts", // The entry point for your plugin code
+  },
+
+  optimization: {
+    splitChunks: {
+      minSize: 0,
+    },
   },
 
   module: {
@@ -43,23 +47,29 @@ module.exports = defineConfig((env, argv) => ({
   },
 
   // rspack tries these extensions for you if you omit the extension like "import './file'"
-  resolve: { extensions: [".tsx", ".ts", ".jsx", ".js"] },
+  resolve: {
+    extensions: [".tsx", ".ts", ".jsx", ".js"],
+  },
 
   output: {
     filename: "[name].js",
-    publicPath: "/dist",
     path: path.resolve(__dirname, "dist"), // Compile into a folder called "dist"
   },
 
   // Tells rspack to generate "ui.html" and to inline "ui.ts" into it
   plugins: [
-    new rspack.HtmlRspackPlugin({
+    new HtmlWebpackPlugin({
       template: "./src/ui.html",
       filename: "ui.html",
-      inlineSource: ".(js)$",
+      minify: argv.mode === "production" ? true : false,
       chunks: ["ui"],
-      inject: "body",
+      inject: false,
+      cache: false,
+      templateParameters: (compilation) => {
+        return {
+          inlineJS: compilation.assets["ui.js"].source(),
+        };
+      },
     }),
-    // new HtmlInlineScriptPlugin(),
   ],
 }));
