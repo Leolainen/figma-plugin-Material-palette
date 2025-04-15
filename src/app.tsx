@@ -1,4 +1,5 @@
 import * as React from "react";
+import "@mui/material-pigment-css/styles.css";
 import {
   ThemeProvider,
   StyledEngineProvider,
@@ -6,8 +7,10 @@ import {
 } from "@mui/material/styles";
 import Main from "./main";
 import { Provider } from "jotai";
+import DefaultPropsProvider from "@mui/material/DefaultPropsProvider";
 
 const theme = createTheme({
+  cssVariables: true,
   components: {
     MuiTabs: {
       styleOverrides: {
@@ -24,35 +27,34 @@ const theme = createTheme({
         },
       },
     },
-    MuiTextField: {
-      defaultProps: {
-        variant: "outlined",
-        fullWidth: true,
-        size: "small",
-      },
-    },
-    MuiSelect: {
-      defaultProps: {
-        size: "small",
-      },
-    },
-    MuiButton: {
-      defaultProps: {
-        size: "small",
-      },
-    },
   },
 });
 
 function App() {
   return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <Provider>
-          <Main />
-        </Provider>
-      </ThemeProvider>
-    </StyledEngineProvider>
+    <DefaultPropsProvider
+      value={{
+        MuiTextField: {
+          variant: "outlined",
+          fullWidth: true,
+          size: "small",
+        },
+        MuiSelect: {
+          size: "small",
+        },
+        MuiButton: {
+          size: "small",
+        },
+      }}
+    >
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <Provider>
+            <Main />
+          </Provider>
+        </ThemeProvider>
+      </StyledEngineProvider>
+    </DefaultPropsProvider>
   );
 }
 
