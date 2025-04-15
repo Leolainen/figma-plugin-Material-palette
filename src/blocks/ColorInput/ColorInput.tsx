@@ -16,8 +16,8 @@ export interface Props extends Omit<React.HTMLProps<HTMLElement>, "style"> {}
  * Input field for main color
  */
 const ColorInput = () => {
-  const [hex, setHex] = useAtom(atoms.hexAtom);
-  const [palette, setPalette] = useAtom(atoms.paletteAtom);
+  const [hex, setHex] = useAtom(atoms.hex);
+  const [palette, setPalette] = useAtom(atoms.palette);
   const [tempPalette, setTempPalette] = React.useState(palette);
   const [inputValue, setInputValue] = React.useState(hex);
   const [colorPickerAnchor, setColorPickerAnchor] =
@@ -32,7 +32,7 @@ const ColorInput = () => {
   };
 
   const handlePaste: React.ClipboardEventHandler<HTMLDivElement> | undefined = (
-    event
+    event,
   ) => {
     const value = event.clipboardData.getData("test/plain");
     if (value) {
@@ -50,7 +50,7 @@ const ColorInput = () => {
   };
 
   const handleColorPickerClick: React.MouseEventHandler<HTMLButtonElement> = (
-    event
+    event,
   ) => {
     setTempPalette(palette);
     setColorPickerAnchor(event.currentTarget);
@@ -78,18 +78,16 @@ const ColorInput = () => {
 
   return (
     <TextField
-      variant="outlined"
       label="Base color"
       value={inputValue}
       onChange={handleInputValueChange}
       onPaste={handlePaste}
-      fullWidth
       error={!palette || !isValidHex(inputValue)}
       InputProps={{
         endAdornment: (
           <InputAdornment position="end">
             <Tooltip title="Color picker" placement="bottom">
-              <IconButton onClick={handleColorPickerClick} size="large">
+              <IconButton onClick={handleColorPickerClick} edge="end">
                 <ColorizeIcon />
               </IconButton>
             </Tooltip>
