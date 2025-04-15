@@ -15,7 +15,6 @@ figma.ui.postMessage({
 
 figma.ui.onmessage = async (msg: Message) => {
   if (msg.type === "create-palette") {
-    console.log("storing data:", msg.store);
     // Store plugin data so they load on next launch
     figma.root.setPluginData("storedSettings", JSON.stringify(msg.store));
 
@@ -53,7 +52,7 @@ figma.ui.onmessage = async (msg: Message) => {
     if (generalSettings.header) {
       const headerHeight = Math.max(
         HEADER_MIN_HEIGHT,
-        generalSettings.colorBarHeight
+        generalSettings.colorBarHeight,
       );
 
       headerRect = createHeaderBar({
@@ -113,7 +112,7 @@ figma.ui.onmessage = async (msg: Message) => {
     if (isColumn) {
       parentFrame.resize(
         nodes[0].width,
-        nodes.reduce((acc, curr) => curr.height + acc, 0)
+        nodes.reduce((acc, curr) => curr.height + acc, 0),
       );
     } else {
       if (generalSettings.header && headerRect) {
