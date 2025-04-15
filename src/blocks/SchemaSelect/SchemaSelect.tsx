@@ -9,50 +9,50 @@ import { useAtom } from "jotai";
 import * as atoms from "../../store";
 
 type SchemaOption = {
-  label: string;
-  value: Schema;
+    label: string;
+    value: Schema;
 };
 
 const schemaOptions: Array<SchemaOption> = [
-  {
-    value: "material",
-    label: "Material",
-  },
-  {
-    value: "linear",
-    label: "Linear",
-  },
-  {
-    value: "natural",
-    label: "Natural",
-  },
+    {
+        value: "material",
+        label: "Material",
+    },
+    {
+        value: "linear",
+        label: "Linear",
+    },
+    {
+        value: "natural",
+        label: "Natural",
+    },
 ];
 
 const SchemaSelect = () => {
-  const [schema, setSchema] = useAtom(atoms.schemaAtom);
+    const [schema, setSchema] = useAtom(atoms.schema);
 
-  const handleSchemaChange = (event: SelectChangeEvent) => {
-    setSchema(event.target.value as Schema);
-  };
+    const handleSchemaChange = (event: SelectChangeEvent) => {
+        setSchema(event.target.value as Schema);
+    };
 
-  return (
-    <FormControl variant="outlined" fullWidth>
-      <InputLabel id="select-label">Schema</InputLabel>
+    return (
+        <FormControl variant="outlined" fullWidth>
+            <InputLabel id="select-label">Schema</InputLabel>
 
-      <Select
-        labelId="select-label"
-        onChange={handleSchemaChange}
-        value={schema}
-        label="Schema"
-      >
-        {schemaOptions.map((option) => (
-          <MenuItem key={option.value} value={option.value}>
-            {option.label}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
+            <Select
+                labelId="select-label"
+                onChange={handleSchemaChange}
+                value={schema}
+                label="Schema"
+            >
+                {schemaOptions.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                    </MenuItem>
+                ))}
+            </Select>
+        </FormControl>
+    );
 };
 
 export default SchemaSelect;
