@@ -1,7 +1,8 @@
 import * as React from "react";
 import { useAtom } from "jotai";
-import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
+import Skeleton from "@mui/material/Skeleton";
+import Fade from "@mui/material/Fade";
 import { generateNaturalPalette } from "./generators/natural";
 import { generateLinearPalette } from "./generators/linear";
 import { generateMaterialPalette } from "./generators/material";
@@ -12,20 +13,18 @@ import { PluginMessage, StoredData } from "./types";
 import { defaultSettings } from "./store";
 
 const Main: React.FC = () => {
-  const [hex] = useAtom(atoms.hexAtom);
-  const [schema] = useAtom(atoms.schemaAtom);
-  const [settings, setSettings] = useAtom(atoms.settingsAtom);
-  const [, setSchema] = useAtom(atoms.schemaAtom);
-  const [, setHex] = useAtom(atoms.hexAtom);
-  const [, setPalette] = useAtom(atoms.paletteAtom);
-  const [algorithm] = useAtom(atoms.algorithmAtom);
-  const [lockSwatch] = useAtom(atoms.lockSwatchAtom);
-  const [hueMultiplier] = useAtom(atoms.hueMultiplierAtom);
-  const [lightnessMultiplier] = useAtom(atoms.lightnessMultiplierAtom);
-  const [saturationMultiplier] = useAtom(atoms.saturationMultiplierAtom);
-  const [darkerModifiers] = useAtom(atoms.darkerModifiersAtom);
-  const [lighterModifiers] = useAtom(atoms.lighterModifiersAtom);
-  const [customHCLToggled] = useAtom(atoms.customHCLToggledAtom);
+  const [settings, setSettings] = useAtom(atoms.settings);
+  const [schema, setSchema] = useAtom(atoms.schema);
+  const [hex, setHex] = useAtom(atoms.hex);
+  const [palette, setPalette] = useAtom(atoms.palette);
+  const [algorithm] = useAtom(atoms.algorithm);
+  const [lockSwatch] = useAtom(atoms.lockSwatch);
+  const [hueMultiplier] = useAtom(atoms.hueMultiplier);
+  const [lightnessMultiplier] = useAtom(atoms.lightnessMultiplier);
+  const [saturationMultiplier] = useAtom(atoms.saturationMultiplier);
+  const [darkerModifiers] = useAtom(atoms.darkerModifiers);
+  const [lighterModifiers] = useAtom(atoms.lighterModifiers);
+  const [customHCLToggled] = useAtom(atoms.customHCLToggled);
 
   const [loading, setLoading] = React.useState(true);
 
@@ -89,11 +88,18 @@ const Main: React.FC = () => {
     }
 
     const { storedSettings } = event.data.pluginMessage;
-    const storedData = JSON.parse(storedSettings) as StoredData;
+    const {
+      schema: cachedSchema = schema,
+      settings: cachedSettings = defaultSettings,
+      hex: cachedHex = hex,
+      palette: cachedPalette,
+    } = JSON.parse(storedSettings) as StoredData;
 
     applyStoredData({
-      ...storedData,
-      settings: { ...defaultSettings, ...storedData.settings },
+      hex: cachedHex,
+      schema: cachedSchema,
+      palette: cachedPalette,
+      settings: { ...defaultSettings, ...cachedSettings },
     });
 
     // necessary to prevent stored data from being overwritten
@@ -111,26 +117,44 @@ const Main: React.FC = () => {
   }, []);
 
   if (loading) {
-    return <CircularProgress />;
-  }
-
-  return (
-    <Stack px={2} sx={{ height: "inherit" }}>
+    return (
       <Stack
         direction="row"
         spacing={2}
         sx={{
+          height: "100%",
           "& > div": {
             flex: 1,
             overflow: "hidden",
           },
         }}
       >
-        <SetupArea />
-
-        <DemoArea />
+        <Skeleton variant="rectangular" sx={{ height: "100%", width: "50%" }} />
+        <Skeleton variant="rectangular" sx={{ height: "100%", width: "50%" }} />
       </Stack>
-    </Stack>
+    );
+  }
+
+  return (
+    <Fade in={!loading}>
+      <Stack px={2} sx={{ height: "inherit" }}>
+        <Stack
+          direction="row"
+          // spacing={2}
+          sx={{
+            height: "100%",
+            "& > div": {
+              flex: 1,
+              overflow: "hidden",
+            },
+          }}
+        >
+          <SetupArea />
+
+          <DemoArea />
+        </Stack>
+      </Stack>
+    </Fade>
   );
 };
 
