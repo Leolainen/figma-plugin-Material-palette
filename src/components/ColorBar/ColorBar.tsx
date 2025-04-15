@@ -22,7 +22,7 @@ export interface Props extends Omit<ButtonBaseProps, "onClick"> {
   swatch: Swatch;
   onClick: (
     swatch: Swatch,
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => void;
 }
 
@@ -31,9 +31,9 @@ export interface Props extends Omit<ButtonBaseProps, "onClick"> {
  */
 const ColorBar = React.forwardRef<HTMLButtonElement, Props>((props, ref) => {
   const { onClick, swatch, sx, ...other } = props;
-  const rippleRef = React.useRef<TouchRippleActions>();
-  const [colorBarWidth] = useAtom(atoms.colorBarWidthAtom);
-  const [colorBarHeight] = useAtom(atoms.colorBarHeightAtom);
+  const rippleRef = React.useRef<TouchRippleActions>(null);
+  const [colorBarWidth] = useAtom(atoms.colorBarWidth);
+  const [colorBarHeight] = useAtom(atoms.colorBarHeight);
 
   const handleClick: ButtonBaseProps["onClick"] = (event) => {
     onClick(swatch, event);
