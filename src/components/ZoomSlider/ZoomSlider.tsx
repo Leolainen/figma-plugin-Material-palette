@@ -1,6 +1,6 @@
 import * as React from "react";
 import Slider, { type SliderProps } from "@mui/material/Slider";
-import { styled } from "@mui/material/styles";
+import { styled } from "@mui/material-pigment-css";
 
 const ZoomSliderRoot = styled(Slider)(({ theme }) => ({
   margin: 0,
