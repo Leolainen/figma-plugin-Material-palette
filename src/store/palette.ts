@@ -1,35 +1,16 @@
 import { atom } from "jotai";
 import { Palette, Schema } from "../types";
 import { DEFAULT_BASE_COLOR } from "../constants";
+import { store } from "./store";
 
-const hex = atom(DEFAULT_BASE_COLOR);
-export const hexAtom = atom<string, string>(
-  (get) => get(hex),
-  (_get, set, newHex) => {
-    set(hex, newHex);
-  }
-);
+export const hex = atom(DEFAULT_BASE_COLOR);
+store.set(hex, DEFAULT_BASE_COLOR);
 
-const palette = atom<Palette | undefined>(undefined);
-export const paletteAtom = atom<Palette | undefined, Palette>(
-  (get) => get(palette),
-  (_get, set, newPalette) => {
-    set(palette, newPalette);
-  }
-);
+export const palette = atom<Palette | undefined>(undefined);
+store.set(palette, undefined);
 
-const paletteName = atom<string>("");
-export const paletteNameAtom = atom<string, string>(
-  (get) => get(paletteName),
-  (_get, set, newPaletteName) => {
-    set(paletteName, newPaletteName);
-  }
-);
+export const paletteName = atom<string>("");
+store.set(paletteName, "");
 
-const schema = atom<Schema>("material");
-export const schemaAtom = atom<Schema, Schema>(
-  (get) => get(schema),
-  (_get, set, newSchema) => {
-    set(schema, newSchema);
-  }
-);
+export const schema = atom<Schema>("material");
+store.set(schema, "material");
