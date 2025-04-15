@@ -4,8 +4,17 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
+import Slide from "@mui/material/Slide";
+import Divider from "@mui/material/Divider";
 import SettingsIcon from "@mui/icons-material/SettingsOutlined";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import DownloadIcon from "@mui/icons-material/Download";
 import PaletteIcon from "@mui/icons-material/PaletteOutlined";
+import ButtonGroup from "@mui/material/ButtonGroup";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
 import { RgbHslHexObject } from "../../types";
 import { hexToRGB } from "../../converters/toRgb";
 import { hexToHSL } from "../../converters/toHsl";
@@ -28,12 +37,23 @@ const extendColorModel = (hex: string): RgbHslHexObject => ({
 
 const SetupArea = () => {
   const [activeTab, setActiveTab] = React.useState(0);
-  const [palette] = useAtom(atoms.paletteAtom);
-  const [hex] = useAtom(atoms.hexAtom);
-  const [paletteName] = useAtom(atoms.paletteNameAtom);
-  const [schema] = useAtom(atoms.schemaAtom);
-  const [settings] = useAtom(atoms.settingsAtom);
+  const [palette] = useAtom(atoms.palette);
+  const [hex] = useAtom(atoms.hex);
+  const [paletteName] = useAtom(atoms.paletteName);
+  const [schema] = useAtom(atoms.schema);
+  const [settings] = useAtom(atoms.settings);
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const theme = useTheme();
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleCreateOptional = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleCreateClick = () => {
     if (!palette) {
@@ -42,7 +62,7 @@ const SetupArea = () => {
     }
 
     const postPalette = Object.values(palette).map((swatchHex) =>
-      extendColorModel(swatchHex)
+      extendColorModel(swatchHex),
     );
 
     parent.postMessage(
@@ -64,7 +84,7 @@ const SetupArea = () => {
           },
         },
       },
-      "*"
+      "*",
     );
   };
 
@@ -72,8 +92,36 @@ const SetupArea = () => {
     parent.postMessage({ pluginMessage: { type: "cancel" } }, "*");
   };
 
+  const handleDownload = () => {
+    const blob = new Blob([JSON.stringify(palette, null, 2)], {
+      type: "application/json",
+    });
+
+    const a = document.createElement("a");
+    a.download = `${paletteName || hex}.json`;
+    a.href = URL.createObjectURL(blob);
+    a.textContent = "Download";
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(a.href);
+  };
+
   return (
-    <Box>
+    <Box
+      sx={{
+        borderRightWidth: 1,
+        borderRightStyle: "solid",
+        borderRightColor: "divider",
+        pr: 2,
+        height: "100%",
+        display: "grid",
+        gridTemplateRows: "min-content 1fr",
+        gap: 2,
+      }}
+      ref={containerRef}
+    >
       <Tabs
         sx={{ flex: "50%" }}
         value={activeTab}
@@ -97,46 +145,102 @@ const SetupArea = () => {
       <Stack
         direction="row"
         sx={{
-          width: "200%",
+          width: "100%",
+          height: "100%",
           position: "relative",
-          transition: `transform ${theme.transitions.duration.shorter}ms`,
-          transform: `translate(${-50 * activeTab}%)`,
         }}
       >
-        <Stack my={2} spacing={2} sx={{ flex: 1 }}>
-          <NameInput />
-          <ColorInput />
-          <SchemaSelect />
+        <Slide
+          appear={false}
+          direction="right"
+          in={activeTab === 0}
+          mountOnEnter
+          unmountOnExit
+          container={containerRef.current}
+          easing={theme.transitions.easing.easeOut}
+        >
+          <Stack
+            gap={2}
+            sx={{
+              position: "absolute",
+              height: "inherit",
+              width: "100%",
+            }}
+          >
+            <NameInput />
+            <ColorInput />
+            <SchemaSelect />
 
-          {schema === "linear" && <LinearSettings />}
-          {schema === "material" && <MaterialSettings />}
-          {schema === "natural" && <NaturalSettings />}
+            <Divider sx={{ my: 2 }} />
 
-          <Box mt="auto">
-            <Button
-              onClick={handleCreateClick}
-              variant="outlined"
-              color="primary"
-              disabled={!palette}
-              fullWidth
+            {schema === "linear" && <LinearSettings />}
+            {schema === "material" && <MaterialSettings />}
+            {schema === "natural" && <NaturalSettings />}
+
+            <Stack
+              mt="auto"
+              gap={1}
+              direction="row"
+              alignSelf="end"
+              width="100%"
             >
-              Create
-            </Button>
+              <Button
+                onClick={handleCancelClick}
+                variant="outlined"
+                color="error"
+                fullWidth
+              >
+                Close
+              </Button>
 
-            <Button
-              onClick={handleCancelClick}
-              variant="outlined"
-              color="error"
-              fullWidth
-              sx={{ mt: 1 }}
-            >
-              Cancel
-            </Button>
+              <ButtonGroup
+                color="primary"
+                variant="outlined"
+                disabled={!palette}
+                sx={{ width: "100%" }}
+              >
+                <Button fullWidth onClick={handleCreateClick}>
+                  Create
+                </Button>
+
+                <Button
+                  size="small"
+                  aria-label="select merge strategy"
+                  aria-haspopup="menu"
+                  onClick={handleCreateOptional}
+                >
+                  <ArrowDropDownIcon />
+                </Button>
+              </ButtonGroup>
+
+              <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+                <MenuItem onClick={handleDownload}>
+                  <ListItemIcon>
+                    <DownloadIcon fontSize="small" />
+                  </ListItemIcon>
+                  Download palette as JSON
+                </MenuItem>
+              </Menu>
+            </Stack>
+          </Stack>
+        </Slide>
+
+        <Slide
+          direction="left"
+          in={activeTab === 1}
+          mountOnEnter
+          unmountOnExit
+          container={containerRef.current}
+          easing={theme.transitions.easing.easeOut}
+        >
+          <Box
+            sx={{
+              position: "absolute",
+            }}
+          >
+            <Settings />
           </Box>
-        </Stack>
-        <Box sx={{ flex: 1 }}>
-          <Settings />
-        </Box>
+        </Slide>
       </Stack>
     </Box>
   );

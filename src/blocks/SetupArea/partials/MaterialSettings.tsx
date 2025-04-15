@@ -1,4 +1,5 @@
 import * as React from "react";
+import Stack from "@mui/material/Stack";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
@@ -14,9 +15,9 @@ interface Props {}
 
 const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
   (props, ref) => {
-    const [algorithm, setAlgorithm] = useAtom(atoms.algorithmAtom);
-    const [lockSwatch, setLockSwatch] = useAtom(atoms.lockSwatchAtom);
-    const [accent, setAccent] = useAtom(atoms.accentAtom);
+    const [algorithm, setAlgorithm] = useAtom(atoms.algorithm);
+    const [lockSwatch, setLockSwatch] = useAtom(atoms.lockSwatch);
+    const [accent, setAccent] = useAtom(atoms.accent);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       let value;
@@ -43,71 +44,68 @@ const MaterialSettings = React.forwardRef<HTMLUListElement, Props>(
     };
 
     return (
-      <List
-        dense
-        ref={ref}
-        sx={{
-          "& li > div:first-child": {
-            flex: "70%",
-            maxWidth: "65%",
-          },
-          "& li > *:last-child": {
-            maxWidth: "30%",
-            ml: "auto",
-          },
-        }}
-      >
-        <ListItem disableGutters>
-          <ListItemText
-            primary="Color pattern algorithm"
-            secondary="The base color used for determining the color pattern"
-          />
+      <Stack>
+        <TextField
+          name="algorithm"
+          label="Algorithm"
+          helperText="Which color algorithm to use"
+          fullWidth
+          select
+          value={algorithm}
+          onChange={handleChange}
+        >
+          {["auto", ...Object.keys(BASECOLOR.material)].map((color) => (
+            <MenuItem key={color} value={color}>
+              {color}
+            </MenuItem>
+          ))}
+        </TextField>
 
-          <TextField
-            name="algorithm"
-            fullWidth
-            select
-            value={algorithm}
-            onChange={handleChange}
-          >
-            {["auto", ...Object.keys(BASECOLOR.material)].map((color) => (
-              <MenuItem key={color} value={color}>
-                {color}
-              </MenuItem>
-            ))}
-          </TextField>
-        </ListItem>
+        <List
+          dense
+          ref={ref}
+          sx={{
+            "& li > div:first-child": {
+              flex: "70%",
+              maxWidth: "65%",
+            },
+            "& li > *:last-child": {
+              maxWidth: "30%",
+              ml: "auto",
+            },
+          }}
+        >
+          <ListItem disableGutters>
+            <ListItemText
+              primary="Accent colors"
+              secondary="Toggles accent colors if they're available"
+            />
 
-        <ListItem disableGutters>
-          <ListItemText
-            primary="Accent colors"
-            secondary="Toggles accent colors if they're available"
-          />
+            <Switch
+              edge="end"
+              onChange={handleChange}
+              name="accent"
+              checked={accent}
+            />
+          </ListItem>
 
-          <Switch
-            edge="end"
-            onChange={handleChange}
-            name="accent"
-            checked={accent}
-          />
-        </ListItem>
+          <ListItem disableGutters>
+            <ListItemText
+              primary="Lock swatch"
+              secondary="Locks the input value to swatch 500 when active"
+            />
 
-        <ListItem disableGutters>
-          <ListItemText
-            primary="Lock swatch"
-            secondary="Locks the input value to swatch 500 when active"
-          />
-
-          <Switch
-            edge="end"
-            onChange={handleChange}
-            name="lockSwatch"
-            checked={lockSwatch}
-          />
-        </ListItem>
-      </List>
+            <Switch
+              edge="end"
+              onChange={handleChange}
+              name="lockSwatch"
+              checked={lockSwatch}
+            />
+          </ListItem>
+        </List>
+      </Stack>
     );
-  }
+  },
 );
 
 MaterialSettings.displayName = "MaterialSettings";
