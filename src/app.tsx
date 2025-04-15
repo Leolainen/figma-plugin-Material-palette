@@ -1,20 +1,49 @@
 import * as React from "react";
 import {
   ThemeProvider,
-  /* Theme, */
   StyledEngineProvider,
   createTheme,
 } from "@mui/material/styles";
 import Main from "./main";
 import { Provider } from "jotai";
 
-const theme = createTheme();
+const theme = createTheme({
+  components: {
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          minHeight: "auto",
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          padding: "4px 9px",
+          fontSize: "0.8125rem",
+        },
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        variant: "outlined",
+        fullWidth: true,
+        size: "small",
+      },
+    },
+    MuiSelect: {
+      defaultProps: {
+        size: "small",
+      },
+    },
+    MuiButton: {
+      defaultProps: {
+        size: "small",
+      },
+    },
+  },
+});
 
-/**
- * Root component that handles provders and such
- *
- * @return {JSX.Element}
- */
 function App() {
   return (
     <StyledEngineProvider injectFirst>
