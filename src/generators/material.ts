@@ -126,7 +126,7 @@ function materialScale(hex: string, baseColor: BaseColorKey) {
 
   const scale = colorKeys.reduce((acc, curr, idx) => {
     const modifiedHCL: number[] = materialColorSchema[baseColor][idx].map(
-      (rangeValue, index) => hcl[index] + rangeValue
+      (rangeValue, index) => hcl[index] + rangeValue,
     );
 
     acc[curr as keyof Palette] = hcl2hex(modifiedHCL);
@@ -304,7 +304,7 @@ function lockedScale(color: BaseColorHexPair, settings: MaterialSettings) {
 
 export function generateMaterialPalette(
   hex: string,
-  settings: MaterialSettings
+  settings: MaterialSettings,
 ) {
   try {
     let palette: Palette;
