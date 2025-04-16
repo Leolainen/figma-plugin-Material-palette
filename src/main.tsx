@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import Stack from "@mui/material/Stack";
 import Skeleton from "@mui/material/Skeleton";
 import Fade from "@mui/material/Fade";
@@ -16,7 +16,7 @@ const Main: React.FC = () => {
   const [settings, setSettings] = useAtom(atoms.settings);
   const [schema, setSchema] = useAtom(atoms.schema);
   const [hex, setHex] = useAtom(atoms.hex);
-  const [palette, setPalette] = useAtom(atoms.palette);
+  const setPalette = useSetAtom(atoms.palette);
   const [algorithm] = useAtom(atoms.algorithm);
   const [lockSwatch] = useAtom(atoms.lockSwatch);
   const [hueMultiplier] = useAtom(atoms.hueMultiplier);
@@ -140,7 +140,6 @@ const Main: React.FC = () => {
       <Stack px={2} sx={{ height: "inherit" }}>
         <Stack
           direction="row"
-          // spacing={2}
           sx={{
             height: "100%",
             "& > div": {
