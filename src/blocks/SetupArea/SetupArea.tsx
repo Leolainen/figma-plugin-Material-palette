@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useAtom } from "jotai";
-import { useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material-pigment-css";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Box from "@mui/material-pigment-css/Box";
 import Button from "@mui/material/Button";
