@@ -1,3 +1,5 @@
+const reactHooks = require("eslint-plugin-react-hooks");
+
 module.exports = {
   env: {
     browser: true,
@@ -12,8 +14,15 @@ module.exports = {
     ecmaVersion: "latest",
     sourceType: "module",
   },
-  plugins: ["react", "@typescript-eslint"],
-  rules: {},
+  plugins: [
+    "react",
+    "@typescript-eslint",
+    ...reactHooks.configs["recommended-latest"].plugins,
+  ],
+  rules: {
+    ...reactHooks.configs["recommended-latest"].rules,
+    "react-hooks/react-compiler": "error",
+  },
   overrides: [
     {
       files: ["*.js", "*.cjs", "*.ts", "*.tsx"],

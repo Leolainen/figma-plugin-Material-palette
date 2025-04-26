@@ -25,7 +25,7 @@ module.exports = defineConfig((env, argv) => ({
       // { test: /\.(ts|tsx)?$/, use: "ts-loader", exclude: /node_modules/ },
       {
         test: /\.(ts|tsx)?$/,
-        use: "builtin:swc-loader",
+        use: [{ loader: "builtin:swc-loader" }, { loader: "babel-loader" }],
         exclude: /node_modules/,
 
         options: {
