@@ -1,5 +1,4 @@
 import * as React from "react";
-import "@mui/material-pigment-css/styles.css";
 import {
   ThemeProvider,
   StyledEngineProvider,

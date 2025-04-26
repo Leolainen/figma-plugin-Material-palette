@@ -5,7 +5,7 @@ import ButtonGroup from "@mui/material/ButtonGroup";
 import CenterFocusStrongIcon from "@mui/icons-material/CenterFocusStrong";
 import DataObjectIcon from "@mui/icons-material/DataObject";
 import Tooltip from "@mui/material/Tooltip";
-import { useTheme } from "@mui/material-pigment-css";
+import { useTheme } from "@mui/material/styles";
 import { isValidHex } from "../../utils/validation";
 import Preview from "../Preview";
 import PreviewError from "../PreviewError";
