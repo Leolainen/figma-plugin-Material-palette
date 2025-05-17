@@ -91,22 +91,6 @@ const SetupArea = () => {
     parent.postMessage({ pluginMessage: { type: "cancel" } }, "*");
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([JSON.stringify(palette, null, 2)], {
-      type: "application/json",
-    });
-
-    const a = document.createElement("a");
-    a.download = `${paletteName || hex}.json`;
-    a.href = URL.createObjectURL(blob);
-    a.textContent = "Download";
-
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(a.href);
-  };
-
   return (
     <Box
       sx={{
@@ -201,25 +185,7 @@ const SetupArea = () => {
                 <Button fullWidth onClick={handleCreateClick}>
                   Create
                 </Button>
-
-                <Button
-                  size="small"
-                  aria-label="select merge strategy"
-                  aria-haspopup="menu"
-                  onClick={handleCreateOptional}
-                >
-                  <ArrowDropDownIcon />
-                </Button>
               </ButtonGroup>
-
-              <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-                <MenuItem onClick={handleDownload}>
-                  <ListItemIcon>
-                    <DownloadIcon fontSize="small" />
-                  </ListItemIcon>
-                  Download palette as JSON
-                </MenuItem>
-              </Menu>
             </Stack>
           </Stack>
         </Slide>
