@@ -12,6 +12,7 @@ import PreviewError from "../PreviewError";
 import { ZoomSlider } from "../../components/ZoomSlider";
 import { useAtom } from "jotai";
 import * as atoms from "../../store";
+import { JSONViewer } from "../JSONViewer";
 
 const DemoArea: React.FC = () => {
   const [zoom, setZoom] = React.useState(75);
@@ -132,11 +133,8 @@ const DemoArea: React.FC = () => {
         ref={containerRef}
       >
         <ButtonGroup variant="outlined" size="small">
-          <Tooltip title="View as JSON" placement="bottom">
-            <Button>
-              <DataObjectIcon />
-            </Button>
-          </Tooltip>
+          <JSONViewer />
+
           <Tooltip title="Center" placement="bottom">
             <Button
               onClick={() =>
