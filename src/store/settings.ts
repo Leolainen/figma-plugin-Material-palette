@@ -3,41 +3,41 @@ import { atom } from "jotai";
 import { store } from "./store";
 
 export const defaultSettings: SettingsTypes.Settings = {
-    material: {
-        algorithm: "auto",
-        lockSwatch: false,
-        accent: true,
+  material: {
+    algorithm: "auto",
+    lockSwatch: false,
+    accent: true,
+  },
+  figma: {
+    nodeType: "component",
+    lock: "swatches",
+    renderWithOutline: false,
+  },
+  general: {
+    // presets: "default",
+    paletteDirection: "column",
+    colorBarWidth: 360,
+    colorBarHeight: 34,
+    header: true,
+  },
+  linear: {
+    hueMultiplier: 0,
+    lightnessMultiplier: 0,
+    saturationMultiplier: 0,
+  },
+  natural: {
+    lighterModifiers: {
+      h: 0,
+      c: 0,
+      l: 0,
     },
-    figma: {
-        nodeType: "component",
-        lock: "swatches",
-        renderWithOutline: false,
+    darkerModifiers: {
+      h: 0,
+      c: 0,
+      l: 0,
     },
-    general: {
-        // presets: "default",
-        paletteDirection: "column",
-        colorBarWidth: 360,
-        colorBarHeight: 34,
-        header: true,
-    },
-    linear: {
-        hueMultiplier: 0,
-        lightnessMultiplier: 0,
-        saturationMultiplier: 0,
-    },
-    natural: {
-        lighterModifiers: {
-            h: 0,
-            c: 0,
-            l: 0,
-        },
-        darkerModifiers: {
-            h: 0,
-            c: 0,
-            l: 0,
-        },
-        customHCLToggled: false,
-    },
+    customHCLToggled: true,
+  },
 };
 
 export const algorithm = atom<SettingsTypes.Algorithm>("auto");
@@ -199,57 +199,57 @@ store.set(customHCLToggled, false);
 // );
 
 export const settings = atom<
-    SettingsTypes.Settings,
-    SettingsTypes.Settings[],
-    void
+  SettingsTypes.Settings,
+  SettingsTypes.Settings[],
+  void
 >(
-    (get) => {
-        return {
-            material: {
-                algorithm: get(algorithm),
-                lockSwatch: get(lockSwatch),
-                accent: get(accent),
-            },
-            figma: {
-                nodeType: get(nodeType),
-                lock: get(lock),
-                renderWithOutline: get(renderWithOutline),
-            },
-            general: {
-                // presets: "default",
-                paletteDirection: get(paletteDirection),
-                colorBarWidth: get(colorBarWidth),
-                colorBarHeight: get(colorBarHeight),
-                header: get(header),
-            },
-            linear: {
-                hueMultiplier: get(hueMultiplier),
-                lightnessMultiplier: get(lightnessMultiplier),
-                saturationMultiplier: get(saturationMultiplier),
-            },
-            natural: {
-                lighterModifiers: get(lighterModifiers),
-                darkerModifiers: get(darkerModifiers),
-                customHCLToggled: get(customHCLToggled),
-            },
-        };
-    },
-    (_get, set, newSettings) => {
-        set(algorithm, newSettings.material.algorithm);
-        set(lockSwatch, newSettings.material.lockSwatch);
-        set(accent, newSettings.material.accent);
-        set(nodeType, newSettings.figma.nodeType);
-        set(lock, newSettings.figma.lock);
-        set(renderWithOutline, newSettings.figma.renderWithOutline);
-        set(paletteDirection, newSettings.general.paletteDirection);
-        set(colorBarWidth, newSettings.general.colorBarWidth);
-        set(colorBarHeight, newSettings.general.colorBarHeight);
-        set(header, newSettings.general.header);
-        set(hueMultiplier, newSettings.linear.hueMultiplier);
-        set(lightnessMultiplier, newSettings.linear.lightnessMultiplier);
-        set(saturationMultiplier, newSettings.linear.saturationMultiplier);
-        set(lighterModifiers, newSettings.natural.lighterModifiers);
-        set(darkerModifiers, newSettings.natural.darkerModifiers);
-        set(customHCLToggled, newSettings.natural.customHCLToggled);
-    }
+  (get) => {
+    return {
+      material: {
+        algorithm: get(algorithm),
+        lockSwatch: get(lockSwatch),
+        accent: get(accent),
+      },
+      figma: {
+        nodeType: get(nodeType),
+        lock: get(lock),
+        renderWithOutline: get(renderWithOutline),
+      },
+      general: {
+        // presets: "default",
+        paletteDirection: get(paletteDirection),
+        colorBarWidth: get(colorBarWidth),
+        colorBarHeight: get(colorBarHeight),
+        header: get(header),
+      },
+      linear: {
+        hueMultiplier: get(hueMultiplier),
+        lightnessMultiplier: get(lightnessMultiplier),
+        saturationMultiplier: get(saturationMultiplier),
+      },
+      natural: {
+        lighterModifiers: get(lighterModifiers),
+        darkerModifiers: get(darkerModifiers),
+        customHCLToggled: get(customHCLToggled),
+      },
+    };
+  },
+  (_get, set, newSettings) => {
+    set(algorithm, newSettings.material.algorithm);
+    set(lockSwatch, newSettings.material.lockSwatch);
+    set(accent, newSettings.material.accent);
+    set(nodeType, newSettings.figma.nodeType);
+    set(lock, newSettings.figma.lock);
+    set(renderWithOutline, newSettings.figma.renderWithOutline);
+    set(paletteDirection, newSettings.general.paletteDirection);
+    set(colorBarWidth, newSettings.general.colorBarWidth);
+    set(colorBarHeight, newSettings.general.colorBarHeight);
+    set(header, newSettings.general.header);
+    set(hueMultiplier, newSettings.linear.hueMultiplier);
+    set(lightnessMultiplier, newSettings.linear.lightnessMultiplier);
+    set(saturationMultiplier, newSettings.linear.saturationMultiplier);
+    set(lighterModifiers, newSettings.natural.lighterModifiers);
+    set(darkerModifiers, newSettings.natural.darkerModifiers);
+    set(customHCLToggled, newSettings.natural.customHCLToggled);
+  },
 );
