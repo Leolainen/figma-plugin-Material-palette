@@ -121,9 +121,11 @@ figma.ui.onmessage = async (msg: Message) => {
       parentFrame.resize(totalWidth, totalHeight);
     }
 
-    figma.currentPage.appendChild(parentFrame);
-    figma.currentPage.selection = nodes;
-    figma.viewport.scrollAndZoomIntoView(nodes);
+    const center = figma.viewport.center;
+    parentFrame.x = center.x - parentFrame.width / 2;
+    parentFrame.y = center.y - parentFrame.height / 2;
+
+    figma.currentPage.selection = [parentFrame];
   }
 
   figma.closePlugin();
