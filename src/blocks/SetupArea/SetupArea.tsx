@@ -154,7 +154,7 @@ const SetupArea = () => {
             <ColorInput />
             <SchemaSelect />
 
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 1 }} />
 
             {schema === "linear" && <LinearSettings />}
             {schema === "material" && <MaterialSettings />}
