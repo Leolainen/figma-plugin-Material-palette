@@ -7,20 +7,13 @@ import * as atoms from "../../store";
  * Input for the name of the palette
  */
 const NameInput = () => {
-  const [, setPaletteName] = useAtom(atoms.paletteNameAtom);
+  const [, setPaletteName] = useAtom(atoms.paletteName);
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     setPaletteName(event.target.value);
   };
 
-  return (
-    <TextField
-      label="Palette name"
-      variant="outlined"
-      onChange={handleChange}
-      fullWidth
-    />
-  );
+  return <TextField label="Palette name" onChange={handleChange} />;
 };
 
 export default NameInput;

@@ -4,7 +4,11 @@ import Popover, { PopoverProps } from "@mui/material/Popover";
 import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import Stack from "@mui/material/Stack";
-import { ChromePicker, ColorChangeHandler, ColorResult } from "react-color";
+import {
+  ChromePicker,
+  type ColorChangeHandler,
+  type ColorResult,
+} from "react-color";
 
 export interface Props extends Omit<PopoverProps, "onChange"> {
   onConfirm: (color: ColorResult) => void;
@@ -77,11 +81,12 @@ const ColorPicker = ({
         }}
       />
 
-      <Stack direction="row">
+      <Stack direction="row" mt={2}>
         <Button
           startIcon={<CloseIcon />}
           color="error"
           onClick={handleClose}
+          size="small"
           fullWidth
         >
           Cancel
@@ -90,6 +95,7 @@ const ColorPicker = ({
           startIcon={<CheckIcon />}
           color="success"
           onClick={handleConfirm}
+          size="small"
           fullWidth
         >
           Confirm

@@ -15,68 +15,68 @@ import GeneralSettings from "./partials/GeneralSettings";
 import { useAtom } from "jotai";
 import * as atoms from "../../store";
 
-interface Props {}
+interface Props { }
 
 const Settings = React.forwardRef<HTMLUListElement, Props>((props, ref) => {
-  const [, setSettings] = useAtom(atoms.settingsAtom);
-  const [showResetDialog, setShowResetDialog] = React.useState(false);
+    const [, setSettings] = useAtom(atoms.settings);
+    const [showResetDialog, setShowResetDialog] = React.useState(false);
 
-  const openResetDialog = () => setShowResetDialog(true);
-  const closeResetDialog = () => setShowResetDialog(false);
+    const openResetDialog = () => setShowResetDialog(true);
+    const closeResetDialog = () => setShowResetDialog(false);
 
-  const handleReset = () => {
-    setSettings(atoms.defaultSettings);
-    closeResetDialog();
-  };
+    const handleReset = () => {
+        setSettings(atoms.defaultSettings);
+        closeResetDialog();
+    };
 
-  return (
-    <>
-      <Stack ref={ref}>
-        <List
-          dense
-          ref={ref}
-          sx={{
-            "& li > div:first-child": {
-              flex: "70%",
-              maxWidth: "65%",
-            },
-            "& li > *:last-child": {
-              maxWidth: "30%",
-              ml: "auto",
-            },
-          }}
-        >
-          <FigmaSettings />
-          <GeneralSettings />
+    return (
+        <>
+            <Stack>
+                <List
+                    dense
+                    ref={ref}
+                    sx={{
+                        "& li > div:first-child": {
+                            flex: "70%",
+                            maxWidth: "65%",
+                        },
+                        "& li > *:last-child": {
+                            maxWidth: "30%",
+                            ml: "auto",
+                        },
+                    }}
+                >
+                    <FigmaSettings />
+                    <GeneralSettings />
 
-          <Divider />
+                    <Divider />
 
-          <ListItem disableGutters>
-            <ListItemText
-              primary="Reset settings"
-              secondary="Restore all settings back to default"
-            />
+                    <ListItem disableGutters>
+                        <ListItemText
+                            primary="Reset settings"
+                            secondary="Restore all settings back to default"
+                        />
 
-            <Button onClick={openResetDialog}>Reset</Button>
-          </ListItem>
-        </List>
-      </Stack>
+                        <Button onClick={openResetDialog}>Reset</Button>
+                    </ListItem>
+                </List>
+            </Stack>
 
-      <Dialog open={showResetDialog} onClose={closeResetDialog}>
-        <DialogTitle>Reset settings</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to reset all settings back to default?
-          </DialogContentText>
-        </DialogContent>
+            <Dialog open={showResetDialog} onClose={closeResetDialog}>
+                <DialogTitle>Reset settings</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to reset all settings back to default?
+                    </DialogContentText>
+                </DialogContent>
 
-        <DialogActions>
-          <Button onClick={closeResetDialog}>Cancel</Button>
-          <Button onClick={handleReset}>Reset</Button>
-        </DialogActions>
-      </Dialog>
-    </>
-  );
+                <DialogActions>
+                    <Button onClick={closeResetDialog}>Cancel</Button>
+                    <Button onClick={handleReset}>Reset</Button>
+                </DialogActions>
+            </Dialog>
+        </>
+    );
 });
 
 Settings.displayName = "Settings";
